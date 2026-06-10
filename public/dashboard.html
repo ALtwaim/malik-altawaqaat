@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ملك التوقعات</title>
+
+    <link rel="stylesheet" href="/style.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+
+    <div class="navbar">
+
+        <div class="logo">
+            <i class="bi bi-award-fill"></i>
+            ملك التوقعات
+        </div>
+
+        <div class="nav-links">
+
+            <a href="/predict">
+    <i class="bi bi-lightning-charge-fill"></i>
+    توقع الآن
+</a>
+
+            <a href="#leaderboard">
+                <i class="bi bi-clipboard-data-fill"></i>
+                لوحة المتصدرين
+            </a>
+
+            <a href="#about">
+                <i class="bi bi-gem"></i>
+                من نحن
+            </a>
+
+            <a href="/profile">
+                <i class="bi bi-person-circle"></i>
+                مرحباً <span id="username"></span>
+            </a>
+
+        </div>
+
+    </div>
+
+    <section class="hero">
+
+        <h1>
+            <i class="bi bi-trophy-fill"></i>
+            ملك التوقعات
+        </h1>
+
+        <p>
+            حياك الله في ملك التوقعات ورنا حنكتك وخلنا نشوف لك فيها أو لا
+        </p>
+
+        <p>
+            يوجد جوائز قيمة للمراكز الاولى, شد حيلك ونافس على الصدارة!
+        </p>
+
+    </section>
+
+    <section class="user-summary-card">
+
+    <h2>
+        أهلاً <span id="dashboardUsername"></span>
+    </h2>
+
+    <div class="user-stats-grid">
+
+        <div class="user-stat">
+            <span>نقاطك</span>
+            <strong id="userPoints">0</strong>
+        </div>
+
+        <div class="user-stat">
+            <span>ترتيبك الإجمالي</span>
+            <strong id="overallRank">-</strong>
+        </div>
+
+        <div class="user-stat">
+            <span>ترتيبك الأسبوعي</span>
+            <strong id="weeklyRank">قريبًا</strong>
+        </div>
+
+        <div class="user-stat">
+            <span>🏆 بطل الجولة</span>
+            <strong id="roundBestPlayer">-</strong>
+        </div>
+
+        <div class="user-stat">
+            <span>بطاقات الحصان الأسود</span>
+            <strong id="horseCards">0/2</strong>
+        </div>
+
+        <div class="user-stat">
+            <span>🏆 بطل الجولة</span>
+            <strong id="roundWins">0</strong>
+        </div>
+
+    </div>
+
+    <a href="/predict" class="play-now-btn">
+        <i class="bi bi-lightning-charge-fill"></i>
+        العب وتوقع الآن
+    </a>
+
+</section>
+
+<section class="leaderboards-grid">
+
+    <div class="leaderboard-card">
+        <h2>🏆 لوحة المتصدرين</h2>
+        <div id="mainLeaderboard"></div>
+    </div>
+
+    <div class="leaderboard-card">
+        <h2>🔥 متصدرو الجولة</h2>
+        <div id="roundLeaderboard"></div>
+    </div>
+
+</section>
+
+<section class="latest-card">
+
+    <h2>🏆 أبطال الجولات</h2>
+
+    <div id="roundWinnersBox">
+        <p>لا يوجد أبطال جولات حتى الآن.</p>
+    </div>
+
+</section>
+
+<section class="stats-card">
+
+    <h2>
+        <i class="bi bi-bar-chart-fill"></i>
+        إحصائياتي
+    </h2>
+
+    <div class="stats-grid">
+
+        <div class="stat-box">
+            <span>عدد التوقعات</span>
+            <strong id="totalPredictions">0</strong>
+        </div>
+
+        <div class="stat-box">
+            <span>توقعاتي الصحيحة</span>
+            <strong id="correctPredictions">0</strong>
+        </div>
+
+        <div class="stat-box">
+            <span>مجموع النقاط</span>
+            <strong id="statsTotalPoints">0</strong>
+        </div>
+
+        <div class="stat-box">
+            <span>نسبة النجاح</span>
+            <strong id="successRate">0%</strong>
+        </div>
+
+    </div>
+
+</section>
+
+<section class="latest-card">
+
+    <h2>
+        <i class="bi bi-clock-history"></i>
+        آخر توقعاتي
+    </h2>
+
+    <div id="latestPredictions">
+        <p>لا توجد توقعات حتى الآن.</p>
+    </div>
+
+</section>
+<section class="tournament-dashboard-card">
+
+    <h2>
+        <i class="bi bi-trophy-fill"></i>
+        توقعاتي للبطولات
+    </h2>
+
+    <div id="myTournamentPredictions">
+        <p>لا توجد توقعات بطولة حتى الآن.</p>
+    </div>
+
+</section>
+
+    <section id="about" class="about">
+
+        <h2>
+            <i class="bi bi-gem"></i>
+            من نحن
+        </h2>
+
+        <p>
+            ملك التوقعات منصة للتوقعات الرياضية، تقدر تتوقع نتائج المباريات
+            وتنافس أصحابك على صدارة الترتيب.
+        </p>
+
+        <p>
+            <i class="bi bi-geo-alt-fill"></i>
+            صنع في شقراء - استراحة المطار SA
+        </p>
+        <p>
+        <h2>📖 القوانين</h2>
+
+        <ul class="rules-list">
+
+         <li>⚽ توقع الفائز الصحيح = نقطة واحدة</li>
+
+         <li>🎯 توقع النتيجة الدقيقة = 3 نقاط</li>
+
+         <li>⭐ المباراة الذهبية تضاعف النقاط ×2</li>
+
+         <li>🐎 لكل مستخدم بطاقتان حصان أسود طوال البطولة</li>
+
+         <li>🏆 بطل البطولة الصحيح = 15 نقطة</li>
+
+         <li>⚽ هداف البطولة الصحيح = 10 نقاط</li>
+
+          <li>🥇 متصدر الجولة يصبح بطل الجولة</li>
+
+        <li>🔒 تغلق التوقعات عند بداية المباراة</li>
+
+       </ul>
+        </p>
+        <p>
+            vision 1.0
+        </p>
+
+    </section>
+
+   <script>
+fetch('/api/dashboard-summary')
+    .then(response => response.json())
+    .then(data => {
+
+        const navUsername = document.getElementById('username');
+        const dashboardUsername = document.getElementById('dashboardUsername');
+        document.getElementById('roundWins').innerText = data.roundWins;
+
+        if (navUsername) {
+            navUsername.innerText = data.username;
+        }
+
+        if (dashboardUsername) {
+            dashboardUsername.innerText = data.username;
+        }
+
+        fetch('/api/round-winners')
+    .then(response => response.json())
+    .then(data => {
+
+        const box = document.getElementById('roundWinnersBox');
+
+        if (data.length === 0) {
+            box.innerHTML = '<p>لا يوجد أبطال جولات حتى الآن.</p>';
+            return;
+        }
+
+        let html = '';
+
+        data.forEach(item => {
+            html += `
+                <div class="latest-item">
+                    <div>
+                        <strong>${item.round_name}</strong>
+                        <p>🥇 ${item.Username}</p>
+                    </div>
+
+                    <div class="latest-points">
+                        ${item.points} نقطة
+                    </div>
+                </div>
+            `;
+        });
+
+        box.innerHTML = html;
+
+    });
+
+        document.getElementById('userPoints').innerText =
+        data.points ?? data.totalPoints ?? data.Total_point ?? data.tota_point ?? 0;
+        document.getElementById('overallRank').innerText = data.overallRank;
+        document.getElementById('weeklyRank').innerText = data.weeklyRank;
+        document.getElementById('horseCards').innerText = data.horseCards + '/2';
+        document.getElementById('roundWins').innerText = data.roundWins;
+
+    });
+fetch('/api/leaderboard')
+    .then(response => response.json())
+    .then(data => {
+
+        let html = '';
+
+        data.forEach((user, index) => {
+
+    let medal = '';
+    let rankClass = '';
+
+    if (index === 0) {
+        medal = '🥇';
+        rankClass = 'rank-gold';
+    } else if (index === 1) {
+        medal = '🥈';
+        rankClass = 'rank-silver';
+    } else if (index === 2) {
+        medal = '🥉';
+        rankClass = 'rank-bronze';
+    } else {
+        medal = index + 1;
+        rankClass = '';
+    }
+
+    html += `
+        <p class="leaderboard-row ${rankClass}">
+            <span>${medal} ${user.Username}</span>
+            <strong>${user.tota_point} نقطة</strong>
+        </p>
+    `;
+
+});
+
+        document.getElementById('mainLeaderboard').innerHTML = html;
+
+    });
+
+fetch('/api/current-round')
+    .then(response => response.json())
+    .then(round => {
+
+        if (!round) {
+            document.getElementById('roundLeaderboard').innerHTML =
+                '<p>لا توجد جولة حالية</p>';
+
+            document.getElementById('roundBestPlayer').innerText = '-';
+            return;
+        }
+
+        fetch('/api/round-leaderboard/' + round.Rid)
+            .then(response => response.json())
+            .then(data => {
+
+                let html = '';
+
+                data.forEach((user, index) => {
+                    html += `
+                        <p>
+                            ${index + 1}. ${user.Username}
+                            <strong>${user.round_points || 0} نقطة</strong>
+                        </p>
+                    `;
+                });
+fetch('/api/round-winners')
+    .then(response => response.json())
+    .then(data => {
+
+        const box = document.getElementById('roundWinnersBox');
+
+        if (data.length === 0) {
+            box.innerHTML = '<p>لا يوجد أبطال جولات حتى الآن.</p>';
+            return;
+        }
+
+        let html = '';
+
+        data.forEach(item => {
+
+            html += `
+                <div class="latest-item">
+                    <div>
+                        <strong>${item.round_name}</strong>
+                        <p>🥇 ${item.Username}</p>
+                    </div>
+
+                    <div class="latest-points">
+                        ${item.points} نقطة
+                    </div>
+                </div>
+            `;
+
+        });
+
+        box.innerHTML = html;
+
+    });
+
+
+                document.getElementById('roundLeaderboard').innerHTML = html;
+
+                if (data.length > 0) {
+                    document.getElementById('roundBestPlayer').innerText =
+                        data[0].Username;
+                } else {
+                    document.getElementById('roundBestPlayer').innerText = '-';
+                }
+
+            });
+
+    });
+fetch('/api/my-stats')
+    .then(response => response.json())
+    .then(data => {
+
+        document.getElementById('totalPredictions').innerText = data.totalPredictions;
+        document.getElementById('correctPredictions').innerText = data.correctPredictions;
+        document.getElementById('statsTotalPoints').innerText = data.totalPoints;
+        document.getElementById('successRate').innerText = data.successRate + '%';
+
+    });
+
+fetch('/api/my-latest-predictions')
+    .then(response => response.json())
+    .then(data => {
+
+        const box = document.getElementById('latestPredictions');
+
+        if (data.length === 0) {
+            box.innerHTML = '<p>لا توجد توقعات حتى الآن.</p>';
+            return;
+        }
+
+        let html = '';
+
+        data.forEach(prediction => {
+
+            const resultText =
+                prediction.home_score === null || prediction.away_score === null
+                ? 'بانتظار النتيجة'
+                : `${prediction.home_score} - ${prediction.away_score}`;
+
+            html += `
+                <div class="latest-item">
+
+                    <div>
+                        <div class="prediction-badges">
+
+    ${prediction.is_golden ? `
+        <span class="gold-badge">
+            ⭐ ذهبية
+        </span>
+    ` : ''}
+
+    ${prediction.used_loser_card ? `
+        <span class="horse-badge">
+            🐎 الحصان الأسود
+        </span>
+    ` : ''}
+
+</div>
+                        <strong>
+                            ${prediction.home_team}
+                            ضد
+                            ${prediction.away_team}
+                        </strong>
+
+                        <p>
+                            توقعك:
+                            ${prediction.predicted_home_score}
+                            -
+                            ${prediction.predicted_away_score}
+                        </p>
+
+                        <p>
+                            النتيجة:
+                            ${resultText}
+                        </p>
+                    </div>
+
+                    <div class="latest-points">
+                        ${prediction.points} نقطة
+                    </div>
+
+                </div>
+            `;
+
+        });
+
+        box.innerHTML = html;
+
+    });
+
+fetch('/api/my-tournament-predictions')
+    .then(response => response.json())
+    .then(data => {
+
+        const box = document.getElementById('myTournamentPredictions');
+
+        if (data.length === 0) {
+            box.innerHTML = '<p>لا توجد توقعات بطولة حتى الآن.</p>';
+            return;
+        }
+
+        let html = '';
+
+        data.forEach(item => {
+            html += `
+    <div class="tournament-prediction-item">
+
+        <h3>${item.Tname}</h3>
+
+        <div class="tournament-prediction-grid">
+
+            <div class="prediction-mini-box">
+                <i class="bi bi-trophy-fill"></i>
+                <span>بطل البطولة</span>
+                <strong>${item.champion_prediction}</strong>
+            </div>
+
+            <div class="prediction-mini-box">
+                <i class="bi bi-dribbble"></i>
+                <span>هداف البطولة</span>
+                <strong>${item.top_scorer_prediction}</strong>
+            </div>
+
+        </div>
+
+    </div>
+`;
+        });
+
+        box.innerHTML = html;
+
+    });
+</script>
+
+</body>
+
+</html>
