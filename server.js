@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
-    res.send('الرئيسية');
+    res.redirect('/login.html');
 });
 
 app.get('/person', (req, res) => {
