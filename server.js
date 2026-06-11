@@ -1576,7 +1576,7 @@ app.get('/api/leaderboard', (req, res) => {
         `SELECT Username, tota_point
          FROM person
          ORDER BY tota_point DESC
-         LIMIT 10`,
+         LIMIT 30`,
         (err, result) => {
 
             if (err) {
@@ -1606,7 +1606,7 @@ app.get('/api/round-leaderboard/:roundId', (req, res) => {
          WHERE matches.round_id = ?
          GROUP BY person.Uid, person.Username
          ORDER BY round_points DESC
-         LIMIT 10`,
+         LIMIT 30`,
         [roundId],
         (err, result) => {
 
