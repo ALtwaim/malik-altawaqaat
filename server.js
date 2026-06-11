@@ -1613,7 +1613,16 @@ app.get('/api/dashboard-summary', (req, res) => {
     }
 );
 
+                        }
+                    );
 
+                }
+            );
+
+        }
+    );
+
+});
 
 
 app.get('/api/leaderboard', (req, res) => {
@@ -2466,4 +2475,5 @@ app.get('/api/round-winners', (req, res) => {
 app.listen(3000, () => {
     console.log('Server Running');
 });
+
 
