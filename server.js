@@ -1613,25 +1613,7 @@ app.get('/api/dashboard-summary', (req, res) => {
     }
 );
 
-                            res.json({
-                                username: currentUser.Username,
-                                points: currentUser.tota_point,
-                                overallRank: rank,
-                                weeklyRank: 'قريبًا',
-                                horseCards: cardResult[0].usedCards,
-                                roundWins: roundResult[0].roundWins
-                            });
 
-                        }
-                    );
-
-                }
-            );
-
-        }
-    );
-
-});
 
 
 app.get('/api/leaderboard', (req, res) => {
