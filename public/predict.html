@@ -247,12 +247,13 @@ tournamentSelect.addEventListener('change', () => {
             matches.forEach(match => {
 
                 const matchDate = new Date(match.match_date).toLocaleString('ar-SA', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+    timeZone: 'Asia/Riyadh',
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit'
+});
 
                 html += `
     <div class="match-card ${match.is_golden ? 'golden-match-card' : ''}">
