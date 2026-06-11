@@ -1549,6 +1549,70 @@ app.get('/api/dashboard-summary', (req, res) => {
                                 return res.status(500).json({ error: err.message });
                             }
 
+                            db.query(
+    `SELECT round_id
+     FROM matches
+     WHERE match_date <= NOW()
+     ORDER BY match_date DESC
+     LIMIT 1`,
+    (err, roundData) => {
+
+        let weeklyRank = 'قريبًا';
+
+        if (!err && roundData.length > 0) {
+
+            const currentRound = roundData[0].round_id;
+
+            db.query(
+                `SELECT p.user_id,
+                        SUM(IFNULL(p.points,0)) AS round_points
+                 FROM predictions p
+                 JOIN matches m ON p.match_id = m.Mid
+                 WHERE m.round_id = ?
+                 GROUP BY p.user_id
+                 ORDER BY round_points DESC`,
+                [currentRound],
+                (err, weeklyUsers) => {
+
+                    if (!err && weeklyUsers.length > 0) {
+
+                        const userRank =
+                            weeklyUsers.findIndex(
+                                u => u.user_id === userId
+                            ) + 1;
+
+                        if (userRank > 0) {
+                            weeklyRank = userRank;
+                        }
+                    }
+
+                    res.json({
+                        username: currentUser.Username,
+                        points: currentUser.tota_point,
+                        overallRank: rank,
+                        weeklyRank,
+                        horseCards: cardResult[0].usedCards,
+                        roundWins: roundResult[0].roundWins
+                    });
+
+                }
+            );
+
+        } else {
+
+            res.json({
+                username: currentUser.Username,
+                points: currentUser.tota_point,
+                overallRank: rank,
+                weeklyRank,
+                horseCards: cardResult[0].usedCards,
+                roundWins: roundResult[0].roundWins
+            });
+
+        }
+    }
+);
+
                             res.json({
                                 username: currentUser.Username,
                                 points: currentUser.tota_point,
