@@ -1,10 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+
 * {
     box-sizing: border-box;
 }
 
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Cairo', Arial, sans-serif;
     direction: rtl;
     color: white;
     min-height: 100vh;
@@ -14,6 +16,7 @@ body {
         radial-gradient(circle at 80% 30%, rgba(255,255,255,0.05) 0%, transparent 25%),
         radial-gradient(circle at 50% 80%, rgba(255,255,255,0.06) 0%, transparent 20%),
         linear-gradient(135deg, #101820, #1f3b57);
+    padding-bottom: env(safe-area-inset-bottom, 16px);
 }
 
 body::before,
@@ -98,13 +101,15 @@ body::after {
 }
 
 .hero h1 {
-    font-size: 55px;
+    font-size: clamp(28px, 6vw, 50px);
     margin-bottom: 15px;
+    line-height: 1.3;
 }
 
 .hero p {
-    font-size: 22px;
+    font-size: clamp(15px, 3vw, 20px);
     color: #ddd;
+    line-height: 1.7;
 }
 
 .hero i {
@@ -229,15 +234,16 @@ input {
 /* Profile */
 
 .profile-card {
-    width: 900px;
-    max-width: 95%;
-    margin: 40px auto;
-    padding: 35px;
-    border-radius: 24px;
+    width: 100%;
+    max-width: 900px;
+    margin: 30px auto;
+    padding: clamp(18px, 4vw, 35px);
+    border-radius: 22px;
     background: rgba(16,24,32,.92);
     border: 1px solid rgba(212,175,55,.35);
     box-shadow: 0 12px 35px rgba(0,0,0,.45);
     text-align: center;
+    box-sizing: border-box;
 }
 
 .profile-header {
@@ -598,14 +604,15 @@ input {
 .stats-card,
 .latest-card,
 .tournament-dashboard-card {
-    width: 900px;
-    max-width: 95%;
-    margin: 40px auto;
-    padding: 30px;
-    border-radius: 24px;
+    width: 100%;
+    max-width: 900px;
+    margin: 30px auto;
+    padding: clamp(16px, 4vw, 30px);
+    border-radius: 20px;
     background: rgba(16, 24, 32, 0.92);
     border: 1px solid rgba(212,175,55,0.4);
     box-shadow: 0 12px 35px rgba(0,0,0,0.45);
+    box-sizing: border-box;
 }
 
 .user-summary-card,
@@ -669,12 +676,14 @@ input {
 /* Leaderboards */
 
 .leaderboards-grid {
-    width: 900px;
-    max-width: 95%;
-    margin: 40px auto;
+    width: 100%;
+    max-width: 900px;
+    margin: 30px auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 25px;
+    gap: 20px;
+    padding: 0 12px;
+    box-sizing: border-box;
 }
 
 .leaderboard-card {
@@ -946,14 +955,15 @@ input {
 /* Profile */
 
 .profile-card {
-    width: 900px;
-    max-width: 95%;
-    margin: 40px auto;
-    padding: 35px;
-    border-radius: 24px;
+    width: 100%;
+    max-width: 900px;
+    margin: 30px auto;
+    padding: clamp(18px, 4vw, 35px);
+    border-radius: 22px;
     background: rgba(16,24,32,.92);
     border: 1px solid rgba(212,175,55,.35);
     box-shadow: 0 12px 35px rgba(0,0,0,.45);
+    box-sizing: border-box;
 }
 
 .profile-header {
@@ -1162,115 +1172,26 @@ input {
     color:#f1e6c8;
 }
 
-/* ===== Mobile Responsive Fixes ===== */
+/* ===== Mobile — Single Consolidated Block ===== */
 
 @media (max-width: 768px) {
 
-    body {
-        overflow-x: hidden;
-    }
-
-    .navbar {
-        flex-direction: column;
-        gap: 15px;
-        padding: 15px;
-        text-align: center;
-    }
-
-    .nav-links {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px;
-    }
-
-    .navbar a {
-        padding: 9px 12px;
-        font-size: 14px;
-    }
-
-    .hero {
-        padding: 40px 15px 25px;
-    }
-
-    .hero h1 {
-        font-size: 34px;
-    }
-
-    .hero p {
-        font-size: 16px;
-    }
-
-    .predict-layout {
-        width: 94%;
-        grid-template-columns: 1fr;
-        gap: 18px;
-    }
-
-    .card,
-    .match-card,
-    .user-summary-card,
-    .stats-card,
-    .latest-card,
-    .tournament-dashboard-card,
-    .profile-card {
-        width: 94%;
-        max-width: 94%;
-        padding: 20px;
-    }
-
-    .teams-row {
-        flex-direction: column;
-    }
-
-    .team-box {
+    html, body {
         width: 100%;
-    }
-
-    .vs-box {
-        margin: 8px 0;
-        font-size: 24px;
-    }
-
-    .score-inputs input {
-        width: 75px;
-    }
-
-    .user-stats-grid,
-    .stats-grid,
-    .profile-stats,
-    .tournament-prediction-grid,
-    .leaderboards-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .latest-item,
-    .leaderboard-row {
-        flex-direction: column;
-        gap: 8px;
-        text-align: center;
-    }
-
-    .info-popup,
-    .loser-popup {
-        width: 90%;
-        padding: 25px;
-    }
-}
-
-
-/* ===== Mobile Fix ===== */
-
-@media (max-width: 768px) {
-
-    body {
+        max-width: 100%;
         overflow-x: hidden;
     }
 
+    /* Navbar */
     .navbar {
         flex-direction: column;
         align-items: center;
         gap: 12px;
-        padding: 14px 10px;
+        padding: 14px 12px;
+    }
+
+    .logo {
+        font-size: 19px;
     }
 
     .nav-links {
@@ -1282,53 +1203,20 @@ input {
     }
 
     .navbar a {
-        font-size: 12px;
-        padding: 8px 10px;
+        font-size: 13px;
+        padding: 10px 13px;
         border-radius: 10px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
     }
 
-    .logo {
-        font-size: 18px;
-        margin-bottom: 5px;
-    }
-
+    /* Hero */
     .hero {
-        padding: 45px 15px 25px;
+        padding: 40px 16px 25px;
     }
 
-    .hero h1 {
-        font-size: 34px;
-    }
-
-    .hero p {
-        font-size: 16px;
-        line-height: 1.8;
-    }
-
-    .predict-layout {
-        width: 94%;
-        max-width: 94%;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        margin: 25px auto;
-    }
-
-    .predict-main-card,
-    .tournament-side-card {
-        width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
-    }
-
-    .tournament-side-card {
-        order: 1;
-    }
-
-    .predict-main-card {
-        order: 2;
-    }
-
+    /* Cards — unified full-width treatment */
     .card,
     .match-card,
     .user-summary-card,
@@ -1337,213 +1225,199 @@ input {
     .tournament-dashboard-card,
     .profile-card,
     .leaderboard-card {
-        width: 94%;
-        max-width: 94%;
-        padding: 18px;
+        width: calc(100% - 24px);
+        max-width: 100%;
+        padding: 16px;
+        margin-left: auto;
+        margin-right: auto;
         box-sizing: border-box;
+        border-radius: 16px;
+    }
+
+    /* Predict layout */
+    .predict-layout {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 100%;
+        margin: 20px auto;
+        padding: 0 12px;
+        gap: 16px;
+        box-sizing: border-box;
+    }
+
+    .predict-main-card,
+    .tournament-side-card,
+    .matches,
+    .match-card {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .tournament-side-card {
+        order: 1;
+        margin-bottom: 0;
+    }
+
+    .predict-main-card {
+        order: 2;
     }
 
     .matches {
-        width: 100%;
         padding: 10px;
-        box-sizing: border-box;
     }
 
     .match-card {
-        padding: 18px;
-        margin: 18px auto;
+        padding: 14px;
+        margin: 14px auto;
     }
 
+    /* Teams row stays horizontal on mobile */
     .teams-row {
         display: flex;
         flex-direction: row;
-        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
     }
 
     .team-box {
-        padding: 14px 8px;
+        width: 42%;
+        padding: 12px 6px;
         border-radius: 14px;
     }
 
     .team-box h3 {
-        font-size: 14px;
+        font-size: 13px;
+        line-height: 1.3;
     }
 
     .team-flag {
-        width: 46px;
-        height: 32px;
+        width: 50px;
+        height: 34px;
+        border-radius: 6px;
     }
 
     .vs-box {
+        width: 16%;
         font-size: 20px;
-        min-width: 35px;
+        text-align: center;
+        min-width: 32px;
     }
 
+    /* Score inputs — touch-friendly */
     .score-inputs {
         gap: 8px;
     }
 
     .score-inputs input {
-        width: 70px;
-        height: 42px;
-        font-size: 15px;
+        width: 68px;
+        height: 48px;
+        font-size: 16px;
+        border-radius: 10px;
     }
 
+    /* Buttons — min touch target */
     .save-prediction-btn,
     .save-tournament-btn {
-        height: 48px;
-        font-size: 14px;
+        height: 52px;
+        font-size: 15px;
+        border-radius: 12px;
     }
 
+    .play-now-btn {
+        padding: 14px 28px;
+        font-size: 15px;
+        border-radius: 14px;
+    }
+
+    /* Grids — stack on mobile */
     .user-stats-grid,
     .stats-grid,
     .profile-stats,
-    .tournament-prediction-grid,
+    .tournament-prediction-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
     .leaderboards-grid {
+        width: calc(100% - 24px);
+        max-width: 100%;
         grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 0;
+        margin: 20px auto;
     }
 
-    .user-summary-card {
-        margin-top: 25px;
-    }
-
+    /* Stat numbers */
     .user-stat strong,
     .stat-box strong,
     .profile-stat-box strong {
-        font-size: 22px;
+        font-size: 20px;
     }
 
-    .leaderboards-grid {
-        width: 94%;
-        max-width: 94%;
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 20px;
+    .user-stat span,
+    .stat-box span {
+        font-size: 12px;
     }
 
+    /* Latest items */
     .leaderboard-row,
     .latest-item {
         font-size: 14px;
     }
 
+    /* Badges */
+    .underdog-badge {
+        font-size: 10px;
+        padding: 4px 8px;
+        white-space: nowrap;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    .badge-space {
+        height: 28px;
+        margin-bottom: 6px;
+    }
+
+    /* Probability bar */
+    .probability-row {
+        gap: 6px;
+    }
+
+    .left-percent,
+    .right-percent {
+        min-width: 40px;
+        font-size: 14px;
+    }
+
+    /* Loser card */
+    .loser-card-box {
+        gap: 8px;
+        font-size: 14px;
+        flex-wrap: nowrap;
+    }
+
+    /* Popups */
+    .info-popup,
+    .loser-popup {
+        width: 92%;
+        padding: 22px;
+    }
+
+    /* About */
     .about {
-        padding: 40px 15px;
+        padding: 40px 16px;
     }
 
     .about h2 {
-        font-size: 28px;
+        font-size: 26px;
     }
 
     .about p,
     .rules-list li {
         font-size: 15px;
-    }
-}
-
-/* ===== FIX MOBILE WIDTH ===== */
-
-@media (max-width: 768px) {
-
-    html,
-    body {
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow-x: hidden !important;
-    }
-
-    .predict-layout {
-        display: block !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 20px auto !important;
-        padding: 0 12px !important;
-        box-sizing: border-box !important;
-    }
-
-    .predict-main-card,
-    .tournament-side-card,
-    .card,
-    .matches,
-    .match-card {
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-    }
-
-    .tournament-side-card {
-        margin-bottom: 20px !important;
-    }
-
-    .match-card {
-        padding: 16px !important;
-    }
-
-    .teams-row {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        gap: 8px !important;
-    }
-
-    .team-box {
-        width: 42% !important;
-        padding: 12px 6px !important;
-    }
-
-    .team-box h3 {
-        font-size: 14px !important;
-    }
-
-    .vs-box {
-        width: 16% !important;
-        font-size: 22px !important;
-        text-align: center !important;
-    }
-
-    .team-flag {
-        width: 55px !important;
-        height: 36px !important;
-        border-radius: 8px !important;
-    }
-
-    .underdog-badge {
-        font-size: 10px !important;
-        padding: 4px 8px !important;
-        white-space: nowrap !important;
-        max-width: 100% !important;
-        overflow: hidden !important;
-    }
-
-    .badge-space {
-        height: 28px !important;
-        margin-bottom: 6px !important;
-    }
-
-    .probability-row {
-        gap: 8px !important;
-    }
-
-    .left-percent,
-    .right-percent {
-        min-width: 42px !important;
-        font-size: 15px !important;
-    }
-
-    .score-inputs input {
-        width: 70px !important;
-        height: 45px !important;
-        font-size: 15px !important;
-    }
-
-    .loser-card-box {
-        gap: 8px !important;
-        font-size: 14px !important;
-        flex-wrap: nowrap !important;
-    }
-
-    .save-prediction-btn {
-        height: 52px !important;
-        font-size: 15px !important;
     }
 }
