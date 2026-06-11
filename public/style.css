@@ -1439,3 +1439,111 @@ input {
         font-size: 15px;
     }
 }
+
+/* ===== FIX MOBILE WIDTH ===== */
+
+@media (max-width: 768px) {
+
+    html,
+    body {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    .predict-layout {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 20px auto !important;
+        padding: 0 12px !important;
+        box-sizing: border-box !important;
+    }
+
+    .predict-main-card,
+    .tournament-side-card,
+    .card,
+    .matches,
+    .match-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .tournament-side-card {
+        margin-bottom: 20px !important;
+    }
+
+    .match-card {
+        padding: 16px !important;
+    }
+
+    .teams-row {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+    }
+
+    .team-box {
+        width: 42% !important;
+        padding: 12px 6px !important;
+    }
+
+    .team-box h3 {
+        font-size: 14px !important;
+    }
+
+    .vs-box {
+        width: 16% !important;
+        font-size: 22px !important;
+        text-align: center !important;
+    }
+
+    .team-flag {
+        width: 55px !important;
+        height: 36px !important;
+        border-radius: 8px !important;
+    }
+
+    .underdog-badge {
+        font-size: 10px !important;
+        padding: 4px 8px !important;
+        white-space: nowrap !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    .badge-space {
+        height: 28px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .probability-row {
+        gap: 8px !important;
+    }
+
+    .left-percent,
+    .right-percent {
+        min-width: 42px !important;
+        font-size: 15px !important;
+    }
+
+    .score-inputs input {
+        width: 70px !important;
+        height: 45px !important;
+        font-size: 15px !important;
+    }
+
+    .loser-card-box {
+        gap: 8px !important;
+        font-size: 14px !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .save-prediction-btn {
+        height: 52px !important;
+        font-size: 15px !important;
+    }
+}
