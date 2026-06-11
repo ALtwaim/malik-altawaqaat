@@ -171,11 +171,6 @@ app.get('/profile', (req, res) => {
                 التوقعات
             </a>
 
-            <a href="/leaderboard">
-                <i class="bi bi-trophy-fill"></i>
-                المتصدرين
-            </a>
-
             <a href="/logout">
                 <i class="bi bi-box-arrow-right"></i>
                 تسجيل الخروج
