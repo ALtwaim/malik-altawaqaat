@@ -5533,7 +5533,7 @@ input {
     box-shadow: 0 6px 24px rgba(0,0,0,0.4);
     width: 100%;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: visible;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -7084,5 +7084,12 @@ input {
     display: flex;
     flex-direction: column;
     gap: 14px;
+    box-sizing: border-box;
+}
+.predict-page {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 16px;
     box-sizing: border-box;
 }
