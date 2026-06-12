@@ -1775,7 +1775,7 @@ app.get('/leaderboard', (req, res) => {
         <a href="/dashboard"><i class="bi bi-house-fill"></i> الرئيسية</a>
         <a href="/predict"><i class="bi bi-lightning-charge-fill"></i> توقع</a>
         <a href="/leaderboard"><i class="bi bi-trophy-fill"></i> المتصدرون</a>
-        <a href="/profile"><i class="bi bi-person-circle"></i> ملفي</a>
+        <a href="/profile"><i class="bi bi-person-circle"></i> الملف الشخصي</a>
     </div>
 </div>
 
@@ -2716,29 +2716,7 @@ function calculateRoundWinner(roundId) {
 
 }
 
-app.get('/api/round-winners', (req, res) => {
 
-    db.query(
-        `SELECT 
-            rounds.round_name,
-            person.Username,
-            round_winners.points
-         FROM round_winners
-         JOIN rounds ON round_winners.round_id = rounds.Rid
-         JOIN person ON round_winners.user_id = person.Uid
-         ORDER BY round_winners.id DESC`,
-        (err, result) => {
-
-            if (err) {
-                return res.status(500).json({ error: err.message });
-            }
-
-            res.json(result);
-
-        }
-    );
-
-});
 
 app.get('/api/round-winners', (req, res) => {
 
@@ -2803,6 +2781,55 @@ app.get('/api/my-all-predictions', (req, res) => {
         }
     );
 
+});
+
+app.get('/api/leaderboard', (req, res) => {
+    db.query(
+        `SELECT Username, tota_point
+         FROM person
+         ORDER BY tota_point DESC
+         LIMIT 30`,
+        (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(result);
+        }
+    );
+});
+
+app.get('/api/round-leaderboard/:roundId', (req, res) => {
+    const roundId = req.params.roundId;
+    db.query(
+        `SELECT
+            person.Username,
+            COALESCE(SUM(predictions.points), 0) AS round_points
+         FROM predictions
+         JOIN person ON predictions.user_id = person.Uid
+         JOIN matches ON predictions.match_id = matches.Mid
+         WHERE matches.round_id = ?
+         GROUP BY person.Uid, person.Username
+         ORDER BY round_points DESC
+         LIMIT 30`,
+        [roundId],
+        (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(result);
+        }
+    );
+});
+
+app.get('/api/current-round', (req, res) => {
+    db.query(
+        `SELECT *
+         FROM rounds
+         WHERE CURDATE() BETWEEN start_date AND end_date
+         ORDER BY Rid DESC
+         LIMIT 1`,
+        (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (result.length === 0) return res.json(null);
+            res.json(result[0]);
+        }
+    );
 });
 
 app.listen(3000, () => {
