@@ -2575,6 +2575,47 @@ app.get('/api/round-winners', (req, res) => {
 
 });
 
+app.get('/api/my-all-predictions', (req, res) => {
+
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'لازم تسجل دخول' });
+    }
+
+    db.query(
+        `SELECT
+            predictions.predicted_home_score,
+            predictions.predicted_away_score,
+            predictions.points,
+            predictions.used_loser_card,
+
+            matches.home_team,
+            matches.away_team,
+            matches.home_score,
+            matches.away_score,
+            matches.match_date,
+            matches.is_golden,
+
+            rounds.round_name
+
+         FROM predictions
+         JOIN matches ON predictions.match_id = matches.Mid
+         LEFT JOIN rounds ON matches.round_id = rounds.Rid
+         WHERE predictions.user_id = ?
+         ORDER BY predictions.Pid DESC`,
+        [req.session.user.id],
+        (err, result) => {
+
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+
+            res.json(result);
+
+        }
+    );
+
+});
+
 app.listen(3000, () => {
     console.log('Server Running');
 });
