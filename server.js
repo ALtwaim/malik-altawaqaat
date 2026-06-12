@@ -2792,7 +2792,7 @@ app.get('/api/my-all-predictions', (req, res) => {
 
 app.get('/api/leaderboard', (req, res) => {
     db.query(
-        `SELECT Username, tota_point
+        `SELECT Uid, Username, tota_point
          FROM person
          ORDER BY tota_point DESC
          LIMIT 30`,
@@ -2804,9 +2804,12 @@ app.get('/api/leaderboard', (req, res) => {
 });
 
 app.get('/api/round-leaderboard/:roundId', (req, res) => {
+
     const roundId = req.params.roundId;
+
     db.query(
         `SELECT
+            person.Uid,
             person.Username,
             COALESCE(SUM(predictions.points), 0) AS round_points
          FROM predictions
@@ -2818,10 +2821,16 @@ app.get('/api/round-leaderboard/:roundId', (req, res) => {
          LIMIT 30`,
         [roundId],
         (err, result) => {
-            if (err) return res.status(500).json({ error: err.message });
+
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+
             res.json(result);
+
         }
     );
+
 });
 
 app.get('/api/current-round', (req, res) => {
