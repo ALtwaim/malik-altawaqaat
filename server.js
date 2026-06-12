@@ -1852,19 +1852,23 @@ app.get('/api/my-latest-predictions', (req, res) => {
 
     db.query(
         `SELECT
-    predictions.predicted_home_score,
-    predictions.predicted_away_score,
-    predictions.points,
-    predictions.used_loser_card,
+            predictions.predicted_home_score,
+            predictions.predicted_away_score,
+            predictions.points,
+            predictions.used_loser_card,
 
-    matches.home_team,
-    matches.away_team,
-    matches.home_score,
-    matches.away_score,
-    matches.match_date,
-    matches.is_golden
+            matches.home_team,
+            matches.away_team,
+            matches.home_score,
+            matches.away_score,
+            matches.match_date,
+            matches.is_golden,
+
+            rounds.round_name
+
          FROM predictions
          JOIN matches ON predictions.match_id = matches.Mid
+         LEFT JOIN rounds ON matches.round_id = rounds.Rid
          WHERE predictions.user_id = ?
          ORDER BY predictions.Pid DESC
          LIMIT 5`,
