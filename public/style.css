@@ -7093,3 +7093,8 @@ input {
     padding: 16px;
     box-sizing: border-box;
 }
+.my-leaderboard-row {
+    outline: 2px solid #d4af37 !important;
+    outline-offset: -2px;
+    box-shadow: 0 0 14px rgba(212, 175, 55, 0.45);
+}

@@ -1827,7 +1827,7 @@ var ALL_ROUNDS       = ${roundsJson};
 var ALL_TOURNAMENTS  = ${tournamentsJson};
 var currentTab       = 'season';
 var currentTournament = 0; // 0 = الكل
-
+var currentUserId = ${req.session.user.id};
 // ── بناء pills البطولات ──────────────────────────────────────────────────────
 function buildTournamentPills() {
     var container = document.getElementById('tournamentPills');
@@ -1897,13 +1897,20 @@ function buildRows(data, pointsKey) {
     if (!data || data.length === 0) {
         return '<div class="lb-loading"><i class="bi bi-emoji-neutral" style="animation:none"></i>لا توجد بيانات بعد</div>';
     }
+
     return data.map(function(user, i) {
+
         var m = medalOrNum(i);
+
+        var isMe =
+            Number(user.Uid || user.user_id) === Number(currentUserId);
+
         var rankEl = m.icon
             ? '<span class="lb-rank">' + m.icon + '</span>'
             : '<span class="lb-rank-num">' + (i + 1) + '</span>';
+
         return (
-            '<div class="lb-row ' + m.cls + '">' +
+            '<div class="lb-row ' + m.cls + ' ' + (isMe ? 'my-leaderboard-row' : '') + '">' +
                 rankEl +
                 '<div class="lb-avatar">👤</div>' +
                 '<span class="lb-name">' + user.Username + '</span>' +
@@ -2834,6 +2841,6 @@ app.get('/api/current-round', (req, res) => {
 
 app.listen(3000, () => {
     console.log('Server Running');
-});
+})
 
 
