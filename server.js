@@ -162,6 +162,7 @@ app.get('/profile', (req, res) => {
         </div>
         <div class="nav-links">
             <a href="/dashboard"><i class="bi bi-house-fill"></i> الرئيسية</a>
+            <a href="/leaderboard"><i class="bi bi-trophy-fill"></i> المتصدرون</a>
             <a href="/predict"><i class="bi bi-lightning-charge-fill"></i> التوقعات</a>
             <a href="/logout"><i class="bi bi-box-arrow-right"></i> تسجيل الخروج</a>
         </div>
@@ -1724,80 +1725,268 @@ app.get('/api/dashboard-summary', (req, res) => {
 });
 
 
-app.get('/api/leaderboard', (req, res) => {
+// ═══════════════════════════════════════════════════════════════
+//  أضف هذا الـ route في server.js
+//  وأضف رابطه في navbar حق كل الصفحات:
+//  <a href="/leaderboard"><i class="bi bi-trophy-fill"></i> المتصدرون</a>
+// ═══════════════════════════════════════════════════════════════
 
+app.get('/leaderboard', (req, res) => {
+
+    if (!req.session.user) {
+        return res.redirect('/login.html');
+    }
+
+    // جيب كل الجولات عشان يقدر يختار
     db.query(
-        `SELECT Username, tota_point
-         FROM person
-         ORDER BY tota_point DESC
-         LIMIT 30`,
-        (err, result) => {
+        `SELECT Rid, round_name, tournament_id FROM rounds ORDER BY Rid DESC`,
+        (err, rounds) => {
 
-            if (err) {
-                return res.status(500).json({ error: err.message });
-            }
+            if (err) rounds = [];
 
-            res.json(result);
+            // جيب أسماء البطولات
+            db.query(
+                `SELECT Tid, Tname FROM tournaments ORDER BY Tid DESC`,
+                (errT, tournaments) => {
 
+                    if (errT) tournaments = [];
+
+                    const roundsJson      = JSON.stringify(rounds);
+                    const tournamentsJson = JSON.stringify(tournaments);
+
+                    res.send(`
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>لوحة المتصدرين</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+
+<div class="navbar">
+    <div class="logo">
+        <i class="bi bi-award-fill"></i>
+        ملك التوقعات
+    </div>
+    <div class="nav-links">
+        <a href="/dashboard"><i class="bi bi-house-fill"></i> الرئيسية</a>
+        <a href="/predict"><i class="bi bi-lightning-charge-fill"></i> توقع</a>
+        <a href="/leaderboard"><i class="bi bi-trophy-fill"></i> المتصدرون</a>
+        <a href="/profile"><i class="bi bi-person-circle"></i> ملفي</a>
+    </div>
+</div>
+
+<div class="lb-page">
+
+    <div class="lb-page-title">
+        <i class="bi bi-trophy-fill"></i>
+        لوحة المتصدرين
+    </div>
+
+    <!-- تبويب أسبوعي / موسم -->
+    <div class="lb-tabs">
+        <button class="lb-tab active" id="tabSeason" onclick="switchTab('season')">
+            <i class="bi bi-award-fill"></i> الموسم
+        </button>
+        <button class="lb-tab" id="tabRound" onclick="switchTab('round')">
+            <i class="bi bi-calendar-week-fill"></i> الجولة
+        </button>
+    </div>
+
+    <!-- فلتر البطولة -->
+    <div class="lb-tournaments" id="tournamentPills"></div>
+
+    <!-- اختيار الجولة (يظهر فقط في تبويب الجولة) -->
+    <div class="lb-round-selector" id="roundSelector" style="display:none">
+        <label><i class="bi bi-calendar3"></i> الجولة:</label>
+        <select id="roundSelect" onchange="loadRoundBoard()"></select>
+    </div>
+
+    <!-- الكرت -->
+    <div class="lb-card">
+        <div class="lb-card-header">
+            <h3 id="cardTitle">🏆 ترتيب الموسم</h3>
+            <span id="cardSub"></span>
+        </div>
+        <div id="lbList">
+            <div class="lb-loading">
+                <i class="bi bi-arrow-repeat"></i>
+                جاري التحميل...
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+var ALL_ROUNDS       = ${roundsJson};
+var ALL_TOURNAMENTS  = ${tournamentsJson};
+var currentTab       = 'season';
+var currentTournament = 0; // 0 = الكل
+
+// ── بناء pills البطولات ──────────────────────────────────────────────────────
+function buildTournamentPills() {
+    var container = document.getElementById('tournamentPills');
+    var html = '<button class="lb-pill active" onclick="selectTournament(0, this)">🌍 الكل</button>';
+    ALL_TOURNAMENTS.forEach(function(t) {
+        html += '<button class="lb-pill" onclick="selectTournament(' + t.Tid + ', this)">' + t.Tname + '</button>';
+    });
+    container.innerHTML = html;
+}
+
+function selectTournament(tid, el) {
+    currentTournament = tid;
+    document.querySelectorAll('.lb-pill').forEach(function(p) { p.classList.remove('active'); });
+    el.classList.add('active');
+
+    // حدّث الـ select للجولات حسب البطولة
+    populateRoundSelect();
+
+    if (currentTab === 'season') {
+        loadSeasonBoard();
+    } else {
+        loadRoundBoard();
+    }
+}
+
+// ── تعبئة قائمة الجولات ──────────────────────────────────────────────────────
+function populateRoundSelect() {
+    var select = document.getElementById('roundSelect');
+    var filtered = currentTournament === 0
+        ? ALL_ROUNDS
+        : ALL_ROUNDS.filter(function(r) { return r.tournament_id === currentTournament; });
+
+    if (filtered.length === 0) {
+        select.innerHTML = '<option value="">لا توجد جولات</option>';
+        return;
+    }
+
+    select.innerHTML = filtered.map(function(r) {
+        return '<option value="' + r.Rid + '">' + r.round_name + '</option>';
+    }).join('');
+}
+
+// ── تبويب ────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('tabSeason').classList.toggle('active', tab === 'season');
+    document.getElementById('tabRound').classList.toggle('active', tab === 'round');
+    document.getElementById('roundSelector').style.display = tab === 'round' ? 'flex' : 'none';
+
+    if (tab === 'season') {
+        loadSeasonBoard();
+    } else {
+        populateRoundSelect();
+        loadRoundBoard();
+    }
+}
+
+// ── بناء الصفوف ──────────────────────────────────────────────────────────────
+function medalOrNum(i) {
+    if (i === 0) return { icon: '🥇', cls: 'rank-1' };
+    if (i === 1) return { icon: '🥈', cls: 'rank-2' };
+    if (i === 2) return { icon: '🥉', cls: 'rank-3' };
+    return { icon: null, cls: '' };
+}
+
+function buildRows(data, pointsKey) {
+    if (!data || data.length === 0) {
+        return '<div class="lb-loading"><i class="bi bi-emoji-neutral" style="animation:none"></i>لا توجد بيانات بعد</div>';
+    }
+    return data.map(function(user, i) {
+        var m = medalOrNum(i);
+        var rankEl = m.icon
+            ? '<span class="lb-rank">' + m.icon + '</span>'
+            : '<span class="lb-rank-num">' + (i + 1) + '</span>';
+        return (
+            '<div class="lb-row ' + m.cls + '">' +
+                rankEl +
+                '<div class="lb-avatar">👤</div>' +
+                '<span class="lb-name">' + user.Username + '</span>' +
+                '<span class="lb-points">' + (user[pointsKey] || 0) + ' <span class="lb-points-label">نقطة</span></span>' +
+            '</div>'
+        );
+    }).join('');
+}
+
+// ── تحميل الموسم ─────────────────────────────────────────────────────────────
+function loadSeasonBoard() {
+    document.getElementById('cardTitle').textContent = '🏆 ترتيب الموسم';
+    document.getElementById('cardSub').textContent   = 'إجمالي النقاط';
+    document.getElementById('lbList').innerHTML =
+        '<div class="lb-loading"><i class="bi bi-arrow-repeat"></i>جاري التحميل...</div>';
+
+    var url = '/api/leaderboard';
+    if (currentTournament !== 0) {
+        url = '/api/leaderboard?tournament_id=' + currentTournament;
+    }
+
+    fetch(url)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            document.getElementById('lbList').innerHTML = buildRows(data, 'tota_point');
+        })
+        .catch(function() {
+            document.getElementById('lbList').innerHTML =
+                '<div class="lb-loading">تعذّر التحميل</div>';
+        });
+}
+
+// ── تحميل الجولة ─────────────────────────────────────────────────────────────
+function loadRoundBoard() {
+    var select = document.getElementById('roundSelect');
+    var rid    = select.value;
+    if (!rid) {
+        document.getElementById('lbList').innerHTML =
+            '<div class="lb-loading">اختر جولة من القائمة</div>';
+        return;
+    }
+
+    var roundName = select.options[select.selectedIndex].text;
+    document.getElementById('cardTitle').textContent = '🔥 ' + roundName;
+    document.getElementById('cardSub').textContent   = 'نقاط الجولة';
+    document.getElementById('lbList').innerHTML =
+        '<div class="lb-loading"><i class="bi bi-arrow-repeat"></i>جاري التحميل...</div>';
+
+    fetch('/api/round-leaderboard/' + rid)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            document.getElementById('lbList').innerHTML = buildRows(data, 'round_points');
+        })
+        .catch(function() {
+            document.getElementById('lbList').innerHTML =
+                '<div class="lb-loading">تعذّر التحميل</div>';
+        });
+}
+
+// ── تهيئة ────────────────────────────────────────────────────────────────────
+buildTournamentPills();
+
+// حدد الجولة الحالية تلقائياً
+fetch('/api/current-round')
+    .then(function(r) { return r.json(); })
+    .then(function(round) {
+        if (round && round.Rid) {
+            var select = document.getElementById('roundSelect');
+            populateRoundSelect();
+            select.value = round.Rid;
+        }
+    });
+
+loadSeasonBoard();
+
+</script>
+</body>
+</html>
+                    `);
+                }
+            );
         }
     );
-
-});
-
-app.get('/api/round-leaderboard/:roundId', (req, res) => {
-
-    const roundId = req.params.roundId;
-
-    db.query(
-        `SELECT
-            person.Username,
-            COALESCE(SUM(predictions.points),0) AS round_points
-         FROM predictions
-         JOIN person
-            ON predictions.user_id = person.Uid
-         JOIN matches
-            ON predictions.match_id = matches.Mid
-         WHERE matches.round_id = ?
-         GROUP BY person.Uid, person.Username
-         ORDER BY round_points DESC
-         LIMIT 30`,
-        [roundId],
-        (err, result) => {
-
-            if (err) {
-                return res.status(500).json({ error: err.message });
-            }
-
-            res.json(result);
-
-        }
-    );
-
-});
-
-app.get('/api/current-round', (req, res) => {
-
-    db.query(
-        `SELECT *
-         FROM rounds
-         WHERE CURDATE() BETWEEN start_date AND end_date
-         ORDER BY Rid DESC
-         LIMIT 1`,
-        (err, result) => {
-
-            if (err) {
-                return res.status(500).json({ error: err.message });
-            }
-
-            if (result.length === 0) {
-                return res.json(null);
-            }
-
-            res.json(result[0]);
-
-        }
-    );
-
 });
 
 app.get('/api/my-stats', (req, res) => {
