@@ -313,7 +313,7 @@ app.get('/profile', (req, res) => {
     }
 
     // ── جلب التوقعات ─────────────────────────────────────────────────────────
-    fetch('/api/my-latest-predictions')
+    fetch('/api/my-all-predictions')
         .then(function(r) { return r.json(); })
         .then(function(data) {
             var box = document.getElementById('profilePredictionsList');
