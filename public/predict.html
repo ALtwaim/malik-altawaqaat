@@ -247,159 +247,89 @@ tournamentSelect.addEventListener('change', () => {
             matches.forEach(match => {
 
                 const matchDate = new Date(match.match_date).toLocaleString('ar-SA', {
-    timeZone: 'Asia/Riyadh',
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    hour: '2-digit',
-    minute: '2-digit'
-});
+                    timeZone: 'Asia/Riyadh',
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
 
                 html += `
     <div class="match-card ${match.is_golden ? 'golden-match-card' : ''}">
 
-        ${match.is_golden ? `
-            <div class="golden-badge">
-                <i class="bi bi-star-fill"></i>
-                المباراة الذهبية
-            </div>
-        ` : ''}
-
-        <p class="round-name">
-            ${match.round_name || 'بدون جولة'}
-        </p>
+        <div class="match-top-bar">
+            <span class="round-name">${match.round_name || 'بدون جولة'}</span>
+            ${match.is_golden ? `<span class="golden-badge"><i class="bi bi-star-fill"></i> ذهبية ×2</span>` : ''}
+        </div>
 
         <div class="teams-row">
 
-    <div class="team-box">
-
-        <div class="badge-space">
-            ${match.underdog_team === match.home_team ? `
-                <div class="underdog-badge">🐎 الحصان الأسود</div>
-            ` : ''}
-        </div>
-
-        <div class="team-logo">
-        ${getFlag(match.home_team)}
-        </div>
-
-        <h3>${match.home_team}</h3>
-
-    </div>
-
-    <div class="vs-box">
-        VS
-    </div>
-
-    <div class="team-box">
-
-        <div class="badge-space">
-            ${match.underdog_team === match.away_team ? `
-                <div class="underdog-badge">🐎 الحصان الأسود</div>
-            ` : ''}
-        </div>
-
-        <div class="team-logo">
-        ${getFlag(match.away_team)}
-        </div>
-        <h3>${match.away_team}</h3>
-
-    </div>
-
-</div>
-
-        <div class="probability-section">
-
-            <div class="probability-row">
-
-                <span class="left-percent">
-                    ${match.home_win_percent}%
-                </span>
-
-                <div class="probability-bar">
-
-                    <div
-                        class="home-side"
-                        style="width:${match.home_win_percent}%">
-                    </div>
-
-                    <div
-                        class="away-side"
-                        style="width:${match.away_win_percent}%">
-                    </div>
-
+            <div class="team-box">
+                <div class="badge-space">
+                    ${match.underdog_team === match.home_team ? `<span class="underdog-badge">🐎 حصان أسود</span>` : ''}
                 </div>
+                <div class="team-logo">${getFlag(match.home_team)}</div>
+                <h3>${match.home_team}</h3>
+            </div>
 
-                <span class="right-percent">
-                    ${match.away_win_percent}%
-                </span>
+            <div class="vs-box">VS</div>
 
+            <div class="team-box">
+                <div class="badge-space">
+                    ${match.underdog_team === match.away_team ? `<span class="underdog-badge">🐎 حصان أسود</span>` : ''}
+                </div>
+                <div class="team-logo">${getFlag(match.away_team)}</div>
+                <h3>${match.away_team}</h3>
             </div>
 
         </div>
-                        <p class="match-time">
-                            <i class="bi bi-clock-fill"></i>
-                            ${matchDate}
-                        </p>
 
-                        ${match.home_score !== null && match.away_score !== null ? `
-    <div class="match-result-box">
+        <div class="probability-section">
+            <div class="probability-row">
+                <span class="left-percent">${match.home_win_percent}%</span>
+                <div class="probability-bar">
+                    <div class="home-side" style="width:${match.home_win_percent}%"></div>
+                    <div class="away-side" style="width:${match.away_win_percent}%"></div>
+                </div>
+                <span class="right-percent">${match.away_win_percent}%</span>
+            </div>
+        </div>
 
-        <h3>
-            النتيجة النهائية
-        </h3>
+        <p class="match-time"><i class="bi bi-clock-fill"></i> ${matchDate}</p>
 
-        <p class="final-score">
-            ${match.home_team}
-            ${match.home_score}
-            -
-            ${match.away_score}
-            ${match.away_team}
-        </p>
-
-        ${match.predicted_home_score !== null ? `
-            <p>
-                توقعك:
-                ${match.predicted_home_score}
-                -
-                ${match.predicted_away_score}
-            </p>
-
-            <p class="user-match-points">
-                نقاطك: ${match.points} نقطة
-            </p>
+        ${match.home_score !== null && match.away_score !== null ? `
+            <div class="match-result-box">
+                <h3>النتيجة النهائية</h3>
+                <p class="final-score">${match.home_team} ${match.home_score} – ${match.away_score} ${match.away_team}</p>
+                ${match.predicted_home_score !== null ? `
+                    <p>توقعك: ${match.predicted_home_score} – ${match.predicted_away_score}</p>
+                    <p class="user-match-points">نقاطك: ${match.points} نقطة</p>
+                ` : `<p>لم تتوقع هذه المباراة</p>`}
+            </div>
+        ` : new Date(match.match_date) <= new Date() ? `
+            <p class="closed-match">⏰ انتهى وقت التوقع</p>
         ` : `
-            <p>لم تقم بالتوقع على هذه المباراة</p>
+            <div class="score-inputs">
+                <input type="number" min="0" placeholder="0" id="home-${match.Mid}">
+                <span>–</span>
+                <input type="number" min="0" placeholder="0" id="away-${match.Mid}">
+            </div>
+            <div class="loser-card-box">
+                <label>
+                    <input type="checkbox" id="loser-${match.Mid}">
+                    🐎 بطاقة الحصان الأسود
+                </label>
+                <button type="button" class="info-btn" onclick="openLoserInfo()">
+                    <i class="bi bi-info-circle-fill"></i>
+                </button>
+            </div>
+            <button class="save-prediction-btn" onclick="savePrediction(${match.Mid})">
+                حفظ التوقع
+            </button>
         `}
 
     </div>
-` : new Date(match.match_date) <= new Date() ? `
-    <p class="closed-match">
-        ⏰ انتهى وقت التوقع
-    </p>
-` : `
-    <div class="score-inputs">
-        <input type="number" min="0" placeholder="${match.home_team}" id="home-${match.Mid}">
-        <span>-</span>
-        <input type="number" min="0" placeholder="${match.away_team}" id="away-${match.Mid}">
-    </div>
-
-    <div class="loser-card-box">
-        <label>
-            <input type="checkbox" id="loser-${match.Mid}">
-            استخدام بطاقة الحصان الأسود
-        </label>
-
-        <button type="button" class="info-btn" onclick="openLoserInfo()">
-            <i class="bi bi-info-circle-fill"></i>
-        </button>
-    </div>
-
-    <button class="save-prediction-btn" onclick="savePrediction(${match.Mid})">
-        حفظ التوقع
-    </button>
-`}
-                    </div>
                 `;
 
             });
