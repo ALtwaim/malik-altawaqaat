@@ -143,9 +143,11 @@ app.get('/profile', (req, res) => {
 
     res.send(`
         <!DOCTYPE html>
-        <html>
+        <html lang="ar" dir="rtl">
 
         <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta charset="UTF-8">
             <title>الملف الشخصي</title>
             <link rel="stylesheet" href="/style.css">
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -154,102 +156,199 @@ app.get('/profile', (req, res) => {
         <body>
 
     <div class="navbar">
-
         <div class="logo">
-            👑 ملك التوقعات
+            <i class="bi bi-award-fill"></i>
+            ملك التوقعات
         </div>
-
         <div class="nav-links">
-
-            <a href="/dashboard">
-                <i class="bi bi-house-fill"></i>
-                الرئيسية
-            </a>
-
-            <a href="/predict">
-                <i class="bi bi-lightning-charge-fill"></i>
-                التوقعات
-            </a>
-
-            <a href="/logout">
-                <i class="bi bi-box-arrow-right"></i>
-                تسجيل الخروج
-            </a>
-
+            <a href="/dashboard"><i class="bi bi-house-fill"></i> الرئيسية</a>
+            <a href="/predict"><i class="bi bi-lightning-charge-fill"></i> التوقعات</a>
+            <a href="/logout"><i class="bi bi-box-arrow-right"></i> تسجيل الخروج</a>
         </div>
-
     </div>
 
     <section class="profile-card">
-
         <div class="profile-header">
-
             <div class="profile-avatar">
                 <i class="bi bi-person-fill"></i>
             </div>
-
             <h1 id="profileUsername">...</h1>
-
             <p id="profileEmail">...</p>
-
         </div>
-
         <div class="profile-stats">
-
             <div class="profile-stat-box">
                 <span>🏆 النقاط الكلية</span>
                 <strong id="totalPoints">0</strong>
             </div>
-
             <div class="profile-stat-box">
                 <span>📊 عدد التوقعات</span>
                 <strong id="totalPredictions">0</strong>
             </div>
-
             <div class="profile-stat-box">
                 <span>🎯 نسبة النجاح</span>
                 <strong id="successRate">0%</strong>
             </div>
-
             <div class="profile-stat-box">
                 <span>🥇 ترتيب البطولة الحالية</span>
                 <strong id="currentRank">-</strong>
             </div>
-
         </div>
+    </section>
 
+    <section class="profile-predictions-section">
+        <h2>
+            <i class="bi bi-lightning-charge-fill"></i>
+            سجل توقعاتي
+        </h2>
+        <div id="profilePredictionsList">
+            <div class="pred-empty">
+                <i class="bi bi-hourglass-split" style="font-size:32px; display:block; margin-bottom:10px; color:#d4af37;"></i>
+                جاري تحميل التوقعات...
+            </div>
+        </div>
     </section>
 
     <script>
 
+    // ── بيانات الملف الشخصي ──────────────────────────────────────────────────
     fetch('/api/profile-summary')
-        .then(response => response.json())
-        .then(data => {
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            document.getElementById('profileUsername').innerText = data.username;
+            document.getElementById('profileEmail').innerText = data.email;
+            document.getElementById('totalPoints').innerText = data.totalPoints;
+            document.getElementById('totalPredictions').innerText = data.totalPredictions;
+            document.getElementById('successRate').innerText = data.successRate + '%';
+            document.getElementById('currentRank').innerText = data.currentTournamentRank;
+        });
 
-            document.getElementById('profileUsername').innerText =
-                data.username;
+    // ── خريطة الأعلام ────────────────────────────────────────────────────────
+    var profileTeamFlags = {
+        'السعودية':'sa','قطر':'qa','الإمارات':'ae',
+        'المغرب':'ma','تونس':'tn','الجزائر':'dz','مصر':'eg',
+        'البرازيل':'br','الأرجنتين':'ar','أوروغواي':'uy','كولومبيا':'co',
+        'الاكوادور':'ec','باراغواي':'py','التشيك':'cz','جنوب أفريقيا':'za',
+        'البوسنة والهرسك':'ba','هايتي':'ht','اسكتلندا':'gb-sct','كوراساو':'cw',
+        'السويد':'se','الرأس الأخضر':'cv','النرويج':'no','النمسا':'at',
+        'الكونغو الديمقراطية':'cd','فرنسا':'fr','اسبانيا':'es','البرتغال':'pt',
+        'انجلترا':'gb','المانيا':'de','إيطاليا':'it','هولندا':'nl','بلجيكا':'be',
+        'سويسرا':'ch','كرواتيا':'hr','الدنمارك':'dk','صربيا':'rs','بولندا':'pl',
+        'أوكرانيا':'ua','تركيا':'tr','الولايات المتحدة':'us','المكسيك':'mx',
+        'كندا':'ca','كوستاريكا':'cr','بنما':'pa','اليابان':'jp','كوريا الجنوبية':'kr',
+        'استراليا':'au','ايران':'ir','العراق':'iq','أوزبكستان':'uz','الأردن':'jo',
+        'السنغال':'sn','نيجيريا':'ng','الكاميرون':'cm','غانا':'gh',
+        'ساحل العاج':'ci','مالي':'ml','نيوزيلندا':'nz'
+    };
 
-            document.getElementById('profileEmail').innerText =
-                data.email;
+    function profileGetFlag(teamName) {
+        var code = profileTeamFlags[teamName];
+        if (!code) {
+            return '<div class="pred-team-flag-placeholder">🛡️</div>';
+        }
+        return '<img src="https://flagcdn.com/w80/' + code + '.png" alt="' + teamName + '" class="pred-team-flag" loading="lazy">';
+    }
 
-            document.getElementById('totalPoints').innerText =
-                data.totalPoints;
+    function buildPredCard(p) {
+        var isPending = p.home_score === null || p.away_score === null;
 
-            document.getElementById('totalPredictions').innerText =
-                data.totalPredictions;
+        var resultClass = 'result-pending';
+        var pointsBadgeClass = '';
+        if (!isPending) {
+            if (p.points >= 3) {
+                resultClass = 'result-exact';
+                pointsBadgeClass = 'points-high';
+            } else if (p.points >= 1) {
+                resultClass = 'result-correct';
+            } else {
+                resultClass = 'result-wrong';
+                pointsBadgeClass = 'points-zero';
+            }
+        }
 
-            document.getElementById('successRate').innerText =
-                data.successRate + '%';
+        var actualScore = isPending ? '? - ?' : (p.home_score + ' - ' + p.away_score);
+        var yourGuess   = p.predicted_home_score + ' - ' + p.predicted_away_score;
+        var roundLabel  = p.round_name || 'بدون جولة';
 
-            document.getElementById('currentRank').innerText =
-                data.currentTournamentRank;
+        var goldenBadge = p.is_golden      ? '<span class="gold-badge">⭐ ذهبية</span>'   : '';
+        var horseBadge  = p.used_loser_card ? '<span class="horse-badge">🐎 أسود</span>' : '';
 
+        var pointsSection = isPending
+            ? '<span class="pred-status-pending">⏳ بانتظار النتيجة</span>'
+            : '<span class="pred-points-badge ' + pointsBadgeClass + '">+' + p.points + ' نقطة</span>';
+
+        return (
+            '<div class="pred-history-card ' + resultClass + '">' +
+
+                '<div class="pred-match-header">' +
+                    '<span class="pred-round-label">' + roundLabel + '</span>' +
+                    '<div class="pred-badges">' + goldenBadge + horseBadge + '</div>' +
+                '</div>' +
+
+                '<div class="pred-teams-row">' +
+
+                    '<div class="pred-team">' +
+                        profileGetFlag(p.home_team) +
+                        '<span class="pred-team-name">' + p.home_team + '</span>' +
+                    '</div>' +
+
+                    '<div class="pred-vs-col">' +
+                        '<span class="pred-score-result">' + actualScore + '</span>' +
+                        '<span class="pred-score-label">النتيجة</span>' +
+                    '</div>' +
+
+                    '<div class="pred-team">' +
+                        profileGetFlag(p.away_team) +
+                        '<span class="pred-team-name">' + p.away_team + '</span>' +
+                    '</div>' +
+
+                '</div>' +
+
+                '<div class="pred-footer">' +
+                    '<span class="pred-your-guess">توقعك: <strong>' + yourGuess + '</strong></span>' +
+                    pointsSection +
+                '</div>' +
+
+            '</div>'
+        );
+    }
+
+    // ── جلب التوقعات ─────────────────────────────────────────────────────────
+    fetch('/api/my-latest-predictions')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var box = document.getElementById('profilePredictionsList');
+
+            if (!data || data.length === 0) {
+                box.innerHTML =
+                    '<div class="pred-empty">' +
+                        '<i class="bi bi-emoji-neutral" style="font-size:36px; display:block; margin-bottom:10px;"></i>' +
+                        'لا توجد توقعات بعد.<br>' +
+                        '<a href="/predict" style="color:#d4af37; margin-top:8px; display:inline-block;">ابدأ التوقع الآن ←</a>' +
+                    '</div>';
+                return;
+            }
+
+            var sorted = data.slice().sort(function(a, b) {
+                if (a.match_date && b.match_date) {
+                    return new Date(b.match_date) - new Date(a.match_date);
+                }
+                return 0;
+            });
+
+            var html = '';
+            for (var i = 0; i < sorted.length; i++) {
+                html += buildPredCard(sorted[i]);
+            }
+            box.innerHTML = html;
+        })
+        .catch(function() {
+            document.getElementById('profilePredictionsList').innerHTML =
+                '<div class="pred-empty">تعذّر تحميل التوقعات.</div>';
         });
 
     </script>
 
 </body>
-
         </html>
     `);
 
@@ -1713,7 +1812,7 @@ app.get('/api/my-stats', (req, res) => {
         `SELECT
             COUNT(*) AS total_predictions,
             SUM(CASE WHEN points > 0 THEN 1 ELSE 0 END) AS correct_predictions,
-            SUM(points) AS tota_points,
+            COALESCE(SUM(points), 0) AS total_points,
             SUM(CASE WHEN used_loser_card = 1 THEN 1 ELSE 0 END) AS horse_cards_used
          FROM predictions
          WHERE user_id = ?`,
