@@ -1952,8 +1952,8 @@ function openModal(el) {
             var html = '';
             data.forEach(function(p) {
                 var pts = p.points || 0;
-                var rc  = pts >= 3 ? 'result-exact' : pts >= 1 ? 'result-correct' : 'result-wrong';
-                var pb  = pts >= 3 ? 'points-high'  : pts === 0 ? 'points-zero' : '';
+               var rc  = pts >= 3 ? 'result-exact' : pts >= 1 ? 'result-correct' : 'result-wrong';
+               var pb  = pts >= 3 ? 'points-high' : pts >= 1 ? 'points-mid' : pts === 0 ? 'points-zero' : '';
                 html += '<div class="pred-history-card ' + rc + '">' +
                     '<div class="pred-match-header">' +
                         '<span class="pred-round-label">' + (p.round_name || '-') + '</span>' +
@@ -2220,13 +2220,13 @@ app.post('/api/tournament-prediction', (req, res) => {
 
             const firstMatch =
                 new Date(matchResult[0].firstMatch);
-
+            /*
             if (new Date() >= firstMatch) {
                 return res.status(400).json({
                     error: '🔒 بدأت البطولة، تم إغلاق توقعات البطل والهداف'
                 });
             }
-
+            */
             saveTournamentPrediction();
 
         }

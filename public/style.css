@@ -1234,6 +1234,7 @@ input {
         border-radius: 16px;
     }
 
+
     /* Predict layout */
     .predict-layout {
         display: flex;
@@ -7098,3 +7099,10 @@ input {
     outline-offset: -2px;
     box-shadow: 0 0 14px rgba(212, 175, 55, 0.45);
 }
+
+.pred-history-card.result-exact::before   { background: #22c55e; }  /* أخضر - نتيجة دقيقة */
+.pred-history-card.result-correct::before { background: #d4af37; }  /* ذهبي - فائز صح بس */
+.pred-history-card.result-wrong::before   { background: #ef4444; }  /* أحمر - خطأ */
+
+.pred-points-badge.points-high { background: rgba(34,197,94,0.15); color: #22c55e; border-color: rgba(34,197,94,0.4); box-shadow: 0 0 12px rgba(34,197,94,0.2); }
+.pred-points-badge.points-mid  { background: rgba(212,175,55,0.15); color: #ffd700; border-color: rgba(212,175,55,0.4); }
