@@ -1909,7 +1909,7 @@ function buildRows(data, pointsKey) {
 function loadSeasonBoard() {
     document.getElementById('cardTitle').textContent = '🏆 ترتيب الموسم';
     document.getElementById('cardSub').textContent   = 'إجمالي النقاط';
-    document.getElementById('lbList').innerHTML = '<div class="lb-loading"><i class="bi bi-arrow-repeat"></i> جاري التحميل...</div>';
+    document.getElementById('lbList').innerHTML = '<p style="color:red">TEST</p>';
     fetch('/api/leaderboard')
         .then(function(r) { return r.json(); })
         .then(function(d) { document.getElementById('lbList').innerHTML = buildRows(d, 'tota_point'); })
