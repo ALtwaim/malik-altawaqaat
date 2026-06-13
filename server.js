@@ -1896,8 +1896,7 @@ function buildRows(data, pointsKey) {
         var m = medalOrNum(i);
         var rank = m.icon ? '<span class="lb-rank">' + m.icon + '</span>' : '<span class="lb-rank-num">' + (i+1) + '</span>';
         var safeName = user.Username.replace(/'/g, "");
-        return '<div class="lb-row ' + m.cls + '">' +
-            rank +
+        return '<div class="lb-row ' + m.cls + ' ' + (isMe ? 'my-leaderboard-row' : '') + '">' +
             '<div class="lb-avatar">👤</div>' +
             '<span class="lb-name">' + user.Username + '</span>' +
             '<div class="lb-row-end">' +

@@ -7094,10 +7094,10 @@ input {
     padding: 16px;
     box-sizing: border-box;
 }
-.my-leaderboard-row {
-    outline: 2px solid #d4af37 !important;
+.my-leaderboard-row{
+    outline: 2px solid #d4af37;
     outline-offset: -2px;
-    box-shadow: 0 0 14px rgba(212, 175, 55, 0.45);
+    box-shadow: 0 0 12px rgba(212,175,55,.45);
 }
 
 .pred-history-card.result-exact::before   { background: #22c55e; }  /* أخضر - نتيجة دقيقة */
