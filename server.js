@@ -1751,8 +1751,8 @@ app.get('/leaderboard', (req, res) => {
 
                     if (errT) tournaments = [];
 
-                    const roundsJson      = JSON.stringify(rounds);
-                    const tournamentsJson = JSON.stringify(tournaments);
+                    const roundsJson      = JSON.stringify(rounds).replace(/\//g, '\\/');
+                    const tournamentsJson = JSON.stringify(tournaments).replace(/\//g, '\\/');
 
                     res.send(`
 <!DOCTYPE html>
