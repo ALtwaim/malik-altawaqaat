@@ -1751,8 +1751,8 @@ app.get('/leaderboard', (req, res) => {
 
                     if (errT) tournaments = [];
 
-                    const roundsJson      = JSON.stringify(rounds).replace(/\//g, '\\/');
-                    const tournamentsJson = JSON.stringify(tournaments).replace(/\//g, '\\/');
+                    const roundsJson      = JSON.stringify(rounds || []);
+                    const tournamentsJson = JSON.stringify(tournaments || []);
 
                     res.send(`
 <!DOCTYPE html>
@@ -1825,8 +1825,8 @@ app.get('/leaderboard', (req, res) => {
 
 <script>
 
-var ALL_ROUNDS      = ${roundsJson};
-var ALL_TOURNAMENTS = ${tournamentsJson};
+var ALL_ROUNDS      = JSON.parse('${roundsJson.replace(/'/g, "\\'")}');
+var ALL_TOURNAMENTS = JSON.parse('${tournamentsJson.replace(/'/g, "\\'")}');
 var currentTab        = 'season';
 var currentTournament = 0;
 
