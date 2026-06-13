@@ -1842,6 +1842,7 @@ app.get('/leaderboard', (req, res) => {
 </style>
 
 <script>
+var currentUserId = ${req.session.user.id};
 var ALL_ROUNDS      = JSON.parse(document.getElementById('data-rounds').textContent);
 var ALL_TOURNAMENTS = JSON.parse(document.getElementById('data-tournaments').textContent);
 var currentTab      = 'season';
@@ -1891,6 +1892,7 @@ function medalOrNum(i) {
 function buildRows(data, pointsKey) {
     if (!data || data.length === 0) return '<div class="lb-loading">لا توجد بيانات بعد</div>';
     return data.map(function(user, i) {
+        var isMe = Number(user.Uid) === Number(currentUserId);
         var m = medalOrNum(i);
         var rank = m.icon ? '<span class="lb-rank">' + m.icon + '</span>' : '<span class="lb-rank-num">' + (i+1) + '</span>';
         var safeName = user.Username.replace(/'/g, "");
