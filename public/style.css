@@ -7106,3 +7106,36 @@ input {
 
 .pred-points-badge.points-high { background: rgba(34,197,94,0.15); color: #22c55e; border-color: rgba(34,197,94,0.4); box-shadow: 0 0 12px rgba(34,197,94,0.2); }
 .pred-points-badge.points-mid  { background: rgba(212,175,55,0.15); color: #ffd700; border-color: rgba(212,175,55,0.4); }
+.pred-points-badge.points-zero { background: rgba(239,68,68,0.15); color: #ef4444; border-color: rgba(239,68,68,0.4); }
+
+.announcement-bar {
+    background: linear-gradient(135deg, #d4af37, #b8962e);
+    color: #111;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 15px;
+    gap: 12px;
+}
+
+.announcement-bar button {
+    background: rgba(0,0,0,0.15);
+    border: none;
+    color: #111;
+    font-size: 20px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s;
+}
+
+.announcement-bar button:hover {
+    background: rgba(0,0,0,0.25);
+}

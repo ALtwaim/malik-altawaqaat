@@ -13,6 +13,35 @@
 
 <body>
 
+    
+    <div id="announcement" style="display:none">
+    <div class="announcement-bar">
+        <span id="ann-text"></span>
+        <button onclick="closeAnnouncement()">×</button>
+    </div>
+</div>
+
+<script>
+// ← فقط غيّر هنا
+var ANN_ID      = 'v3';                          // غيّر الرقم مع كل رسالة جديدة
+var ANN_TEXT    = '🏆 انطلقت البطولة! توقع الآن واربح الجوائز';
+var ANN_ENDDATE = '2026-08-01';                  // تاريخ الانتهاء، أو '' بدون تاريخ
+// ────────────────────────────────────────────
+
+var storageKey = 'ann_seen_' + ANN_ID;
+var expired    = ANN_ENDDATE && new Date() > new Date(ANN_ENDDATE);
+
+if (!expired && !localStorage.getItem(storageKey)) {
+    document.getElementById('ann-text').textContent = ANN_TEXT;
+    document.getElementById('announcement').style.display = 'block';
+}
+
+function closeAnnouncement() {
+    document.getElementById('announcement').style.display = 'none';
+    localStorage.setItem(storageKey, '1');
+}
+</script>
+
     <div class="navbar">
 
         <div class="logo">
