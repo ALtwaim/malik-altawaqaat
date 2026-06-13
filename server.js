@@ -1737,25 +1737,17 @@ app.get('/leaderboard', (req, res) => {
         return res.redirect('/login.html');
     }
 
-    // جيب كل الجولات عشان يقدر يختار
     db.query(
-        `SELECT Rid, round_name, tournament_id FROM rounds ORDER BY Rid DESC`,
+        'SELECT Rid, round_name, tournament_id FROM rounds ORDER BY Rid DESC',
         (err, rounds) => {
-
             if (err) rounds = [];
 
-            // جيب أسماء البطولات
             db.query(
-                `SELECT Tid, Tname FROM tournaments ORDER BY Tid DESC`,
+                'SELECT Tid, Tname FROM tournaments ORDER BY Tid DESC',
                 (errT, tournaments) => {
-
                     if (errT) tournaments = [];
 
-                    const roundsJson      = JSON.stringify(rounds || []);
-                    const tournamentsJson = JSON.stringify(tournaments || []);
-
-                    res.send(`
-<!DOCTYPE html>
+                    res.send(`<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1775,9 +1767,12 @@ app.get('/leaderboard', (req, res) => {
         <a href="/dashboard"><i class="bi bi-house-fill"></i> الرئيسية</a>
         <a href="/predict"><i class="bi bi-lightning-charge-fill"></i> توقع</a>
         <a href="/leaderboard"><i class="bi bi-trophy-fill"></i> المتصدرون</a>
-        <a href="/profile"><i class="bi bi-person-circle"></i> الملف الشخصي</a>
+        <a href="/profile"><i class="bi bi-person-circle"></i> ملفي</a>
     </div>
 </div>
+
+<script type="application/json" id="data-rounds">${JSON.stringify(rounds)}</script>
+<script type="application/json" id="data-tournaments">${JSON.stringify(tournaments)}</script>
 
 <div class="lb-page">
 
@@ -1786,7 +1781,6 @@ app.get('/leaderboard', (req, res) => {
         لوحة المتصدرين
     </div>
 
-    <!-- تبويب أسبوعي / موسم -->
     <div class="lb-tabs">
         <button class="lb-tab active" id="tabSeason" onclick="switchTab('season')">
             <i class="bi bi-award-fill"></i> الموسم
@@ -1796,20 +1790,17 @@ app.get('/leaderboard', (req, res) => {
         </button>
     </div>
 
-    <!-- فلتر البطولة -->
     <div class="lb-tournaments" id="tournamentPills"></div>
 
-    <!-- اختيار الجولة (يظهر فقط في تبويب الجولة) -->
     <div class="lb-round-selector" id="roundSelector" style="display:none">
         <label><i class="bi bi-calendar3"></i> الجولة:</label>
         <select id="roundSelect" onchange="loadRoundBoard()"></select>
     </div>
 
-    <!-- الكرت -->
     <div class="lb-card">
         <div class="lb-card-header">
             <h3 id="cardTitle">🏆 ترتيب الموسم</h3>
-            <span id="cardSub"></span>
+            <span id="cardSub">إجمالي النقاط</span>
         </div>
         <div id="lbList">
             <div class="lb-loading">
@@ -1821,23 +1812,48 @@ app.get('/leaderboard', (req, res) => {
 
 </div>
 
+<div id="userPredModal" class="info-overlay" onclick="if(event.target===this)closeModal()">
+    <div class="user-pred-modal">
+        <button class="info-close" onclick="closeModal()">×</button>
+        <h2 id="userPredTitle"></h2>
+        <div id="userPredContent"></div>
+    </div>
+</div>
 
+<style>
+.lb-row-end { display:flex; align-items:center; gap:10px; }
+.lb-eye-btn {
+    width:34px; height:34px; border-radius:50%;
+    border:1px solid rgba(212,175,55,0.35);
+    background:rgba(212,175,55,0.08); color:#d4af37;
+    font-size:15px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:background 0.2s, transform 0.15s; flex-shrink:0;
+}
+.lb-eye-btn:hover { background:rgba(212,175,55,0.25); transform:scale(1.1); }
+.user-pred-modal {
+    width:520px; max-width:94%; max-height:85vh; overflow-y:auto;
+    background:#101820; border:1.5px solid rgba(212,175,55,0.5);
+    border-radius:22px; padding:28px 22px; position:relative;
+}
+.user-pred-modal h2 { color:#d4af37; text-align:center; margin:0 0 20px; font-size:18px; }
+.user-pred-modal::-webkit-scrollbar { width:5px; }
+.user-pred-modal::-webkit-scrollbar-thumb { background:rgba(212,175,55,0.3); border-radius:10px; }
+</style>
 
 <script>
-
-var ALL_ROUNDS      = JSON.parse('${roundsJson.replace(/'/g, "\\'")}');
-var ALL_TOURNAMENTS = JSON.parse('${tournamentsJson.replace(/'/g, "\\'")}');
-var currentTab        = 'season';
+var ALL_ROUNDS      = JSON.parse(document.getElementById('data-rounds').textContent);
+var ALL_TOURNAMENTS = JSON.parse(document.getElementById('data-tournaments').textContent);
+var currentTab      = 'season';
 var currentTournament = 0;
 
-// ── Pills ────────────────────────────────────────────────────────────────────
 function buildTournamentPills() {
-    var container = document.getElementById('tournamentPills');
-    var html = '<button class="lb-pill active" onclick="selectTournament(0, this)">🌍 الكل</button>';
+    var c = document.getElementById('tournamentPills');
+    var h = '<button class="lb-pill active" onclick="selectTournament(0,this)">🌍 الكل</button>';
     ALL_TOURNAMENTS.forEach(function(t) {
-        html += '<button class="lb-pill" onclick="selectTournament(' + t.Tid + ', this)">' + t.Tname + '</button>';
+        h += '<button class="lb-pill" onclick="selectTournament(' + t.Tid + ',this)">' + t.Tname + '</button>';
     });
-    container.innerHTML = html;
+    c.innerHTML = h;
 }
 
 function selectTournament(tid, el) {
@@ -1849,22 +1865,13 @@ function selectTournament(tid, el) {
     else loadRoundBoard();
 }
 
-// ── Round select ─────────────────────────────────────────────────────────────
 function populateRoundSelect() {
     var select = document.getElementById('roundSelect');
-    var filtered = currentTournament === 0
-        ? ALL_ROUNDS
-        : ALL_ROUNDS.filter(function(r) { return r.tournament_id === currentTournament; });
-    if (filtered.length === 0) {
-        select.innerHTML = '<option value="">لا توجد جولات</option>';
-        return;
-    }
-    select.innerHTML = filtered.map(function(r) {
-        return '<option value="' + r.Rid + '">' + r.round_name + '</option>';
-    }).join('');
+    var list = currentTournament === 0 ? ALL_ROUNDS : ALL_ROUNDS.filter(function(r) { return r.tournament_id === currentTournament; });
+    if (list.length === 0) { select.innerHTML = '<option value="">لا توجد جولات</option>'; return; }
+    select.innerHTML = list.map(function(r) { return '<option value="' + r.Rid + '">' + r.round_name + '</option>'; }).join('');
 }
 
-// ── Tab ──────────────────────────────────────────────────────────────────────
 function switchTab(tab) {
     currentTab = tab;
     document.getElementById('tabSeason').classList.toggle('active', tab === 'season');
@@ -1874,7 +1881,6 @@ function switchTab(tab) {
     else { populateRoundSelect(); loadRoundBoard(); }
 }
 
-// ── Medals ───────────────────────────────────────────────────────────────────
 function medalOrNum(i) {
     if (i === 0) return { icon: '🥇', cls: 'rank-1' };
     if (i === 1) return { icon: '🥈', cls: 'rank-2' };
@@ -1882,221 +1888,113 @@ function medalOrNum(i) {
     return { icon: null, cls: '' };
 }
 
-// ── Build rows ───────────────────────────────────────────────────────────────
 function buildRows(data, pointsKey) {
-    if (!data || data.length === 0) {
-        return '<div class="lb-loading"><i class="bi bi-emoji-neutral" style="animation:none"></i>لا توجد بيانات بعد</div>';
-    }
+    if (!data || data.length === 0) return '<div class="lb-loading">لا توجد بيانات بعد</div>';
     return data.map(function(user, i) {
         var m = medalOrNum(i);
-        var rankEl = m.icon
-            ? '<span class="lb-rank">' + m.icon + '</span>'
-            : '<span class="lb-rank-num">' + (i + 1) + '</span>';
-        return (
-            '<div class="lb-row ' + m.cls + '">' +
-                rankEl +
-                '<div class="lb-avatar">👤</div>' +
-                '<span class="lb-name">' + user.Username + '</span>' +
-                '<div class="lb-row-end">' +
-                    '<span class="lb-points">' + (user[pointsKey] || 0) + ' <span class="lb-points-label">نقطة</span></span>' +
-                    '<button class="lb-eye-btn" onclick="openUserPredictions(\'' + user.Username + '\')" title="شوف توقعاته">' +
-                        '<i class="bi bi-eye-fill"></i>' +
-                    '</button>' +
-                '</div>' +
-            '</div>'
-        );
+        var rank = m.icon ? '<span class="lb-rank">' + m.icon + '</span>' : '<span class="lb-rank-num">' + (i+1) + '</span>';
+        var safeName = user.Username.replace(/'/g, "\\'");
+        return '<div class="lb-row ' + m.cls + '">' +
+            rank +
+            '<div class="lb-avatar">👤</div>' +
+            '<span class="lb-name">' + user.Username + '</span>' +
+            '<div class="lb-row-end">' +
+                '<span class="lb-points">' + (user[pointsKey] || 0) + ' <span class="lb-points-label">نقطة</span></span>' +
+                '<button class="lb-eye-btn" onclick="openModal(\'' + safeName + '\')" title="شوف توقعاته"><i class="bi bi-eye-fill"></i></button>' +
+            '</div>' +
+        '</div>';
     }).join('');
 }
 
-// ── Season ───────────────────────────────────────────────────────────────────
 function loadSeasonBoard() {
     document.getElementById('cardTitle').textContent = '🏆 ترتيب الموسم';
     document.getElementById('cardSub').textContent   = 'إجمالي النقاط';
-    document.getElementById('lbList').innerHTML = '<div class="lb-loading"><i class="bi bi-arrow-repeat"></i>جاري التحميل...</div>';
+    document.getElementById('lbList').innerHTML = '<div class="lb-loading"><i class="bi bi-arrow-repeat"></i> جاري التحميل...</div>';
     fetch('/api/leaderboard')
         .then(function(r) { return r.json(); })
-        .then(function(data) { document.getElementById('lbList').innerHTML = buildRows(data, 'tota_point'); })
+        .then(function(d) { document.getElementById('lbList').innerHTML = buildRows(d, 'tota_point'); })
         .catch(function() { document.getElementById('lbList').innerHTML = '<div class="lb-loading">تعذّر التحميل</div>'; });
 }
 
-// ── Round ────────────────────────────────────────────────────────────────────
 function loadRoundBoard() {
-    var select = document.getElementById('roundSelect');
-    var rid    = select.value;
-    if (!rid) { document.getElementById('lbList').innerHTML = '<div class="lb-loading">اختر جولة من القائمة</div>'; return; }
-    var roundName = select.options[select.selectedIndex].text;
-    document.getElementById('cardTitle').textContent = '🔥 ' + roundName;
+    var sel = document.getElementById('roundSelect');
+    if (!sel.value) { document.getElementById('lbList').innerHTML = '<div class="lb-loading">اختر جولة</div>'; return; }
+    document.getElementById('cardTitle').textContent = '🔥 ' + sel.options[sel.selectedIndex].text;
     document.getElementById('cardSub').textContent   = 'نقاط الجولة';
-    document.getElementById('lbList').innerHTML = '<div class="lb-loading"><i class="bi bi-arrow-repeat"></i>جاري التحميل...</div>';
-    fetch('/api/round-leaderboard/' + rid)
+    document.getElementById('lbList').innerHTML = '<div class="lb-loading"><i class="bi bi-arrow-repeat"></i> جاري التحميل...</div>';
+    fetch('/api/round-leaderboard/' + sel.value)
         .then(function(r) { return r.json(); })
-        .then(function(data) { document.getElementById('lbList').innerHTML = buildRows(data, 'round_points'); })
+        .then(function(d) { document.getElementById('lbList').innerHTML = buildRows(d, 'round_points'); })
         .catch(function() { document.getElementById('lbList').innerHTML = '<div class="lb-loading">تعذّر التحميل</div>'; });
 }
 
-// ── User predictions modal ───────────────────────────────────────────────────
-var teamFlags = {
-    'السعودية':'sa','قطر':'qa','الإمارات':'ae','المغرب':'ma','تونس':'tn',
-    'الجزائر':'dz','مصر':'eg','البرازيل':'br','الأرجنتين':'ar','أوروغواي':'uy',
-    'كولومبيا':'co','الاكوادور':'ec','باراغواي':'py','التشيك':'cz',
-    'جنوب أفريقيا':'za','البوسنة والهرسك':'ba','هايتي':'ht','اسكتلندا':'gb-sct',
-    'كوراساو':'cw','السويد':'se','الرأس الأخضر':'cv','النرويج':'no','النمسا':'at',
-    'الكونغو الديمقراطية':'cd','فرنسا':'fr','اسبانيا':'es','البرتغال':'pt',
-    'انجلترا':'gb','المانيا':'de','إيطاليا':'it','هولندا':'nl','بلجيكا':'be',
-    'سويسرا':'ch','كرواتيا':'hr','الدنمارك':'dk','صربيا':'rs','بولندا':'pl',
-    'أوكرانيا':'ua','تركيا':'tr','الولايات المتحدة':'us','المكسيك':'mx',
-    'كندا':'ca','كوستاريكا':'cr','بنما':'pa','اليابان':'jp','كوريا الجنوبية':'kr',
-    'استراليا':'au','ايران':'ir','العراق':'iq','أوزبكستان':'uz','الأردن':'jo',
-    'السنغال':'sn','نيجيريا':'ng','الكاميرون':'cm','غانا':'gh',
-    'ساحل العاج':'ci','مالي':'ml','نيوزيلندا':'nz'
-};
+var teamFlags = {'السعودية':'sa','قطر':'qa','الإمارات':'ae','المغرب':'ma','تونس':'tn','الجزائر':'dz','مصر':'eg','البرازيل':'br','الأرجنتين':'ar','أوروغواي':'uy','كولومبيا':'co','الاكوادور':'ec','باراغواي':'py','التشيك':'cz','جنوب أفريقيا':'za','البوسنة والهرسك':'ba','هايتي':'ht','اسكتلندا':'gb-sct','كوراساو':'cw','السويد':'se','الرأس الأخضر':'cv','النرويج':'no','النمسا':'at','الكونغو الديمقراطية':'cd','فرنسا':'fr','اسبانيا':'es','البرتغال':'pt','انجلترا':'gb','المانيا':'de','إيطاليا':'it','هولندا':'nl','بلجيكا':'be','سويسرا':'ch','كرواتيا':'hr','الدنمارك':'dk','صربيا':'rs','بولندا':'pl','أوكرانيا':'ua','تركيا':'tr','الولايات المتحدة':'us','المكسيك':'mx','كندا':'ca','كوستاريكا':'cr','بنما':'pa','اليابان':'jp','كوريا الجنوبية':'kr','استراليا':'au','ايران':'ir','العراق':'iq','أوزبكستان':'uz','الأردن':'jo','السنغال':'sn','نيجيريا':'ng','الكاميرون':'cm','غانا':'gh','ساحل العاج':'ci','مالي':'ml','نيوزيلندا':'nz'};
 
 function getFlag(name) {
     var code = teamFlags[name];
-    return code
-        ? '<img src="https://flagcdn.com/w80/' + code + '.png" class="pred-team-flag" loading="lazy">'
-        : '<div class="pred-team-flag-placeholder">🛡️</div>';
+    return code ? '<img src="https://flagcdn.com/w80/' + code + '.png" class="pred-team-flag" loading="lazy">' : '<div class="pred-team-flag-placeholder">🛡️</div>';
 }
 
-function openUserPredictions(username) {
-    var modal   = document.getElementById('userPredModal');
-    var title   = document.getElementById('userPredTitle');
-    var content = document.getElementById('userPredContent');
-
-    title.textContent = '⚡ توقعات ' + username;
-    content.innerHTML = '<div class="lb-loading"><i class="bi bi-arrow-repeat"></i>جاري التحميل...</div>';
-    modal.style.display = 'flex';
+function openModal(username) {
+    document.getElementById('userPredTitle').textContent = '⚡ توقعات ' + username;
+    document.getElementById('userPredContent').innerHTML = '<div class="lb-loading"><i class="bi bi-arrow-repeat"></i> جاري التحميل...</div>';
+    document.getElementById('userPredModal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
 
     fetch('/api/user-predictions/' + encodeURIComponent(username))
         .then(function(r) { return r.json(); })
         .then(function(data) {
-
             if (!data || data.length === 0) {
-                content.innerHTML = '<div class="lb-loading">لا توجد توقعات منتهية بعد</div>';
+                document.getElementById('userPredContent').innerHTML = '<div class="lb-loading">لا توجد توقعات منتهية بعد</div>';
                 return;
             }
-
             var html = '';
             data.forEach(function(p) {
                 var pts = p.points || 0;
-                var resultClass = pts >= 3 ? 'result-exact' : pts >= 1 ? 'result-correct' : 'result-wrong';
-                var ptsBadge    = pts >= 3 ? 'points-high'  : pts === 0 ? 'points-zero'   : '';
-                var golden  = p.is_golden      ? '<span class="gold-badge">⭐ ذهبية</span>'   : '';
-                var horse   = p.used_loser_card ? '<span class="horse-badge">🐎 أسود</span>'  : '';
-
-                html += (
-                    '<div class="pred-history-card ' + resultClass + '">' +
-                        '<div class="pred-match-header">' +
-                            '<span class="pred-round-label">' + (p.round_name || '-') + '</span>' +
-                            '<div class="pred-badges">' + golden + horse + '</div>' +
+                var rc  = pts >= 3 ? 'result-exact' : pts >= 1 ? 'result-correct' : 'result-wrong';
+                var pb  = pts >= 3 ? 'points-high'  : pts === 0 ? 'points-zero' : '';
+                html += '<div class="pred-history-card ' + rc + '">' +
+                    '<div class="pred-match-header">' +
+                        '<span class="pred-round-label">' + (p.round_name || '-') + '</span>' +
+                        '<div class="pred-badges">' +
+                            (p.is_golden ? '<span class="gold-badge">⭐ ذهبية</span>' : '') +
+                            (p.used_loser_card ? '<span class="horse-badge">🐎 أسود</span>' : '') +
                         '</div>' +
-                        '<div class="pred-teams-row">' +
-                            '<div class="pred-team">' + getFlag(p.home_team) + '<span class="pred-team-name">' + p.home_team + '</span></div>' +
-                            '<div class="pred-vs-col">' +
-                                '<span class="pred-score-result">' + p.home_score + ' – ' + p.away_score + '</span>' +
-                                '<span class="pred-score-label">النتيجة</span>' +
-                            '</div>' +
-                            '<div class="pred-team">' + getFlag(p.away_team) + '<span class="pred-team-name">' + p.away_team + '</span></div>' +
-                        '</div>' +
-                        '<div class="pred-footer">' +
-                            '<span class="pred-your-guess">توقّع: <strong>' + p.predicted_home_score + ' – ' + p.predicted_away_score + '</strong></span>' +
-                            '<span class="pred-points-badge ' + ptsBadge + '">+' + pts + ' نقطة</span>' +
-                        '</div>' +
-                    '</div>'
-                );
+                    '</div>' +
+                    '<div class="pred-teams-row">' +
+                        '<div class="pred-team">' + getFlag(p.home_team) + '<span class="pred-team-name">' + p.home_team + '</span></div>' +
+                        '<div class="pred-vs-col"><span class="pred-score-result">' + p.home_score + ' – ' + p.away_score + '</span><span class="pred-score-label">النتيجة</span></div>' +
+                        '<div class="pred-team">' + getFlag(p.away_team) + '<span class="pred-team-name">' + p.away_team + '</span></div>' +
+                    '</div>' +
+                    '<div class="pred-footer">' +
+                        '<span class="pred-your-guess">توقّع: <strong>' + p.predicted_home_score + ' – ' + p.predicted_away_score + '</strong></span>' +
+                        '<span class="pred-points-badge ' + pb + '">+' + pts + ' نقطة</span>' +
+                    '</div>' +
+                '</div>';
             });
-            content.innerHTML = html;
+            document.getElementById('userPredContent').innerHTML = html;
         })
         .catch(function() {
-            content.innerHTML = '<div class="lb-loading">تعذّر التحميل</div>';
+            document.getElementById('userPredContent').innerHTML = '<div class="lb-loading">تعذّر التحميل</div>';
         });
 }
 
-function closeUserPredModal() {
+function closeModal() {
     document.getElementById('userPredModal').style.display = 'none';
     document.body.style.overflow = '';
 }
 
-// ── Init ─────────────────────────────────────────────────────────────────────
 buildTournamentPills();
-
 fetch('/api/current-round')
     .then(function(r) { return r.json(); })
     .then(function(round) {
-        if (round && round.Rid) {
-            populateRoundSelect();
-            document.getElementById('roundSelect').value = round.Rid;
-        }
+        if (round && round.Rid) { populateRoundSelect(); document.getElementById('roundSelect').value = round.Rid; }
     });
-
 loadSeasonBoard();
-
 </script>
-<!-- مودال توقعات اللاعب -->
-<div id="userPredModal" class="info-overlay" onclick="if(event.target===this)closeUserPredModal()">
-    <div class="user-pred-modal">
-        <button class="info-close" onclick="closeUserPredModal()">×</button>
-        <h2 id="userPredTitle"></h2>
-        <div id="userPredContent"></div>
-    </div>
-</div>
 
-<style>
-.lb-row-end {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.lb-eye-btn {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    border: 1px solid rgba(212,175,55,0.35);
-    background: rgba(212,175,55,0.08);
-    color: #d4af37;
-    font-size: 15px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s, border-color 0.2s, transform 0.15s;
-    flex-shrink: 0;
-}
-
-.lb-eye-btn:hover {
-    background: rgba(212,175,55,0.2);
-    border-color: #d4af37;
-    transform: scale(1.1);
-}
-
-.user-pred-modal {
-    width: 520px;
-    max-width: 94%;
-    max-height: 85vh;
-    overflow-y: auto;
-    background: #101820;
-    border: 1.5px solid rgba(212,175,55,0.5);
-    border-radius: 22px;
-    padding: 28px 22px;
-    position: relative;
-}
-
-.user-pred-modal h2 {
-    color: #d4af37;
-    text-align: center;
-    margin: 0 0 20px;
-    font-size: 18px;
-}
-
-.user-pred-modal::-webkit-scrollbar       { width: 5px; }
-.user-pred-modal::-webkit-scrollbar-track { background: transparent; }
-.user-pred-modal::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 10px; }
-</style>
 </body>
-</html>
-                    `);
+</html>`);
                 }
             );
         }
