@@ -1893,14 +1893,14 @@ function buildRows(data, pointsKey) {
     return data.map(function(user, i) {
         var m = medalOrNum(i);
         var rank = m.icon ? '<span class="lb-rank">' + m.icon + '</span>' : '<span class="lb-rank-num">' + (i+1) + '</span>';
-        var safeName = user.Username.replace(/'/g, "\\'");
+        var safeName = user.Username.replace(/'/g, "");
         return '<div class="lb-row ' + m.cls + '">' +
             rank +
             '<div class="lb-avatar">👤</div>' +
             '<span class="lb-name">' + user.Username + '</span>' +
             '<div class="lb-row-end">' +
                 '<span class="lb-points">' + (user[pointsKey] || 0) + ' <span class="lb-points-label">نقطة</span></span>' +
-                '<button class="lb-eye-btn" onclick="openModal(\'' + safeName + '\')" title="شوف توقعاته"><i class="bi bi-eye-fill"></i></button>' +
+                '<button class="lb-eye-btn" onclick="openModal(this.dataset.name)" data-name="' + safeName + '" title="شوف توقعاته"><i class="bi bi-eye-fill"></i></button>' +
             '</div>' +
         '</div>';
     }).join('');
@@ -1909,7 +1909,7 @@ function buildRows(data, pointsKey) {
 function loadSeasonBoard() {
     document.getElementById('cardTitle').textContent = '🏆 ترتيب الموسم';
     document.getElementById('cardSub').textContent   = 'إجمالي النقاط';
-    document.getElementById('lbList').innerHTML = '<p style="color:red">TEST</p>';
+    document.getElementById('lbList').innerHTML = '<div class="lb-loading"><i class="bi bi-arrow-repeat"></i> جاري التحميل...</div>';
     fetch('/api/leaderboard')
         .then(function(r) { return r.json(); })
         .then(function(d) { document.getElementById('lbList').innerHTML = buildRows(d, 'tota_point'); })
@@ -1935,7 +1935,8 @@ function getFlag(name) {
     return code ? '<img src="https://flagcdn.com/w80/' + code + '.png" class="pred-team-flag" loading="lazy">' : '<div class="pred-team-flag-placeholder">🛡️</div>';
 }
 
-function openModal(username) {
+function openModal(el) {
+    var username = typeof el === 'string' ? el : el.dataset.name;
     document.getElementById('userPredTitle').textContent = '⚡ توقعات ' + username;
     document.getElementById('userPredContent').innerHTML = '<div class="lb-loading"><i class="bi bi-arrow-repeat"></i> جاري التحميل...</div>';
     document.getElementById('userPredModal').style.display = 'flex';
