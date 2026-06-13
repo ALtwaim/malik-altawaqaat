@@ -1743,7 +1743,7 @@ app.get('/leaderboard', (req, res) => {
             if (err) rounds = [];
 
             db.query(
-                'SELECT Tid, Tname FROM tournaments ORDER BY Tid DESC',
+                'SELECT id, Tname FROM tournaments ORDER BY id DESC',
                 (errT, tournaments) => {
                     if (errT) tournaments = [];
 
@@ -1851,13 +1851,13 @@ function buildTournamentPills() {
     var c = document.getElementById('tournamentPills');
     var h = '<button class="lb-pill active" onclick="selectTournament(0,this)">🌍 الكل</button>';
     ALL_TOURNAMENTS.forEach(function(t) {
-        h += '<button class="lb-pill" onclick="selectTournament(' + t.Tid + ',this)">' + t.Tname + '</button>';
+        h += '<button class="lb-pill" onclick="selectTournament(' + t.id + ',this)">' + t.Tname + '</button>';
     });
     c.innerHTML = h;
 }
 
-function selectTournament(tid, el) {
-    currentTournament = tid;
+function selectTournament(id, el) {
+    currentTournament = id;
     document.querySelectorAll('.lb-pill').forEach(function(p) { p.classList.remove('active'); });
     el.classList.add('active');
     populateRoundSelect();
