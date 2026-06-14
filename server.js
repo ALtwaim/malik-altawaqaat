@@ -1767,7 +1767,7 @@ app.get('/leaderboard', (req, res) => {
         <a href="/dashboard"><i class="bi bi-house-fill"></i> الرئيسية</a>
         <a href="/predict"><i class="bi bi-lightning-charge-fill"></i> توقع</a>
         <a href="/leaderboard"><i class="bi bi-trophy-fill"></i> المتصدرون</a>
-        <a href="/profile"><i class="bi bi-person-circle"></i> الملف الشخصي</a>
+        <a href="/profile"><i class="bi bi-person-circle"></i> الملف الشحصي</a>
     </div>
 </div>
 
