@@ -357,7 +357,10 @@ function buildMatchCard(match) {
         bottomSection = '<p class="closed-match">⏰ انتهى وقت التوقع</p>';
     } else {
         bottomSection =
-            '<div class="score-inputs">' +
+            '<div class="prediction-done-box" id="done-' + match.Mid + '" style="' + (match.predicted_home_score !== null ? '' : 'display:none') + '">' +
+    '<i class="bi bi-check-circle-fill"></i> توقعك الحالي: <strong>' + (match.predicted_home_score || 0) + ' – ' + (match.predicted_away_score || 0) + '</strong>' +
+'</div>' +
+'<div class="score-inputs">' +
                 '<input type="number" min="0" placeholder="0" id="home-' + match.Mid + '">' +
                 '<span>–</span>' +
                 '<input type="number" min="0" placeholder="0" id="away-' + match.Mid + '">' +
@@ -454,28 +457,23 @@ function savePrediction(matchId) {
         if (data.error) { showNotification(data.error, 'error'); return; }
         showNotification(data.message, 'success');
 
-        // تحديث الكرت بدون reload
-        var card = document.getElementById('home-' + matchId);
-        if (card) {
-            var cardEl = card.closest('.match-card');
-            if (cardEl) {
-                // احذف قسم الإدخال واستبدله بـ "تم التوقع"
-                var inputArea = cardEl.querySelector('.score-inputs');
-                var loserArea = cardEl.querySelector('.loser-card-box');
-                var btnArea   = cardEl.querySelector('.save-prediction-btn');
+        // حدّث أو أنشئ شريط "توقعك الحالي"
+        var cardEl = document.getElementById('home-' + matchId).closest('.match-card');
+        var existing = cardEl.querySelector('.prediction-done-box');
+        var content =
+            '<i class="bi bi-check-circle-fill"></i> توقعك الحالي: <strong>' +
+            homeScore + ' – ' + awayScore + '</strong>' +
+            (usedHorse ? ' <span class="horse-badge">🐎 أسود</span>' : '');
 
-                if (inputArea) inputArea.remove();
-                if (loserArea) loserArea.remove();
-                if (btnArea)   btnArea.remove();
-
-                var doneDiv = document.createElement('div');
-                doneDiv.className = 'prediction-done-box';
-                doneDiv.innerHTML =
-                    '<i class="bi bi-check-circle-fill"></i>' +
-                    ' تم التوقع بنتيجة: <strong>' + homeScore + ' – ' + awayScore + '</strong>' +
-                    (usedHorse ? ' <span class="horse-badge">🐎 أسود</span>' : '');
-                cardEl.appendChild(doneDiv);
-            }
+        if (existing) {
+            existing.innerHTML = content;
+        } else {
+            var doneDiv = document.createElement('div');
+            doneDiv.className = 'prediction-done-box';
+            doneDiv.innerHTML = content;
+            // أضفه فوق الـ score-inputs
+            var inputs = cardEl.querySelector('.score-inputs');
+            cardEl.insertBefore(doneDiv, inputs);
         }
     });
 }

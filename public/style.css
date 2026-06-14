@@ -7155,11 +7155,20 @@ input {
     flex-wrap: wrap;
 }
 
-.prediction-done-box i {
-    font-size: 18px;
-    flex-shrink: 0;
+.prediction-done-box {
+    margin-bottom: 10px;
+    padding: 10px 14px;
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 12px;
+    color: #22c55e;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
-.prediction-done-box strong {
-    color: white;
-}
+.prediction-done-box strong { color: white; }
+.prediction-done-box i { font-size: 16px; flex-shrink: 0; }
