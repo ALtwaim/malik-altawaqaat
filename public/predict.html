@@ -431,7 +431,6 @@ function renderResults() {
     box.innerHTML = finished.map(buildMatchCard).join('');
 }
 
-// ── حفظ التوقع ─────────────────────────────────────────────────────────────
 function savePrediction(matchId) {
     var homeScore = document.getElementById('home-' + matchId).value;
     var awayScore = document.getElementById('away-' + matchId).value;
@@ -439,6 +438,7 @@ function savePrediction(matchId) {
         showNotification('اكتب توقع النتيجة أولاً', 'warning');
         return;
     }
+    var usedHorse = document.getElementById('loser-' + matchId).checked;
     fetch('/api/predictions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -446,13 +446,37 @@ function savePrediction(matchId) {
             match_id: matchId,
             predicted_home_score: homeScore,
             predicted_away_score: awayScore,
-            used_loser_card: document.getElementById('loser-' + matchId).checked
+            used_loser_card: usedHorse
         })
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
         if (data.error) { showNotification(data.error, 'error'); return; }
         showNotification(data.message, 'success');
+
+        // تحديث الكرت بدون reload
+        var card = document.getElementById('home-' + matchId);
+        if (card) {
+            var cardEl = card.closest('.match-card');
+            if (cardEl) {
+                // احذف قسم الإدخال واستبدله بـ "تم التوقع"
+                var inputArea = cardEl.querySelector('.score-inputs');
+                var loserArea = cardEl.querySelector('.loser-card-box');
+                var btnArea   = cardEl.querySelector('.save-prediction-btn');
+
+                if (inputArea) inputArea.remove();
+                if (loserArea) loserArea.remove();
+                if (btnArea)   btnArea.remove();
+
+                var doneDiv = document.createElement('div');
+                doneDiv.className = 'prediction-done-box';
+                doneDiv.innerHTML =
+                    '<i class="bi bi-check-circle-fill"></i>' +
+                    ' تم التوقع بنتيجة: <strong>' + homeScore + ' – ' + awayScore + '</strong>' +
+                    (usedHorse ? ' <span class="horse-badge">🐎 أسود</span>' : '');
+                cardEl.appendChild(doneDiv);
+            }
+        }
     });
 }
 
