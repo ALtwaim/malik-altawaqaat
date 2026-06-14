@@ -1,15 +1,165 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <title>توقع المباريات</title>
-
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-</head>
+    <style>
+        /* ── Predict Tabs ── */
+        .predict-page {
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 16px 60px;
+            box-sizing: border-box;
+        }
 
+        .predict-tournament-selector {
+            width: 100%;
+            margin: 0 auto 20px;
+            padding: 18px;
+            background: rgba(16,24,32,0.92);
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 18px;
+            box-sizing: border-box;
+        }
+
+        .predict-tournament-selector h2 {
+            color: #d4af37;
+            margin: 0 0 12px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .predict-tournament-selector select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(10,18,26,0.8);
+            border: 1px solid rgba(212,175,55,0.4);
+            border-radius: 12px;
+            color: #f1e6c8;
+            font-family: 'Cairo', sans-serif;
+            font-size: 15px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Tabs */
+        .predict-tabs {
+            display: flex;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(212,175,55,0.2);
+            border-radius: 16px;
+            padding: 5px;
+            margin-bottom: 20px;
+            gap: 4px;
+        }
+
+        .predict-tab {
+            flex: 1;
+            padding: 11px 6px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: #aaa;
+            font-family: 'Cairo', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .predict-tab.active {
+            background: linear-gradient(135deg, #d4af37, #b8962e);
+            color: #111;
+            box-shadow: 0 4px 14px rgba(212,175,55,0.35);
+        }
+
+        /* Match cards container */
+        .matches {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: flex; flex-direction: column; gap: 14px; }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #888;
+            font-size: 15px;
+        }
+
+        .empty-state i {
+            font-size: 40px;
+            display: block;
+            margin-bottom: 12px;
+            color: #d4af37;
+        }
+
+        /* توقع البطولة tab */
+        .tournament-pred-card {
+            background: rgba(16,24,32,0.92);
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 20px;
+            padding: 22px;
+            box-sizing: border-box;
+        }
+
+        .tournament-pred-card h3 {
+            color: #d4af37;
+            margin: 0 0 16px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tournament-pred-card input {
+            width: 100%;
+            padding: 13px 16px;
+            background: rgba(10,18,26,0.8);
+            border: 1px solid rgba(212,175,55,0.35);
+            border-radius: 12px;
+            color: #f1e6c8;
+            font-family: 'Cairo', sans-serif;
+            font-size: 15px;
+            outline: none;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .tournament-pred-card input:focus {
+            border-color: #ffd700;
+            box-shadow: 0 0 0 3px rgba(212,175,55,0.15);
+        }
+
+        .tournament-pred-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .tournament-pred-header h3 { margin: 0; }
+
+        /* Result card style */
+        .match-card { overflow: visible; }
+    </style>
+</head>
 <body>
 
 <div class="navbar">
@@ -17,347 +167,281 @@
         <i class="bi bi-award-fill"></i>
         ملك التوقعات
     </div>
-
     <div class="nav-links">
         <a href="/dashboard"><i class="bi bi-house-fill"></i> الرئيسية</a>
-        <a href="/profile"><i class="bi bi-person-circle"></i> الملف الشخصي</a>
+        <a href="/leaderboard"><i class="bi bi-trophy-fill"></i> المتصدرون</a>
+        <a href="/profile"><i class="bi bi-person-circle"></i> ملفي</a>
     </div>
 </div>
-
-<section class="hero">
-    <h1><i class="bi bi-lightning-charge-fill"></i> توقع المباريات</h1>
-    <p>اختر البطولة، وشوف المباريات، وورّنا توقعك.</p>
-</section>
 
 <section class="predict-page">
 
-   <div class="predict-tournament-selector">
-
-    <h2>
-        <i class="bi bi-flag-fill"></i>
-        اختر البطولة
-    </h2>
-
-    <select id="tournamentSelect">
-        <option value="">اختر البطولة</option>
-    </select>
-
-</div>
-
-<div class="matches" id="matchesBox">
-    <p>بعد اختيار البطولة ستظهر المباريات هنا.</p>
-</div>
-
-    <div class="card tournament-side-card">
-
-    <h2 class="side-card-title">
-        <span>
-            <i class="bi bi-trophy-fill"></i>
-            توقعات البطولة
-        </span>
-
-        <button
-            type="button"
-            class="tournament-info-btn"
-            onclick="openTournamentInfo()"
-            title="نقاط توقع البطولة">
-            <i class="bi bi-info-circle-fill"></i>
-        </button>
-    </h2>
-
-    <input
-        type="text"
-        id="championPrediction"
-        placeholder="توقع بطل البطولة">
-
-    <input
-        type="text"
-        id="topScorerPrediction"
-        placeholder="توقع هداف البطولة">
-
-    <button class="save-tournament-btn" onclick="saveTournamentPrediction()">
-        حفظ توقع البطولة
-    </button>
-
-</div>
-
-
-<div id="loserInfoBox" class="loser-overlay">
-
-    <div class="loser-popup">
-
-        <button class="loser-close" onclick="closeLoserInfo()" type="button">
-            ×
-        </button>
-
-        <h2>بطاقة الحصان الأسود 🐎</h2>
-
-        <p>في عالم الرياضة، يُطلق لقب الحصان الأسود على الفريق غير المرشح للفوز، لكنه يفاجئ الجميع ويحقق الانتصار</p>
-
-تمنحك هذه البطاقة فرصة للمراهنة على المفاجآت. إذا استخدمت البطاقة على الفريق الأقل حظًا للفوز ونجح في الانتصار، ستحصل على نقاط إضافية كمكافأة على جرأتك وثقتك.</p>
-
-        <p>إذا جبت التوقع صح تحصل على 3 نقاط بدل نقطة واحدة, وفي حال جبت النتيجة ايضا تحصل على 7 نقاط بدل 3 نقاط. (المجموع 10) .</p>
-
-        <p> استخدم البطاقة بحكمة، فلكل لاعب بطاقتان فقط في كل بطولة، وقد تكون سببًا في صعودك إلى قمة الترتيب أو ضياع فرصة ثمينة.</p>
-
-
-     
+    <!-- اختيار البطولة -->
+    <div class="predict-tournament-selector">
+        <h2><i class="bi bi-flag-fill"></i> اختر البطولة</h2>
+        <select id="tournamentSelect">
+            <option value="">اختر البطولة</option>
+        </select>
     </div>
 
-</div>
-
-<div id="tournamentInfoBox" class="info-overlay">
-
-    <div class="info-popup">
-
-        <button class="info-close" onclick="closeTournamentInfo()" type="button">
-            ×
+    <!-- التبويبات الثلاث -->
+    <div class="predict-tabs">
+        <button class="predict-tab active" id="tab-predict" onclick="switchPredictTab('predict')">
+            <i class="bi bi-lightning-charge-fill"></i> توقعات
         </button>
-
-        <h2>معلومات توقعات البطولة</h2>
-
-        <p>🏆 توقع بطل البطولة الصحيح يعطيك نقاط إضافية.</p>
-        <p>⚽ توقع هداف البطولة الصحيح يعطيك نقاط إضافية.</p>
-        <p>🔒 بعد بداية البطولة لا يمكن تعديل توقع البطل أو الهداف.</p>
-        <p>✅ احفظ توقعك قبل بداية أول مباراة.</p>
-
+        <button class="predict-tab" id="tab-results" onclick="switchPredictTab('results')">
+            <i class="bi bi-flag-fill"></i> النتائج
+        </button>
+        <button class="predict-tab" id="tab-tournament" onclick="switchPredictTab('tournament')">
+            <i class="bi bi-trophy-fill"></i> توقع البطولة
+        </button>
     </div>
 
-</div>
-
-<script>
-const tournamentSelect = document.getElementById('tournamentSelect');
-const matchesBox = document.getElementById('matchesBox');
-
-fetch('/api/tournaments')
-    .then(response => response.json())
-    .then(data => {
-        data.forEach(tournament => {
-            const option = document.createElement('option');
-            option.value = tournament.id;
-            option.textContent = tournament.Tname;
-            tournamentSelect.appendChild(option);
-        });
-    });
-
-const teamFlags = {
-    'السعودية':'sa',
-    'قطر':'qa',
-    'الإمارات':'ae',
-
-    'المغرب':'ma',
-    'تونس':'tn',
-    'الجزائر':'dz',
-    'مصر':'eg',
-
-    'البرازيل':'br',
-    'الأرجنتين':'ar',
-    'أوروغواي':'uy',
-    'كولومبيا':'co',
-    'الاكوادور':'ec',
-    'باراغواي':'py',
-    'التشيك':'cz',
-    'جنوب أفريقيا':'za',
-    'البوسنة والهرسك':'ba',
-    'هايتي':'ht',
-    'اسكتلندا':'gb-sct',
-    'كوراساو':'cw',
-    'السويد':'se',
-    'الرأس الأخضر':'cv',
-    'النرويج':'no',
-    'النمسا':'at',
-    'الكونغو الديمقراطية':'cd',
-    'فرنسا':'fr',
-    'اسبانيا':'es',
-    'البرتغال':'pt',
-    'انجلترا':'gb',
-    'المانيا':'de',
-    'إيطاليا':'it',
-    'هولندا':'nl',
-    'بلجيكا':'be',
-    'سويسرا':'ch',
-    'كرواتيا':'hr',
-    'الدنمارك':'dk',
-    'صربيا':'rs',
-    'بولندا':'pl',
-    'أوكرانيا':'ua',
-    'تركيا':'tr',
-
-    'الولايات المتحدة':'us',
-    'المكسيك':'mx',
-    'كندا':'ca',
-    'كوستاريكا':'cr',
-    'بنما':'pa',
-
-    'اليابان':'jp',
-    'كوريا الجنوبية':'kr',
-    'استراليا':'au',
-    'ايران':'ir',
-    'العراق':'iq',
-    'أوزبكستان':'uz',
-    'الأردن':'jo',
-
-    'السنغال':'sn',
-    'نيجيريا':'ng',
-    'الكاميرون':'cm',
-    'غانا':'gh',
-    'ساحل العاج':'ci',
-    'مالي':'ml',
-
-    'نيوزيلندا':'nz'
-};
-
-function getFlag(teamName) {
-
-    const code = teamFlags[teamName];
-
-    if (!code) {
-        return `<i class="bi bi-shield-fill"></i>`;
-    }
-
-    return `
-        <img
-            src="https://flagcdn.com/w80/${code}.png"
-            alt="${teamName}"
-            class="team-flag">
-    `;
-}
-
-tournamentSelect.addEventListener('change', () => {
-
-    const tournamentId = tournamentSelect.value;
-
-    if (!tournamentId) {
-        matchesBox.innerHTML = '<p>بعد اختيار البطولة ستظهر المباريات هنا.</p>';
-        return;
-    }
-
-
-    fetch('/api/matches/' + tournamentId)
-        .then(response => response.json())
-        .then(matches => {
-
-            if (matches.length === 0) {
-                matchesBox.innerHTML = '<p>لا توجد مباريات لهذه البطولة حالياً.</p>';
-                return;
-            }
-
-            let html = '';
-
-            matches.forEach(match => {
-
-                const matchDate = new Date(match.match_date).toLocaleString('ar-SA', {
-                    timeZone: 'Asia/Riyadh',
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-                html += `
-    <div class="match-card ${match.is_golden ? 'golden-match-card' : ''}">
-
-        <div class="match-top-bar">
-            <span class="round-name">${match.round_name || 'بدون جولة'}</span>
-            ${match.is_golden ? `<span class="golden-badge"><i class="bi bi-star-fill"></i> ذهبية ×2</span>` : ''}
+    <!-- تبويب التوقعات -->
+    <div class="tab-content active" id="content-predict">
+        <div class="empty-state" id="predictEmpty" style="display:none">
+            <i class="bi bi-calendar2-check"></i>
+            اختر البطولة لتظهر المباريات
         </div>
+    </div>
 
-        <div class="teams-row">
-
-            <div class="team-box">
-                <div class="badge-space">
-                    ${match.underdog_team === match.home_team ? `<span class="underdog-badge">🐎 حصان أسود</span>` : ''}
-                </div>
-                <div class="team-logo">${getFlag(match.home_team)}</div>
-                <h3>${match.home_team}</h3>
-            </div>
-
-            <div class="vs-box">VS</div>
-
-            <div class="team-box">
-                <div class="badge-space">
-                    ${match.underdog_team === match.away_team ? `<span class="underdog-badge">🐎 حصان أسود</span>` : ''}
-                </div>
-                <div class="team-logo">${getFlag(match.away_team)}</div>
-                <h3>${match.away_team}</h3>
-            </div>
-
+    <!-- تبويب النتائج -->
+    <div class="tab-content" id="content-results">
+        <div class="empty-state" id="resultsEmpty">
+            <i class="bi bi-hourglass-split"></i>
+            اختر البطولة لتظهر النتائج
         </div>
+    </div>
 
-        <div class="probability-section">
-            <div class="probability-row">
-                <span class="left-percent">${match.home_win_percent}%</span>
-                <div class="probability-bar">
-                    <div class="home-side" style="width:${match.home_win_percent}%"></div>
-                    <div class="away-side" style="width:${match.away_win_percent}%"></div>
-                </div>
-                <span class="right-percent">${match.away_win_percent}%</span>
-            </div>
-        </div>
-
-        <p class="match-time"><i class="bi bi-clock-fill"></i> ${matchDate}</p>
-
-        ${match.home_score !== null && match.away_score !== null ? `
-            <div class="match-result-box">
-                <h3>النتيجة النهائية</h3>
-                <p class="final-score">${match.home_team} ${match.home_score} – ${match.away_score} ${match.away_team}</p>
-                ${match.predicted_home_score !== null ? `
-                    <p>توقعك: ${match.predicted_home_score} – ${match.predicted_away_score}</p>
-                    <p class="user-match-points">نقاطك: ${match.points} نقطة</p>
-                ` : `<p>لم تتوقع هذه المباراة</p>`}
-            </div>
-        ` : new Date(match.match_date) <= new Date() ? `
-            <p class="closed-match">⏰ انتهى وقت التوقع</p>
-        ` : `
-            <div class="score-inputs">
-                <input type="number" min="0" placeholder="0" id="home-${match.Mid}">
-                <span>–</span>
-                <input type="number" min="0" placeholder="0" id="away-${match.Mid}">
-            </div>
-            <div class="loser-card-box">
-                <label>
-                    <input type="checkbox" id="loser-${match.Mid}">
-                    🐎 بطاقة الحصان الأسود
-                </label>
-                <button type="button" class="info-btn" onclick="openLoserInfo()">
+    <!-- تبويب توقع البطولة -->
+    <div class="tab-content" id="content-tournament">
+        <div class="tournament-pred-card">
+            <div class="tournament-pred-header">
+                <h3><i class="bi bi-trophy-fill"></i> توقع البطل والهداف</h3>
+                <button type="button" class="tournament-info-btn" onclick="openTournamentInfo()" title="معلومات">
                     <i class="bi bi-info-circle-fill"></i>
                 </button>
             </div>
-            <button class="save-prediction-btn" onclick="savePrediction(${match.Mid})">
-                حفظ التوقع
+            <input type="text" id="championPrediction" placeholder="🏆 توقع بطل البطولة">
+            <input type="text" id="topScorerPrediction" placeholder="⚽ توقع هداف البطولة">
+            <button class="save-tournament-btn" onclick="saveTournamentPrediction()">
+                <i class="bi bi-check-circle-fill"></i> حفظ التوقع
             </button>
-        `}
-
+        </div>
     </div>
-                `;
 
-            });
+</section>
 
-            matchesBox.innerHTML = html;
+<!-- مودال الحصان الأسود -->
+<div id="loserInfoBox" class="loser-overlay">
+    <div class="loser-popup">
+        <button class="loser-close" onclick="closeLoserInfo()" type="button">×</button>
+        <h2>بطاقة الحصان الأسود 🐎</h2>
+        <p>في عالم الرياضة، يُطلق لقب الحصان الأسود على الفريق غير المرشح للفوز، لكنه يفاجئ الجميع ويحقق الانتصار.</p>
+        <p>تمنحك هذه البطاقة فرصة للمراهنة على المفاجآت. إذا استخدمت البطاقة على الفريق الأقل حظًا للفوز ونجح في الانتصار، ستحصل على نقاط إضافية.</p>
+        <p>إذا جبت التوقع صح تحصل على 3 نقاط بدل نقطة واحدة، وفي حال جبت النتيجة أيضاً تحصل على 7 نقاط بدل 3 نقاط. (المجموع 10).</p>
+        <p>استخدم البطاقة بحكمة، فلكل لاعب بطاقتان فقط في كل بطولة.</p>
+    </div>
+</div>
 
+<!-- مودال معلومات البطولة -->
+<div id="tournamentInfoBox" class="info-overlay">
+    <div class="info-popup">
+        <button class="info-close" onclick="closeTournamentInfo()" type="button">×</button>
+        <h2>معلومات توقعات البطولة</h2>
+        <p>🏆 توقع بطل البطولة الصحيح يعطيك 15 نقطة.</p>
+        <p>⚽ توقع هداف البطولة الصحيح يعطيك 10 نقاط.</p>
+        <p>🔒 بعد بداية البطولة لا يمكن تعديل توقع البطل أو الهداف.</p>
+        <p>✅ احفظ توقعك قبل بداية أول مباراة.</p>
+    </div>
+</div>
+
+<div id="notification" class="notification"></div>
+
+<script>
+var tournamentSelect = document.getElementById('tournamentSelect');
+var currentTab = 'predict';
+var allMatches = [];
+
+// ── أعلام ──────────────────────────────────────────────────────────────────
+var teamFlags = {
+    'السعودية':'sa','قطر':'qa','الإمارات':'ae','المغرب':'ma','تونس':'tn',
+    'الجزائر':'dz','مصر':'eg','البرازيل':'br','الأرجنتين':'ar','أوروغواي':'uy',
+    'كولومبيا':'co','الاكوادور':'ec','باراغواي':'py','التشيك':'cz',
+    'جنوب أفريقيا':'za','البوسنة والهرسك':'ba','هايتي':'ht','اسكتلندا':'gb-sct',
+    'كوراساو':'cw','السويد':'se','الرأس الأخضر':'cv','النرويج':'no','النمسا':'at',
+    'الكونغو الديمقراطية':'cd','فرنسا':'fr','اسبانيا':'es','البرتغال':'pt',
+    'انجلترا':'gb','المانيا':'de','إيطاليا':'it','هولندا':'nl','بلجيكا':'be',
+    'سويسرا':'ch','كرواتيا':'hr','الدنمارك':'dk','صربيا':'rs','بولندا':'pl',
+    'أوكرانيا':'ua','تركيا':'tr','الولايات المتحدة':'us','المكسيك':'mx',
+    'كندا':'ca','كوستاريكا':'cr','بنما':'pa','اليابان':'jp','كوريا الجنوبية':'kr',
+    'استراليا':'au','ايران':'ir','العراق':'iq','أوزبكستان':'uz','الأردن':'jo',
+    'السنغال':'sn','نيجيريا':'ng','الكاميرون':'cm','غانا':'gh',
+    'ساحل العاج':'ci','مالي':'ml','نيوزيلندا':'nz'
+};
+
+function getFlag(teamName) {
+    var code = teamFlags[teamName];
+    if (!code) return '<i class="bi bi-shield-fill" style="font-size:32px;color:#555"></i>';
+    return '<img src="https://flagcdn.com/w80/' + code + '.png" alt="' + teamName + '" class="team-flag">';
+}
+
+// ── تحميل البطولات ─────────────────────────────────────────────────────────
+fetch('/api/tournaments')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        data.forEach(function(t) {
+            var opt = document.createElement('option');
+            opt.value = t.id;
+            opt.textContent = t.Tname;
+            tournamentSelect.appendChild(opt);
         });
+    });
 
-});
-
-function savePrediction(matchId) {
-
-    const homeScore = document.getElementById('home-' + matchId).value;
-    const awayScore = document.getElementById('away-' + matchId).value;
-
-    if (homeScore === '' || awayScore === '') {
-        showNotification(
-            'اكتب توقع النتيجة أولاً',
-            'warning'
-        );
+// ── تغيير البطولة ──────────────────────────────────────────────────────────
+tournamentSelect.addEventListener('change', function() {
+    var tid = tournamentSelect.value;
+    if (!tid) {
+        allMatches = [];
+        renderCurrentTab();
         return;
     }
+    fetch('/api/matches/' + tid)
+        .then(function(r) { return r.json(); })
+        .then(function(matches) {
+            allMatches = matches;
+            renderCurrentTab();
+        });
+});
 
+// ── تبديل التبويب ──────────────────────────────────────────────────────────
+function switchPredictTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.predict-tab').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.getElementById('content-' + tab).classList.add('active');
+    if (tab !== 'tournament') renderCurrentTab();
+}
+
+// ── رسم الكروت حسب التبويب ─────────────────────────────────────────────────
+function renderCurrentTab() {
+    if (currentTab === 'predict') renderPredict();
+    else if (currentTab === 'results') renderResults();
+}
+
+function buildMatchCard(match) {
+    var matchDate = new Date(match.match_date).toLocaleString('ar-SA', {
+        timeZone: 'Asia/Riyadh',
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    var isPast    = new Date(match.match_date) <= new Date();
+    var hasResult = match.home_score !== null && match.away_score !== null;
+
+    var bottomSection = '';
+    if (hasResult) {
+        bottomSection = '<div class="match-result-box">' +
+            '<h3>النتيجة النهائية</h3>' +
+            '<p class="final-score">' + match.home_team + ' ' + match.home_score + ' – ' + match.away_score + ' ' + match.away_team + '</p>' +
+            (match.predicted_home_score !== null
+                ? '<p>توقعك: ' + match.predicted_home_score + ' – ' + match.predicted_away_score + '</p>' +
+                  '<p class="user-match-points">نقاطك: ' + match.points + ' نقطة</p>'
+                : '<p>لم تتوقع هذه المباراة</p>') +
+        '</div>';
+    } else if (isPast) {
+        bottomSection = '<p class="closed-match">⏰ انتهى وقت التوقع</p>';
+    } else {
+        bottomSection =
+            '<div class="score-inputs">' +
+                '<input type="number" min="0" placeholder="0" id="home-' + match.Mid + '">' +
+                '<span>–</span>' +
+                '<input type="number" min="0" placeholder="0" id="away-' + match.Mid + '">' +
+            '</div>' +
+            '<div class="loser-card-box">' +
+                '<label><input type="checkbox" id="loser-' + match.Mid + '"> 🐎 بطاقة الحصان الأسود</label>' +
+                '<button type="button" class="info-btn" onclick="openLoserInfo()"><i class="bi bi-info-circle-fill"></i></button>' +
+            '</div>' +
+            '<button class="save-prediction-btn" onclick="savePrediction(' + match.Mid + ')">حفظ التوقع</button>';
+    }
+
+    return '<div class="match-card ' + (match.is_golden ? 'golden-match-card' : '') + '">' +
+        '<div class="match-top-bar">' +
+            '<span class="round-name">' + (match.round_name || 'بدون جولة') + '</span>' +
+            (match.is_golden ? '<span class="golden-badge"><i class="bi bi-star-fill"></i> ذهبية ×2</span>' : '') +
+        '</div>' +
+        '<div class="teams-row">' +
+            '<div class="team-box">' +
+                '<div class="badge-space">' + (match.underdog_team === match.home_team ? '<span class="underdog-badge">🐎 حصان أسود</span>' : '') + '</div>' +
+                '<div class="team-logo">' + getFlag(match.home_team) + '</div>' +
+                '<h3>' + match.home_team + '</h3>' +
+            '</div>' +
+            '<div class="vs-box">VS</div>' +
+            '<div class="team-box">' +
+                '<div class="badge-space">' + (match.underdog_team === match.away_team ? '<span class="underdog-badge">🐎 حصان أسود</span>' : '') + '</div>' +
+                '<div class="team-logo">' + getFlag(match.away_team) + '</div>' +
+                '<h3>' + match.away_team + '</h3>' +
+            '</div>' +
+        '</div>' +
+        '<div class="probability-section"><div class="probability-row">' +
+            '<span class="left-percent">' + match.home_win_percent + '%</span>' +
+            '<div class="probability-bar"><div class="home-side" style="width:' + match.home_win_percent + '%"></div><div class="away-side" style="width:' + match.away_win_percent + '%"></div></div>' +
+            '<span class="right-percent">' + match.away_win_percent + '%</span>' +
+        '</div></div>' +
+        '<p class="match-time"><i class="bi bi-clock-fill"></i> ' + matchDate + '</p>' +
+        bottomSection +
+    '</div>';
+}
+
+function renderPredict() {
+    var box = document.getElementById('content-predict');
+    if (!allMatches.length) {
+        box.innerHTML = '<div class="empty-state"><i class="bi bi-calendar2-check"></i>اختر البطولة لتظهر المباريات</div>';
+        return;
+    }
+    // المباريات اللي ما انتهت بعد أو ما عندها نتيجة
+    var upcoming = allMatches.filter(function(m) {
+        return m.home_score === null && m.away_score === null;
+    });
+    if (!upcoming.length) {
+        box.innerHTML = '<div class="empty-state"><i class="bi bi-check-circle-fill" style="color:#22c55e"></i>انتهت جميع مباريات هذه البطولة</div>';
+        return;
+    }
+    box.innerHTML = upcoming.map(buildMatchCard).join('');
+}
+
+function renderResults() {
+    var box = document.getElementById('content-results');
+    if (!allMatches.length) {
+        box.innerHTML = '<div class="empty-state"><i class="bi bi-hourglass-split"></i>اختر البطولة لتظهر النتائج</div>';
+        return;
+    }
+    // المباريات اللي انتهت أو عندها نتيجة
+    var finished = allMatches.filter(function(m) {
+        return m.home_score !== null && m.away_score !== null;
+    });
+    if (!finished.length) {
+        box.innerHTML = '<div class="empty-state"><i class="bi bi-hourglass-split"></i>لا توجد نتائج بعد</div>';
+        return;
+    }
+    box.innerHTML = finished.map(buildMatchCard).join('');
+}
+
+// ── حفظ التوقع ─────────────────────────────────────────────────────────────
+function savePrediction(matchId) {
+    var homeScore = document.getElementById('home-' + matchId).value;
+    var awayScore = document.getElementById('away-' + matchId).value;
+    if (homeScore === '' || awayScore === '') {
+        showNotification('اكتب توقع النتيجة أولاً', 'warning');
+        return;
+    }
     fetch('/api/predictions', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             match_id: matchId,
             predicted_home_score: homeScore,
@@ -365,128 +449,45 @@ function savePrediction(matchId) {
             used_loser_card: document.getElementById('loser-' + matchId).checked
         })
     })
-    .then(response => response.json())
-    .then(data => {
-
-        if (data.error) {
-            showNotification(
-                data.error,
-                'error'
-            );
-            return;
-        }
-
-        showNotification(
-            data.message,
-            'success'
-        );
-
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.error) { showNotification(data.error, 'error'); return; }
+        showNotification(data.message, 'success');
     });
-
 }
 
-function openLoserInfo() {
-    document.getElementById('loserInfoBox').style.display = 'flex';
-}
-
-function closeLoserInfo() {
-    document.getElementById('loserInfoBox').style.display = 'none';
-}
-
+// ── حفظ توقع البطولة ───────────────────────────────────────────────────────
 function saveTournamentPrediction() {
-
-    const tournamentId = tournamentSelect.value;
-    const champion = document.getElementById('championPrediction').value;
-    const topScorer = document.getElementById('topScorerPrediction').value;
-
-    if (!tournamentId) {
-        showNotification('اختر البطولة أولاً', 'warning');
-        return;
-    }
-
-    if (champion === '' || topScorer === '') {
-        showNotification('اكتب توقع البطل والهداف', 'warning');
-        return;
-    }
-
+    var tournamentId = tournamentSelect.value;
+    var champion     = document.getElementById('championPrediction').value;
+    var topScorer    = document.getElementById('topScorerPrediction').value;
+    if (!tournamentId) { showNotification('اختر البطولة أولاً', 'warning'); return; }
+    if (!champion || !topScorer) { showNotification('اكتب توقع البطل والهداف', 'warning'); return; }
     fetch('/api/tournament-prediction', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            tournament_id: tournamentId,
-            champion_prediction: champion,
-            top_scorer_prediction: topScorer
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tournament_id: tournamentId, champion_prediction: champion, top_scorer_prediction: topScorer })
     })
-    .then(response => response.json())
-    .then(data => {
-
-
-    if (data.error) {
-        showNotification(data.error, 'error');
-        return;
-    }
-
-    showNotification(data.message, 'success');
-
-});
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.error) { showNotification(data.error, 'error'); return; }
+        showNotification(data.message, 'success');
+    });
 }
 
-
-function showNotification(message, type = 'success') {
-
-    const notification =
-        document.getElementById('notification');
-
-    notification.innerText = message;
-
-    notification.className =
-        'notification show ' + type;
-
-    setTimeout(() => {
-
-        notification.classList.remove('show');
-
-    }, 3000);
-
+// ── مساعد ──────────────────────────────────────────────────────────────────
+function showNotification(message, type) {
+    var n = document.getElementById('notification');
+    n.innerText = message;
+    n.className = 'notification show ' + (type || 'success');
+    setTimeout(function() { n.classList.remove('show'); }, 3000);
 }
 
-function openTournamentInfo() {
-    document.getElementById('tournamentInfoBox').style.display = 'flex';
-}
-
-function closeTournamentInfo() {
-    document.getElementById('tournamentInfoBox').style.display = 'none';
-}
-function getFlag(teamName){
-
-    const code = teamFlags[teamName];
-
-    if(!code){
-        return '';
-    }
-
-    return `
-        <img
-            src="https://flagcdn.com/w80/${code}.png"
-            alt="${teamName}"
-            style="
-                width:60px;
-                height:40px;
-                object-fit:cover;
-                border-radius:8px;
-                margin-bottom:10px;
-            ">
-    `;
-
-}
+function openLoserInfo()      { document.getElementById('loserInfoBox').style.display = 'flex'; }
+function closeLoserInfo()     { document.getElementById('loserInfoBox').style.display = 'none'; }
+function openTournamentInfo() { document.getElementById('tournamentInfoBox').style.display = 'flex'; }
+function closeTournamentInfo(){ document.getElementById('tournamentInfoBox').style.display = 'none'; }
 </script>
-
-<div id="notification" class="notification"></div>
-
-
 
 </body>
 </html>
