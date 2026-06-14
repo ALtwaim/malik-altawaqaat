@@ -2221,13 +2221,13 @@ app.post('/api/tournament-prediction', (req, res) => {
 
             const firstMatch =
                 new Date(matchResult[0].firstMatch);
-            /*
+            
             if (new Date() >= firstMatch) {
                 return res.status(400).json({
                     error: '🔒 بدأت البطولة، تم إغلاق توقعات البطل والهداف'
                 });
             }
-            */
+            
             saveTournamentPrediction();
 
         }
