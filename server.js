@@ -220,7 +220,7 @@ app.get('/profile', (req, res) => {
             document.getElementById('totalPoints').innerText = data.totalPoints;
             document.getElementById('totalPredictions').innerText = data.totalPredictions;
             document.getElementById('successRate').innerText = data.successRate + '%';
-            document.getElementById('currentRank').innerText = data.currentTournamentRank;
+            document.getElementById('currentRank').innerText = data.best_rank;
         });
 
     // ── خريطة الأعلام ────────────────────────────────────────────────────────
@@ -1595,7 +1595,30 @@ function updateUsersTotalPoints(res) {
                 return res.send(err);
             }
 
-            res.redirect('/admin');
+            db.query(
+                `UPDATE person p
+                 JOIN (
+                    SELECT 
+                        Uid,
+                        RANK() OVER (ORDER BY tota_point DESC) AS current_rank
+                    FROM person
+                 ) r ON p.Uid = r.Uid
+                 SET p.best_rank =
+                    CASE
+                        WHEN p.best_rank IS NULL THEN r.current_rank
+                        WHEN r.current_rank < p.best_rank THEN r.current_rank
+                        ELSE p.best_rank
+                    END`,
+                (err) => {
+
+                    if (err) {
+                        return res.send(err);
+                    }
+
+                    res.redirect('/admin');
+
+                }
+            );
 
         }
     );
@@ -2350,7 +2373,7 @@ app.get('/api/profile-summary', (req, res) => {
                         totalPoints: user.tota_point,
                         totalPredictions: total,
                         successRate: successRate,
-                        currentTournamentRank: 'قريبًا'
+                        best_rank: 'قريبًا'
                     });
 
                 }
