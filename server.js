@@ -2373,7 +2373,7 @@ app.get('/api/profile-summary', (req, res) => {
                         totalPoints: user.tota_point,
                         totalPredictions: total,
                         successRate: successRate,
-                        best_rank: user.best_rank || null
+                        best_rank: user.best_rank 
                     });
 
                 }
