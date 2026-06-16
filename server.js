@@ -2341,7 +2341,7 @@ app.get('/api/profile-summary', (req, res) => {
     const userId = req.session.user.id;
 
     db.query(
-        `SELECT Uid, Username, email, tota_point, role
+        `SELECT Uid, Username, email, tota_point, role, best_rank
          FROM person
          WHERE Uid = ?`,
         [userId],
@@ -2373,7 +2373,7 @@ app.get('/api/profile-summary', (req, res) => {
                         totalPoints: user.tota_point,
                         totalPredictions: total,
                         successRate: successRate,
-                        best_rank: user.best_rank 
+                        best_rank: user.best_rank || null,
                     });
 
                 }
