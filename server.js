@@ -190,7 +190,7 @@ app.get('/profile', (req, res) => {
                 <strong id="successRate">0%</strong>
             </div>
             <div class="profile-stat-box">
-                <span>🥇 ترتيب البطولة الحالية</span>
+                <span>🥇 أفضل ترتيب</span>
                 <strong id="currentRank">-</strong>
             </div>
         </div>
