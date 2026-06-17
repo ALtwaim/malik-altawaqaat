@@ -1673,18 +1673,18 @@ app.get('/api/dashboard-summary', (req, res) => {
                             }
 
                             db.query(
-    `SELECT round_id
-     FROM matches
-     WHERE match_date <= NOW()
-     ORDER BY match_date DESC
-     LIMIT 1`,
+    `SELECT Rid
+ FROM rounds
+ WHERE CURDATE() BETWEEN start_date AND end_date
+ ORDER BY Rid DESC
+ LIMIT 1`,
     (err, roundData) => {
 
         let weeklyRank = 'قريبًا';
 
         if (!err && roundData.length > 0) {
 
-            const currentRound = roundData[0].round_id;
+            const currentRound = roundData[0].Rid;
 
             db.query(
                 `SELECT p.user_id,
@@ -2653,7 +2653,7 @@ app.post('/admin/calculate-round-winner', isAdmin, (req, res) => {
         [round_id],
         (err, result) => {
 
-            if (err) return res.send(err);
+            if (err) return res.status(500).send('حدث خطأ في الخادم');
 
             if (result.length === 0) {
                 return res.send('لا توجد توقعات في هذه الجولة');
@@ -2662,37 +2662,34 @@ app.post('/admin/calculate-round-winner', isAdmin, (req, res) => {
             const winner = result[0];
 
             db.query(
-                `DELETE FROM round_winners
-                 WHERE round_id = ?`,
+                `DELETE FROM round_winners WHERE round_id = ?`,
                 [round_id],
                 (err) => {
 
-                    if (err) return res.send(err);
+                    if (err) return res.status(500).send('حدث خطأ في الخادم');
 
                     db.query(
-                        `INSERT INTO round_winners
-                         (round_id, user_id, points)
+                        `INSERT INTO round_winners (round_id, user_id, points)
                          VALUES (?, ?, ?)`,
-                        [
-                            round_id,
-                            winner.Uid,
-                            winner.round_points
-                        ],
+                        [round_id, winner.Uid, winner.round_points],
                         (err) => {
 
-                            if (err) return res.send(err);
+                            if (err) return res.status(500).send('حدث خطأ في الخادم');
+
+                            // تحديث عداد انتصارات الجولة
+                            db.query(
+                                `UPDATE person SET roundWins = roundWins + 1 WHERE Uid = ?`,
+                                [winner.Uid]
+                            );
 
                             res.redirect('/admin');
 
                         }
                     );
-
                 }
             );
-
         }
     );
-
 });
 
 function calculateRoundWinner(roundId) {
