@@ -131,6 +131,13 @@ function closeAnnouncement() {
 
 </section>
 
+<section class="latest-card" id="roundWinnersSection">
+    <h2>🥇 أبطال الجولات</h2>
+    <div id="roundWinnersBox">
+        <p style="text-align:center; color:#888">جاري التحميل...</p>
+    </div>
+</section>
+
 <section class="stats-card">
 
     <h2>
@@ -235,62 +242,26 @@ function closeAnnouncement() {
     </section>
 
    <script>
+// ── بيانات المستخدم ──────────────────────────────────────────
 fetch('/api/dashboard-summary')
     .then(response => response.json())
     .then(data => {
 
-        const navUsername = document.getElementById('username');
+        const navUsername       = document.getElementById('username');
         const dashboardUsername = document.getElementById('dashboardUsername');
-        document.getElementById('roundWins').innerText = data.roundWins;
 
-        if (navUsername) {
-            navUsername.innerText = data.username;
-        }
+        if (navUsername)       navUsername.innerText       = data.username;
+        if (dashboardUsername) dashboardUsername.innerText = data.username;
 
-        if (dashboardUsername) {
-            dashboardUsername.innerText = data.username;
-        }
-
-        fetch('/api/round-winners')
-    .then(response => response.json())
-    .then(data => {
-
-        const box = document.getElementById('roundWinnersBox');
-
-        if (data.length === 0) {
-            box.innerHTML = '<p>لا يوجد أبطال جولات حتى الآن.</p>';
-            return;
-        }
-
-        let html = '';
-
-        data.forEach(item => {
-            html += `
-                <div class="latest-item">
-                    <div>
-                        <strong>${item.round_name}</strong>
-                        <p>🥇 ${item.Username}</p>
-                    </div>
-
-                    <div class="latest-points">
-                        ${item.points} نقطة
-                    </div>
-                </div>
-            `;
-        });
-
-        box.innerHTML = html;
-
-    });
-
-        document.getElementById('userPoints').innerText =
-        data.points ?? data.totalPoints ?? data.Total_point ?? data.tota_point ?? 0;
+        document.getElementById('userPoints').innerText  = data.points ?? data.totalPoints ?? data.Total_point ?? data.tota_point ?? 0;
         document.getElementById('overallRank').innerText = data.overallRank;
-        document.getElementById('weeklyRank').innerText = data.weeklyRank;
-        document.getElementById('horseCards').innerText = data.horseCards + '/2';
-        document.getElementById('roundWins').innerText = data.roundWins;
+        document.getElementById('weeklyRank').innerText  = data.weeklyRank;
+        document.getElementById('horseCards').innerText  = data.horseCards + '/2';
+        document.getElementById('roundWins').innerText   = data.roundWins;
 
     });
+
+// ── لوحة المتصدرين الكلية ────────────────────────────────────
 fetch('/api/leaderboard')
     .then(response => response.json())
     .then(data => {
@@ -299,45 +270,32 @@ fetch('/api/leaderboard')
 
         data.forEach((user, index) => {
 
-    let medal = '';
-    let rankClass = '';
+            let medal = '', rankClass = '';
 
-    if (index === 0) {
-        medal = '🥇';
-        rankClass = 'rank-gold';
-    } else if (index === 1) {
-        medal = '🥈';
-        rankClass = 'rank-silver';
-    } else if (index === 2) {
-        medal = '🥉';
-        rankClass = 'rank-bronze';
-    } else {
-        medal = index + 1;
-        rankClass = '';
-    }
+            if      (index === 0) { medal = '🥇'; rankClass = 'rank-gold';   }
+            else if (index === 1) { medal = '🥈'; rankClass = 'rank-silver'; }
+            else if (index === 2) { medal = '🥉'; rankClass = 'rank-bronze'; }
+            else                  { medal = index + 1; rankClass = ''; }
 
-    html += `
-        <p class="leaderboard-row ${rankClass}">
-            <span>${medal} ${user.Username}</span>
-            <strong>${user.tota_point} نقطة</strong>
-        </p>
-    `;
-
-});
+            html += `
+                <p class="leaderboard-row ${rankClass}">
+                    <span>${medal} ${user.Username}</span>
+                    <strong>${user.tota_point} نقطة</strong>
+                </p>
+            `;
+        });
 
         document.getElementById('mainLeaderboard').innerHTML = html;
 
     });
 
+// ── متصدرو الجولة الحالية ────────────────────────────────────
 fetch('/api/current-round')
     .then(response => response.json())
     .then(round => {
 
         if (!round) {
-            document.getElementById('roundLeaderboard').innerHTML =
-                '<p>لا توجد جولة حالية</p>';
-
-            document.getElementById('roundBestPlayer').innerText = '-';
+            document.getElementById('roundLeaderboard').innerHTML = '<p>لا توجد جولة حالية</p>';
             return;
         }
 
@@ -355,6 +313,14 @@ fetch('/api/current-round')
                         </p>
                     `;
                 });
+
+                document.getElementById('roundLeaderboard').innerHTML = html;
+
+            });
+
+    });
+
+// ── أبطال الجولات ────────────────────────────────────────────
 fetch('/api/round-winners')
     .then(response => response.json())
     .then(data => {
@@ -368,40 +334,25 @@ fetch('/api/round-winners')
 
         let html = '';
 
-        data.forEach(item => {
+        data.forEach((item, index) => {
+            const medals = ['🥇', '🥈', '🥉'];
+            const medal  = index < 3 ? medals[index] : (index + 1) + '.';
 
             html += `
                 <div class="latest-item">
                     <div>
                         <strong>${item.round_name}</strong>
-                        <p>🥇 ${item.Username}</p>
+                        <p style="margin:4px 0; color:#aaa; font-size:13px">البطل: ${item.Username}</p>
                     </div>
-
-                    <div class="latest-points">
-                        ${item.points} نقطة
-                    </div>
+                    <span class="latest-points">${medal} ${item.points} نقطة</span>
                 </div>
             `;
-
         });
 
         box.innerHTML = html;
 
     });
 
-
-                document.getElementById('roundLeaderboard').innerHTML = html;
-
-                if (data.length > 0) {
-                    document.getElementById('roundBestPlayer').innerText =
-                        data[0].Username;
-                } else {
-                    document.getElementById('roundBestPlayer').innerText = '-';
-                }
-
-            });
-
-    });
 fetch('/api/my-stats')
     .then(response => response.json())
     .then(data => {
