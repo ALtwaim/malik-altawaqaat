@@ -164,6 +164,7 @@ app.get('/profile', (req, res) => {
             <a href="/dashboard"><i class="bi bi-house-fill"></i> الرئيسية</a>
             <a href="/leaderboard"><i class="bi bi-trophy-fill"></i> المتصدرون</a>
             <a href="/predict"><i class="bi bi-lightning-charge-fill"></i> التوقعات</a>
+            <a href="/private-leagues">الدوريات الخاصة 🔐</a>
             <a href="/logout"><i class="bi bi-box-arrow-right"></i> تسجيل الخروج</a>
         </div>
     </div>
@@ -950,14 +951,14 @@ app.post('/admin/add-match', isAdmin, (req, res) => {
 
 });
 
-app.get('/api/tournaments', (req, res) => {
+app.get('/api/tournaments', requireLogin, (req, res) => {
 
     db.query(
         'SELECT * FROM tournaments',
         (err, result) => {
 
             if (err) {
-                return res.send(err);
+                return res.status(500).json(err);
             }
 
             res.json(result);
@@ -2944,6 +2945,261 @@ app.get('/api/latest-round-winner', (req, res) => {
     });
 
 });
+
+//--------------------------الدوريات الخاصة-------------
+
+app.get('/private-leagues', requireLogin, (req, res) => {
+    res.sendFile(__dirname + '/public/private-leagues.html');
+});
+
+function generateLeagueCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+
+    for (let i = 0; i < 6; i++) {
+        code += chars[Math.floor(Math.random() * chars.length)];
+    }
+
+    return code;
+}
+
+app.post('/api/private-leagues/create', requireLogin, (req, res) => {
+    const {
+        name,
+        icon,
+        max_members,
+        tournaments,
+        features
+    } = req.body;
+
+    const code = generateLeagueCode();
+    const userId = req.session.userId;
+
+    db.query(
+        `INSERT INTO private_leagues 
+        (name, icon, code, max_members, created_by)
+        VALUES (?, ?, ?, ?, ?)`,
+        [name, icon, code, max_members, userId],
+        (err, result) => {
+            if (err) return res.status(500).json(err);
+
+            const leagueId = result.insertId;
+
+            db.query(
+                `INSERT INTO private_league_members 
+                (league_id, user_id, role)
+                VALUES (?, ?, 'owner')`,
+                [leagueId, userId]
+            );
+
+            if (tournaments && tournaments.length > 0) {
+                const values = tournaments.map(tid => [leagueId, tid]);
+
+                db.query(
+                    `INSERT INTO private_league_tournaments
+                    (league_id, tournament_id)
+                    VALUES ?`,
+                    [values]
+                );
+            }
+
+            db.query(
+                `INSERT INTO private_league_features
+                (
+                    league_id,
+                    black_horse_enabled, black_horse_limit,
+                    golden_match_enabled, golden_match_limit,
+                    steal_enabled, steal_limit,
+                    shield_enabled, shield_limit,
+                    rescue_enabled, rescue_limit
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    leagueId,
+
+                    features?.black_horse?.enabled ? 1 : 0,
+                    features?.black_horse?.limit || 0,
+
+                    features?.golden_match?.enabled ? 1 : 0,
+                    features?.golden_match?.limit || 0,
+
+                    features?.steal?.enabled ? 1 : 0,
+                    features?.steal?.limit || 0,
+
+                    features?.shield?.enabled ? 1 : 0,
+                    features?.shield?.limit || 0,
+
+                    features?.rescue?.enabled ? 1 : 0,
+                    features?.rescue?.limit || 0
+                ],
+                (err2) => {
+                    if (err2) return res.status(500).json(err2);
+
+                    res.json({
+                        success: true,
+                        message: 'تم إنشاء الدوري بنجاح',
+                        leagueId,
+                        code
+                    });
+                }
+            );
+        }
+    );
+});
+
+app.post('/api/private-leagues/join', requireLogin, (req, res) => {
+    const { code } = req.body;
+    const userId = req.session.userId;
+
+    db.query(
+        `SELECT * FROM private_leagues WHERE code = ?`,
+        [code],
+        (err, leagues) => {
+            if (err) return res.status(500).json(err);
+
+            if (leagues.length === 0) {
+                return res.json({
+                    success: false,
+                    message: 'رمز الدوري غير صحيح'
+                });
+            }
+
+            const league = leagues[0];
+
+            db.query(
+                `SELECT COUNT(*) AS members_count 
+                 FROM private_league_members 
+                 WHERE league_id = ?`,
+                [league.id],
+                (err2, countResult) => {
+                    if (err2) return res.status(500).json(err2);
+
+                    if (countResult[0].members_count >= league.max_members) {
+                        return res.json({
+                            success: false,
+                            message: 'الدوري ممتلئ'
+                        });
+                    }
+
+                    db.query(
+                        `INSERT INTO private_league_members
+                        (league_id, user_id, role)
+                        VALUES (?, ?, 'member')`,
+                        [league.id, userId],
+                        (err3) => {
+                            if (err3) {
+                                return res.json({
+                                    success: false,
+                                    message: 'أنت منضم لهذا الدوري مسبقاً'
+                                });
+                            }
+
+                            res.json({
+                                success: true,
+                                message: 'تم الانضمام للدوري بنجاح',
+                                leagueId: league.id
+                            });
+                        }
+                    );
+                }
+            );
+        }
+    );
+});
+
+app.get('/api/private-leagues/my', requireLogin, (req, res) => {
+    const userId = req.session.userId;
+
+    db.query(
+        `SELECT 
+            pl.id,
+            pl.name,
+            pl.icon,
+            pl.code,
+            pl.max_members,
+            pl.created_by,
+            pl.created_at,
+            plm.role,
+            COUNT(plm2.user_id) AS members_count
+        FROM private_league_members plm
+        JOIN private_leagues pl ON plm.league_id = pl.id
+        LEFT JOIN private_league_members plm2 ON pl.id = plm2.league_id
+        WHERE plm.user_id = ?
+        GROUP BY pl.id, plm.role
+        ORDER BY pl.created_at DESC`,
+        [userId],
+        (err, leagues) => {
+            if (err) return res.status(500).json(err);
+
+            res.json(leagues);
+        }
+    );
+});
+
+app.get('/api/private-leagues/:id', requireLogin, (req, res) => {
+    const leagueId = req.params.id;
+    const userId = req.session.userId;
+
+    db.query(
+        `SELECT * FROM private_league_members 
+         WHERE league_id = ? AND user_id = ?`,
+        [leagueId, userId],
+        (err, memberCheck) => {
+            if (err) return res.status(500).json(err);
+
+            if (memberCheck.length === 0) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'لا تملك صلاحية دخول هذا الدوري'
+                });
+            }
+
+            db.query(
+                `SELECT * FROM private_leagues WHERE id = ?`,
+                [leagueId],
+                (err2, leagueResult) => {
+                    if (err2) return res.status(500).json(err2);
+
+                    db.query(
+                        `SELECT * FROM private_league_features WHERE league_id = ?`,
+                        [leagueId],
+                        (err3, featuresResult) => {
+                            if (err3) return res.status(500).json(err3);
+
+                            db.query(
+                                `SELECT 
+                                    p.Uid,
+                                    p.Username,
+                                    COALESCE(SUM(pr.points), 0) AS total_points
+                                FROM private_league_members lm
+                                JOIN person p ON lm.user_id = p.Uid
+                                LEFT JOIN predictions pr ON pr.user_id = p.Uid
+                                LEFT JOIN matches m ON pr.match_id = m.Mid
+                                LEFT JOIN private_league_tournaments plt
+                                    ON plt.tournament_id = m.tournament_id
+                                    AND plt.league_id = lm.league_id
+                                WHERE lm.league_id = ?
+                                GROUP BY p.Uid, p.Username
+                                ORDER BY total_points DESC`,
+                                [leagueId],
+                                (err4, leaderboard) => {
+                                    if (err4) return res.status(500).json(err4);
+
+                                    res.json({
+                                        league: leagueResult[0],
+                                        features: featuresResult[0],
+                                        leaderboard
+                                    });
+                                }
+                            );
+                        }
+                    );
+                }
+            );
+        }
+    );
+});
+
 
 app.listen(3000, () => {
     console.log('Server Running');

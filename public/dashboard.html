@@ -518,7 +518,7 @@ fetch('/api/latest-round-winner')
 <script>
 window.addEventListener('load', function () {
 
-    if (!localStorage.getItem('round_winner_ad_seen1')) {
+    if (!localStorage.getItem('round_winner_ad_seen1')) {   // ── غير الرقم مع كل إعلان جديد
         document.getElementById('winnerOverlay').style.display = 'flex';
     }
 
