@@ -2948,6 +2948,17 @@ app.get('/api/latest-round-winner', (req, res) => {
 
 //--------------------------الدوريات الخاصة-------------
 
+function requireLogin(req, res, next) {
+    if (req.session && req.session.userId) {
+        return next();
+    }
+
+    return res.status(401).json({
+        success: false,
+        message: 'يجب تسجيل الدخول'
+    });
+}
+
 app.get('/private-leagues', requireLogin, (req, res) => {
     res.sendFile(__dirname + '/public/private-leagues.html');
 });
@@ -2964,22 +2975,19 @@ function generateLeagueCode() {
 }
 
 app.post('/api/private-leagues/create', requireLogin, (req, res) => {
-    const {
-        name,
-        icon,
-        max_members,
-        tournaments,
-        features
-    } = req.body;
-
+    const { name, icon, max_members, tournaments, features = {} } = req.body;
     const code = generateLeagueCode();
     const userId = req.session.userId;
+
+    if (!name) {
+        return res.json({ success: false, message: 'اكتب اسم الدوري' });
+    }
 
     db.query(
         `INSERT INTO private_leagues 
         (name, icon, code, max_members, created_by)
         VALUES (?, ?, ?, ?, ?)`,
-        [name, icon, code, max_members, userId],
+        [name, icon || '🏆', code, max_members || 20, userId],
         (err, result) => {
             if (err) return res.status(500).json(err);
 
@@ -2989,58 +2997,70 @@ app.post('/api/private-leagues/create', requireLogin, (req, res) => {
                 `INSERT INTO private_league_members 
                 (league_id, user_id, role)
                 VALUES (?, ?, 'owner')`,
-                [leagueId, userId]
-            );
+                [leagueId, userId],
+                (errMember) => {
+                    if (errMember) return res.status(500).json(errMember);
 
-            if (tournaments && tournaments.length > 0) {
-                const values = tournaments.map(tid => [leagueId, tid]);
+                    if (tournaments && tournaments.length > 0) {
+                        const values = tournaments.map(tid => [leagueId, tid]);
 
-                db.query(
-                    `INSERT INTO private_league_tournaments
-                    (league_id, tournament_id)
-                    VALUES ?`,
-                    [values]
-                );
-            }
+                        db.query(
+                            `INSERT INTO private_league_tournaments
+                            (league_id, tournament_id)
+                            VALUES ?`,
+                            [values],
+                            (errTour) => {
+                                if (errTour) return res.status(500).json(errTour);
 
-            db.query(
-                `INSERT INTO private_league_features
-                (
-                    league_id,
-                    black_horse_enabled, black_horse_limit,
-                    golden_match_enabled, golden_match_limit,
-                    steal_enabled, steal_limit,
-                    shield_enabled, shield_limit,
-                    rescue_enabled, rescue_limit
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    leagueId,
+                                insertLeagueFeatures();
+                            }
+                        );
+                    } else {
+                        insertLeagueFeatures();
+                    }
 
-                    features?.black_horse?.enabled ? 1 : 0,
-                    features?.black_horse?.limit || 0,
+                    function insertLeagueFeatures() {
+                        db.query(
+                            `INSERT INTO private_league_features
+                            (
+                                league_id,
+                                black_horse_enabled, black_horse_limit,
+                                golden_match_enabled, golden_match_limit,
+                                steal_enabled, steal_limit,
+                                shield_enabled, shield_limit,
+                                rescue_enabled, rescue_limit
+                            )
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                            [
+                                leagueId,
 
-                    features?.golden_match?.enabled ? 1 : 0,
-                    features?.golden_match?.limit || 0,
+                                features.black_horse?.enabled ? 1 : 0,
+                                features.black_horse?.limit || 0,
 
-                    features?.steal?.enabled ? 1 : 0,
-                    features?.steal?.limit || 0,
+                                features.golden_match?.enabled ? 1 : 0,
+                                features.golden_match?.limit || 0,
 
-                    features?.shield?.enabled ? 1 : 0,
-                    features?.shield?.limit || 0,
+                                features.steal?.enabled ? 1 : 0,
+                                features.steal?.limit || 0,
 
-                    features?.rescue?.enabled ? 1 : 0,
-                    features?.rescue?.limit || 0
-                ],
-                (err2) => {
-                    if (err2) return res.status(500).json(err2);
+                                features.shield?.enabled ? 1 : 0,
+                                features.shield?.limit || 0,
 
-                    res.json({
-                        success: true,
-                        message: 'تم إنشاء الدوري بنجاح',
-                        leagueId,
-                        code
-                    });
+                                features.rescue?.enabled ? 1 : 0,
+                                features.rescue?.limit || 0
+                            ],
+                            (err2) => {
+                                if (err2) return res.status(500).json(err2);
+
+                                res.json({
+                                    success: true,
+                                    message: 'تم إنشاء الدوري بنجاح',
+                                    leagueId,
+                                    code
+                                });
+                            }
+                        );
+                    }
                 }
             );
         }
@@ -3048,8 +3068,15 @@ app.post('/api/private-leagues/create', requireLogin, (req, res) => {
 });
 
 app.post('/api/private-leagues/join', requireLogin, (req, res) => {
-    const { code } = req.body;
+    const code = req.body.code?.trim().toUpperCase();
     const userId = req.session.userId;
+
+    if (!code) {
+        return res.json({
+            success: false,
+            message: 'اكتب رمز الدوري'
+        });
+    }
 
     db.query(
         `SELECT * FROM private_leagues WHERE code = ?`,
@@ -3125,12 +3152,19 @@ app.get('/api/private-leagues/my', requireLogin, (req, res) => {
         JOIN private_leagues pl ON plm.league_id = pl.id
         LEFT JOIN private_league_members plm2 ON pl.id = plm2.league_id
         WHERE plm.user_id = ?
-        GROUP BY pl.id, plm.role
+        GROUP BY 
+            pl.id,
+            pl.name,
+            pl.icon,
+            pl.code,
+            pl.max_members,
+            pl.created_by,
+            pl.created_at,
+            plm.role
         ORDER BY pl.created_at DESC`,
         [userId],
         (err, leagues) => {
             if (err) return res.status(500).json(err);
-
             res.json(leagues);
         }
     );
@@ -3170,7 +3204,13 @@ app.get('/api/private-leagues/:id', requireLogin, (req, res) => {
                                 `SELECT 
                                     p.Uid,
                                     p.Username,
-                                    COALESCE(SUM(pr.points), 0) AS total_points
+                                    COALESCE(SUM(
+                                        CASE 
+                                            WHEN plt.tournament_id IS NOT NULL 
+                                            THEN pr.points 
+                                            ELSE 0 
+                                        END
+                                    ), 0) AS total_points
                                 FROM private_league_members lm
                                 JOIN person p ON lm.user_id = p.Uid
                                 LEFT JOIN predictions pr ON pr.user_id = p.Uid
