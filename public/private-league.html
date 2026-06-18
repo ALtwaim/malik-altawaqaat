@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>الدوري الخاص</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#ffd43b;
+  --gold-dim:rgba(255,212,59,.13);
+  --gold-border:rgba(255,212,59,.22);
+  --bg:#060e1c;
+  --surface:#0c1729;
+  --surface2:#101f38;
+  --text:#e8edf8;
+  --muted:#7a90b5;
+  --green:#22c55e;
+  --red:#ef4444;
+  --radius:18px;
+  --radius-sm:12px;
+}
+body{
+  font-family:'Cairo',Tahoma,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 80% -10%,rgba(36,59,115,.5) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 10% 90%,rgba(15,30,80,.35) 0%,transparent 55%);
+}
+
+/* NAV */
+.nav{
+  height:64px;
+  background:rgba(6,14,28,.92);
+  border-bottom:1px solid var(--gold-border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 40px;
+  position:sticky;
+  top:0;
+  z-index:100;
+  backdrop-filter:blur(12px);
+}
+.logo{color:var(--gold);font-size:20px;font-weight:900;display:flex;align-items:center;gap:8px;text-decoration:none}
+.nav-links{display:flex;gap:6px}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:600;padding:7px 14px;border-radius:30px;transition:.2s}
+.nav-links a:hover,.nav-links a.active{color:var(--text);background:var(--surface2)}
+
+/* HERO */
+.hero{
+  padding:48px 40px 36px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+.league-icon{
+  width:64px;height:64px;
+  background:var(--gold-dim);
+  border:2px solid var(--gold-border);
+  border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:14px;
+}
+.league-icon svg{width:34px;height:34px}
+.hero h1{font-size:34px;font-weight:900;color:var(--gold);line-height:1.2}
+.hero-meta{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}
+.meta-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--surface2);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:30px;
+  padding:5px 13px;
+  font-size:13px;color:var(--muted);font-weight:600;
+}
+.meta-tag svg{width:14px;height:14px}
+.code-box{
+  background:var(--gold-dim);
+  border:1px solid var(--gold-border);
+  border-radius:var(--radius-sm);
+  padding:14px 20px;
+  display:flex;align-items:center;gap:14px;
+}
+.code-label{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:3px}
+.code-val{font-size:26px;font-weight:900;color:var(--gold);letter-spacing:4px}
+.copy-btn{
+  background:var(--surface2);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;
+  padding:8px 14px;
+  color:var(--text);
+  font-size:13px;font-weight:700;
+  cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;gap:6px;
+  transition:.15s;
+}
+.copy-btn:hover{border-color:var(--gold);color:var(--gold)}
+.copy-btn svg{width:14px;height:14px}
+
+/* LAYOUT */
+.container{width:92%;max-width:1200px;margin:0 auto;padding-bottom:80px}
+.grid{display:grid;grid-template-columns:1fr 340px;gap:22px}
+
+/* CARD */
+.card{
+  background:var(--surface);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:24px;
+  padding:26px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+.card-title{
+  font-size:17px;font-weight:800;color:var(--gold);
+  margin-bottom:20px;
+  display:flex;align-items:center;gap:8px;
+  padding-bottom:14px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.card-title svg{width:20px;height:20px;flex-shrink:0}
+
+/* LEADERBOARD */
+.lb-row{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;
+  border-radius:var(--radius-sm);
+  margin-bottom:8px;
+  background:var(--surface2);
+  border:1px solid rgba(255,255,255,.05);
+  transition:.15s;
+}
+.lb-row:hover{border-color:rgba(255,212,59,.2)}
+.lb-row.me{
+  border-color:var(--gold-border);
+  background:var(--gold-dim);
+}
+.rank{
+  width:32px;height:32px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;
+  flex-shrink:0;
+  background:rgba(255,255,255,.06);
+  color:var(--muted);
+}
+.rank.r1{background:linear-gradient(135deg,#ffd43b,#f9a825);color:#060e1c}
+.rank.r2{background:linear-gradient(135deg,#c0c0c0,#a0a0a0);color:#060e1c}
+.rank.r3{background:linear-gradient(135deg,#cd7f32,#a0522d);color:#fff}
+.lb-name{flex:1;font-weight:700;font-size:15px}
+.lb-pts{
+  font-size:18px;font-weight:900;color:var(--gold);
+  display:flex;align-items:baseline;gap:4px;
+}
+.lb-pts span{font-size:11px;color:var(--muted);font-weight:600}
+
+/* FEATURES */
+.feat-card{
+  background:var(--surface2);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:var(--radius);
+  padding:14px 16px;
+  margin-bottom:10px;
+}
+.feat-card.disabled{opacity:.45}
+.feat-head{display:flex;align-items:center;gap:10px}
+.feat-ico{
+  width:36px;height:36px;
+  border-radius:10px;
+  background:rgba(255,255,255,.05);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.feat-ico svg{width:18px;height:18px}
+.feat-info{flex:1}
+.feat-name{font-size:14px;font-weight:700}
+.feat-desc{font-size:11px;color:var(--muted);margin-top:2px}
+.feat-badge{
+  font-size:11px;font-weight:700;
+  padding:3px 9px;border-radius:20px;
+  white-space:nowrap;
+}
+.feat-badge.on{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.3)}
+.feat-badge.off{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid rgba(255,255,255,.08)}
+
+/* USAGE BAR */
+.usage-row{
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px solid rgba(255,255,255,.05);
+}
+.usage-label{
+  display:flex;justify-content:space-between;
+  font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px;
+}
+.usage-label strong{color:var(--text)}
+.bar-bg{
+  height:6px;border-radius:10px;
+  background:rgba(255,255,255,.07);
+  overflow:hidden;
+}
+.bar-fill{
+  height:100%;border-radius:10px;
+  background:linear-gradient(90deg,#ffd43b,#f9a825);
+  transition:width .4s;
+}
+.bar-fill.full{background:linear-gradient(90deg,#ef4444,#dc2626)}
+
+/* LOADING / EMPTY */
+.loading{
+  display:flex;align-items:center;justify-content:center;
+  padding:40px;color:var(--muted);gap:10px;font-size:14px;
+}
+.spinner{
+  width:20px;height:20px;border:2px solid rgba(255,212,59,.2);
+  border-top-color:var(--gold);border-radius:50%;
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{color:var(--muted);font-size:14px;padding:20px;text-align:center}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#1a2d50;border:1px solid var(--gold-border);
+  border-radius:12px;padding:11px 22px;
+  font-size:14px;font-weight:600;color:var(--gold);
+  opacity:0;transition:.3s;pointer-events:none;z-index:999;
+  white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:850px){
+  .grid{grid-template-columns:1fr}
+  .hero{padding:28px 20px 20px}
+  .nav{padding:0 16px}
+  .hero h1{font-size:26px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="logo" href="/">
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="#ffd43b"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+    ملك التوقعات
+  </a>
+  <div class="nav-links">
+    <a href="/dashboard">الرئيسية</a>
+    <a href="/predict.html">توقع الآن</a>
+    <a href="/private-leagues" class="active">الدوريات الخاصة</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div id="heroSection" style="display:none">
+  <div class="hero" style="width:92%;max-width:1200px;margin:0 auto">
+    <div class="hero-left">
+      <div class="league-icon" id="leagueIconBox">
+        <svg viewBox="0 0 24 24" fill="#ffd43b"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+      </div>
+      <h1 id="leagueName">—</h1>
+      <div class="hero-meta">
+        <div class="meta-tag" id="membersTag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>— عضو</span>
+        </div>
+        <div class="meta-tag" id="roleTag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+          <span>—</span>
+        </div>
+      </div>
+    </div>
+    <div class="code-box">
+      <div>
+        <div class="code-label">رمز الدوري</div>
+        <div class="code-val" id="leagueCode">——</div>
+      </div>
+      <button class="copy-btn" onclick="copyCode()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        نسخ
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+
+  <!-- initial loading -->
+  <div id="pageLoading" class="loading">
+    <div class="spinner"></div>
+    جاري تحميل الدوري...
+  </div>
+
+  <div id="pageContent" style="display:none">
+    <div class="grid">
+
+      <!-- LEADERBOARD -->
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ffd43b" stroke-width="2.2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          ترتيب الأعضاء
+        </div>
+        <div id="leaderboardBox">
+          <div class="loading"><div class="spinner"></div> جاري التحميل...</div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR -->
+      <div style="display:flex;flex-direction:column;gap:20px">
+
+        <!-- FEATURES -->
+        <div class="card">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#ffd43b" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            الخصائص المتاحة
+          </div>
+          <div id="featuresBox">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- error -->
+  <div id="pageError" style="display:none" class="empty">
+    تعذر تحميل الدوري، تأكد من الرابط أو سجل دخولك.
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const FEATURES_META = {
+  black_horse:  { name:'الحصان الأسود',  desc:'فرصة إضافية على الفريق الأضعف', icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 17h12M6 17l-1 4M18 17l1 4M12 3c-3 0-5 2-5 4v3l-1 3h12l-1-3V7c0-2-2-4-5-4z"/></svg>` },
+  golden_match: { name:'المباراة الذهبية', desc:'مباراة بنقاط مضاعفة',           icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>` },
+  steal:        { name:'خاصية السرقة',    desc:'تزرف توقع من لاعب قبل المباراة',  icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>` },
+  shield:       { name:'الدرع',           desc:'يحميك من السرقة والهجمات',        icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>` },
+  rescue:       { name:'بطاقة الإنقاذ',  desc:'نقاط إذا جبت فارق الأهداف',      icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>` }
+};
+
+const ICON_SVGS = {
+  crown:  `<svg viewBox="0 0 24 24" fill="#ffd43b"><path d="M2 20h20v2H2zM3 8l4 4 5-8 5 8 4-4 1 8H2L3 8z"/></svg>`,
+  trophy: `<svg viewBox="0 0 24 24" fill="none" stroke="#ffd43b" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
+  ball:   `<svg viewBox="0 0 24 24" fill="none" stroke="#ffd43b" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20A14.5 14.5 0 0 0 12 2"/><path d="M2 12h20"/></svg>`,
+  fire:   `<svg viewBox="0 0 24 24" fill="none" stroke="#ffd43b" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`,
+  eagle:  `<svg viewBox="0 0 24 24" fill="none" stroke="#ffd43b" stroke-width="2"><path d="M17.5 19H9a7 7 0 0 1-7-7h0a5 5 0 0 1 5-5h4.5"/><path d="M14 20l-5-5"/><path d="M22 6l-9.5 9.5"/><path d="M22 6h-5"/><path d="M22 6v5"/></svg>`,
+  horse:  `<svg viewBox="0 0 24 24" fill="none" stroke="#ffd43b" stroke-width="2"><path d="M6 17h12M6 17l-1 4M18 17l1 4M12 3c-3 0-5 2-5 4v3l-1 3h12l-1-3V7c0-2-2-4-5-4z"/></svg>`,
+  bolt:   `<svg viewBox="0 0 24 24" fill="none" stroke="#ffd43b" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`,
+};
+
+function getLeagueId() {
+  return new URLSearchParams(window.location.search).get('id');
+}
+
+async function safeJson(res) {
+  try {
+    const data = await res.json();
+    if (res.status === 401) { window.location.href = '/login'; return null; }
+    return data;
+  } catch(e) { return null; }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function copyCode() {
+  const code = document.getElementById('leagueCode').textContent;
+  navigator.clipboard.writeText(code).then(() => showToast('تم نسخ الرمز ✓'));
+}
+
+// ── render leaderboard ──
+function renderLeaderboard(leaderboard, myUid) {
+  const box = document.getElementById('leaderboardBox');
+  if (!leaderboard || leaderboard.length === 0) {
+    box.innerHTML = '<div class="empty">لا يوجد أعضاء بعد.</div>';
+    return;
+  }
+  box.innerHTML = leaderboard.map((p, i) => {
+    const rank = i + 1;
+    const rankClass = rank === 1 ? 'r1' : rank === 2 ? 'r2' : rank === 3 ? 'r3' : '';
+    const isMe = String(p.Uid) === String(myUid);
+    return `
+      <div class="lb-row ${isMe ? 'me' : ''}">
+        <div class="rank ${rankClass}">${rank <= 3 ? ['🥇','🥈','🥉'][rank-1] : rank}</div>
+        <div class="lb-name">${p.Username}${isMe ? ' <span style="font-size:11px;color:var(--gold)">(أنت)</span>' : ''}</div>
+        <div class="lb-pts">${p.total_points}<span>نقطة</span></div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── render features ──
+function renderFeatures(features, usage) {
+  const box = document.getElementById('featuresBox');
+  const keys = ['black_horse','golden_match','steal','shield','rescue'];
+  const usageMap = {};
+  (usage || []).forEach(u => { usageMap[u.card_type] = u.used_count; });
+
+  box.innerHTML = keys.map(key => {
+    const meta   = FEATURES_META[key];
+    const enabled = features[key + '_enabled'];
+    const limit   = features[key + '_limit'] || 0;
+    const used    = usageMap[key] || 0;
+    const remaining = Math.max(0, limit - used);
+    const pct = limit > 0 ? Math.min(100, (used / limit) * 100) : 0;
+    const full = remaining === 0 && enabled;
+
+    return `
+      <div class="feat-card ${!enabled ? 'disabled' : ''}">
+        <div class="feat-head">
+          <div class="feat-ico">${meta.icon}</div>
+          <div class="feat-info">
+            <div class="feat-name">${meta.name}</div>
+            <div class="feat-desc">${meta.desc}</div>
+          </div>
+          <div class="feat-badge ${enabled ? 'on' : 'off'}">${enabled ? 'مفعّلة' : 'مغلقة'}</div>
+        </div>
+        ${enabled ? `
+        <div class="usage-row">
+          <div class="usage-label">
+            <span>الاستخدامات</span>
+            <strong>${remaining} / ${limit} باقي</strong>
+          </div>
+          <div class="bar-bg">
+            <div class="bar-fill ${full ? 'full' : ''}" style="width:${pct}%"></div>
+          </div>
+        </div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+// ── main load ──
+async function loadPage() {
+  const id = getLeagueId();
+  if (!id) { showError(); return; }
+
+  try {
+    const [dataRes, usageRes] = await Promise.all([
+      fetch(`/api/private-leagues/${id}`),
+      fetch(`/api/private-leagues/${id}/my-usage`)
+    ]);
+
+    const data  = await safeJson(dataRes);
+    const usage = await safeJson(usageRes);
+
+    if (!data || !data.league) { showError(); return; }
+
+    const { league, features, leaderboard } = data;
+
+    // hero
+    document.title = league.name + ' — ملك التوقعات';
+    document.getElementById('leagueName').textContent = league.name;
+    document.getElementById('leagueCode').textContent = league.code;
+    document.getElementById('leagueIconBox').innerHTML =
+      ICON_SVGS[league.icon] || ICON_SVGS['crown'];
+
+    const membersCount = leaderboard?.length || 0;
+    document.getElementById('membersTag').querySelector('span').textContent =
+      `${membersCount} / ${league.max_members} عضو`;
+    document.getElementById('roleTag').querySelector('span').textContent =
+      league.my_role === 'owner' ? '👑 مدير' : '🎮 لاعب';
+
+    document.getElementById('heroSection').style.display = 'block';
+    document.getElementById('pageLoading').style.display = 'none';
+    document.getElementById('pageContent').style.display = 'block';
+
+    renderLeaderboard(leaderboard, league.my_uid);
+    if (features) renderFeatures(features, usage?.usage || []);
+    else document.getElementById('featuresBox').innerHTML = '<div class="empty">لا توجد خصائص.</div>';
+
+  } catch(e) {
+    showError();
+  }
+}
+
+function showError() {
+  document.getElementById('pageLoading').style.display = 'none';
+  document.getElementById('pageError').style.display = 'block';
+}
+
+loadPage();
+</script>
+</body>
+</html>

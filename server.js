@@ -3211,6 +3211,90 @@ app.get('/api/private-leagues/:id', requireLogin, (req, res) => {
     );
 });
 
+// ── صفحة تفاصيل الدوري ──
+app.get('/private-league.html', (req, res) => {
+    res.sendFile(__dirname + '/public/private-league.html');
+});
+
+// ── API: تفاصيل الدوري مع my_role و my_uid ──
+app.get('/api/private-leagues/:id', requireLogin, (req, res) => {
+    const leagueId = req.params.id;
+    const userId = req.session.userId || req.session.Uid || req.session.user?.id;
+
+    // تحقق إن المستخدم عضو
+    db.query(
+        `SELECT role FROM private_league_members WHERE league_id = ? AND user_id = ?`,
+        [leagueId, userId],
+        (err, memberCheck) => {
+            if (err) return res.status(500).json(err);
+            if (memberCheck.length === 0) {
+                return res.status(403).json({ success: false, message: 'لا تملك صلاحية دخول هذا الدوري' });
+            }
+
+            const myRole = memberCheck[0].role;
+
+            db.query(`SELECT * FROM private_leagues WHERE id = ?`, [leagueId], (err2, leagueResult) => {
+                if (err2) return res.status(500).json(err2);
+
+                db.query(`SELECT * FROM private_league_features WHERE league_id = ?`, [leagueId], (err3, featuresResult) => {
+                    if (err3) return res.status(500).json(err3);
+
+                    db.query(
+                        `SELECT 
+                            p.Uid,
+                            p.Username,
+                            COALESCE(SUM(
+                                CASE WHEN plt.tournament_id IS NOT NULL THEN pr.points ELSE 0 END
+                            ), 0) AS total_points
+                        FROM private_league_members lm
+                        JOIN person p ON lm.user_id = p.Uid
+                        LEFT JOIN predictions pr ON pr.user_id = p.Uid
+                        LEFT JOIN matches m ON pr.match_id = m.Mid
+                        LEFT JOIN private_league_tournaments plt
+                            ON plt.tournament_id = m.tournament_id
+                            AND plt.league_id = lm.league_id
+                        WHERE lm.league_id = ?
+                        GROUP BY p.Uid, p.Username
+                        ORDER BY total_points DESC`,
+                        [leagueId],
+                        (err4, leaderboard) => {
+                            if (err4) return res.status(500).json(err4);
+
+                            const league = leagueResult[0];
+                            league.my_role = myRole;
+                            league.my_uid  = userId;
+
+                            res.json({
+                                league,
+                                features: featuresResult[0] || null,
+                                leaderboard
+                            });
+                        }
+                    );
+                });
+            });
+        }
+    );
+});
+
+// ── API: استخدامات اللاعب الحالي للخصائص ──
+app.get('/api/private-leagues/:id/my-usage', requireLogin, (req, res) => {
+    const leagueId = req.params.id;
+    const userId = req.session.userId || req.session.Uid || req.session.user?.id;
+
+    db.query(
+        `SELECT card_type, COUNT(*) AS used_count
+         FROM private_league_card_usage
+         WHERE league_id = ? AND user_id = ?
+         GROUP BY card_type`,
+        [leagueId, userId],
+        (err, usage) => {
+            if (err) return res.status(500).json(err);
+            res.json({ usage });
+        }
+    );
+});
+
 
 app.listen(3000, () => {
     console.log('Server Running');
