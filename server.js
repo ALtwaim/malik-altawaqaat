@@ -951,7 +951,7 @@ app.post('/admin/add-match', isAdmin, (req, res) => {
 
 });
 
-app.get('/api/tournaments', requireLogin, (req, res) => {
+app.get('/api/tournaments', (req, res) => {
 
     db.query(
         'SELECT * FROM tournaments',
