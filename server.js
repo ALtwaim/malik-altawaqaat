@@ -2921,6 +2921,30 @@ app.get('/api/user-predictions/:username', (req, res) => {
     );
 });
 
+app.get('/api/latest-round-winner', (req, res) => {
+
+    db.query(`
+        SELECT
+            rw.round_id,
+            p.Username,
+            r.round_name
+        FROM round_winners rw
+        JOIN person p ON rw.user_id = p.Uid
+        JOIN rounds r ON rw.round_id = r.Rid
+        ORDER BY rw.id DESC
+        LIMIT 1
+    `, (err, result) => {
+
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+
+        res.json(result[0] || null);
+
+    });
+
+});
+
 app.listen(3000, () => {
     console.log('Server Running');
 })

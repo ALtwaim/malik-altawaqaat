@@ -477,6 +477,20 @@ fetch('/api/my-tournament-predictions')
         box.innerHTML = html;
 
     });
+
+fetch('/api/latest-round-winner')
+.then(r => r.json())
+.then(data => {
+
+    if (!data) return;
+
+    document.getElementById('winnerName').innerText =
+        data.Username;
+
+    document.getElementById('winnerRound').innerText =
+        data.round_name;
+
+});
 </script>
 
 <div class="winner-overlay" id="winnerOverlay">
@@ -485,10 +499,14 @@ fetch('/api/my-tournament-predictions')
 
         <h2>🏆 بطل الجولة</h2>
 
-        <p>
-            نبارك للمستخدم <strong>D.r/A.E</strong>
-            تحقيقه لقب بطل الجولة الأولى.
-        </p>
+        <h2>🏆 بطل الجولة</h2>
+
+<p>
+    نبارك للمستخدم
+    <strong id="winnerName"></strong>
+    تحقيقه لقب
+    <span id="winnerRound"></span>
+</p>
 
         <p>
           سيتم التواصل مع الفائز قريبًا لتسليمه جائزته 🎁
