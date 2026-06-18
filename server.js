@@ -2949,17 +2949,14 @@ app.get('/api/latest-round-winner', (req, res) => {
 //--------------------------الدوريات الخاصة-------------
 
 function requireLogin(req, res, next) {
-    if (req.session && req.session.userId) {
+    if (req.session && (req.session.userId || req.session.Uid || req.session.user)) {
         return next();
     }
 
-    return res.status(401).json({
-        success: false,
-        message: 'يجب تسجيل الدخول'
-    });
+    return res.redirect('/login');
 }
 
-app.get('/private-leagues', requireLogin, (req, res) => {
+app.get('/private-leagues', (req, res) => {
     res.sendFile(__dirname + '/public/private-leagues.html');
 });
 
