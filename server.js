@@ -2952,8 +2952,11 @@ function requireLogin(req, res, next) {
     if (req.session && (req.session.userId || req.session.Uid || req.session.user)) {
         return next();
     }
-
-    return res.redirect('/login');
+    // إذا الطلب API يرجع JSON بدل redirect
+if (req.path.startsWith('/api/')) {
+    return res.status(401).json({ success: false, message: 'يجب تسجيل الدخول' });
+}
+return res.redirect('/login');
 }
 
 app.get('/private-leagues', (req, res) => {

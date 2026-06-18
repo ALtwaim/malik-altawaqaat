@@ -607,7 +607,7 @@ const FEATURES = [
     id: 'steal',
     name: 'خاصية السرقة',
     desc: 'تزرف توقع من لاعب قبل بداية المباراة',
-    tooltip: 'قبل انطلاق المباراة، اسرق توقع لاعب آخر واستبدله بتوقعك.',
+    tooltip: 'قبل انطلاق المباراة، اسرق توقع لاعب آخر واضفها الى توقعاتك.',
     default: 1,
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`
   },
@@ -732,8 +732,16 @@ function showMsg(id, html, ok = true) {
 }
 
 async function safeJson(res) {
-  try { return await res.json(); }
-  catch(e) { return {success:false, message:'تعذر قراءة الرد من السيرفر'}; }
+    try {
+        const data = await res.json();
+        if (res.status === 401) {
+            window.location.href = '/login';
+            return { success: false };
+        }
+        return data;
+    } catch(e) {
+        return { success: false, message: 'تعذر قراءة الرد من السيرفر' };
+    }
 }
 
 // -- Create --
