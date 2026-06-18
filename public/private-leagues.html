@@ -4,536 +4,821 @@
 <meta charset="UTF-8">
 <title>الدوريات الخاصة</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
-*{box-sizing:border-box}
-body{
-    margin:0;
-    font-family:Tahoma,Arial,sans-serif;
-    background:
-        radial-gradient(circle at top right,#243b73 0,#07111f 35%,#03070d 100%);
-    color:#fff;
-    min-height:100vh;
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold: #ffd43b;
+  --gold-dim: rgba(255,212,59,.15);
+  --gold-border: rgba(255,212,59,.22);
+  --bg: #060e1c;
+  --surface: #0c1729;
+  --surface2: #101f38;
+  --text: #e8edf8;
+  --muted: #7a90b5;
+  --radius: 18px;
+  --radius-sm: 12px;
 }
-.nav{
-    height:70px;
-    background:rgba(10,18,34,.9);
-    border-bottom:1px solid rgba(255,215,0,.18);
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 50px;
-    position:sticky;
-    top:0;
-    z-index:10;
+
+body {
+  font-family: 'Cairo', Tahoma, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 80% -10%, rgba(36,59,115,.55) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 10% 90%, rgba(15,30,80,.4) 0%, transparent 55%);
 }
-.logo{
-    color:#ffd43b;
-    font-size:24px;
-    font-weight:bold;
+
+/* ── NAV ── */
+.nav {
+  height: 64px;
+  background: rgba(6,14,28,.92);
+  border-bottom: 1px solid var(--gold-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
 }
-.nav a{
-    color:#c9d6ff;
-    text-decoration:none;
-    margin:0 10px;
-    font-weight:bold;
+.logo { color: var(--gold); font-size: 20px; font-weight: 900; display: flex; align-items: center; gap: 8px; }
+.logo svg { width: 26px; height: 26px; }
+.nav-links { display: flex; gap: 6px; }
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 30px;
+  transition: .2s;
 }
-.hero{
-    text-align:center;
-    padding:70px 20px 45px;
+.nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--surface2); }
+
+/* ── HERO ── */
+.hero {
+  text-align: center;
+  padding: 60px 20px 40px;
 }
-.hero h1{
-    font-size:52px;
-    margin:0;
-    color:#ffd43b;
-    text-shadow:0 0 25px rgba(255,212,59,.35);
+.hero-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 30px;
+  margin-bottom: 18px;
 }
-.hero p{
-    color:#c9d6ff;
-    font-size:20px;
-    margin-top:15px;
+.hero h1 {
+  font-size: 46px;
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1.15;
+  text-shadow: 0 0 40px rgba(255,212,59,.3);
 }
-.actions{
-    display:flex;
-    justify-content:center;
-    gap:18px;
-    margin-top:30px;
-    flex-wrap:wrap;
+.hero p { color: var(--muted); font-size: 17px; margin-top: 12px; line-height: 1.8; }
+.hero-btns { display: flex; justify-content: center; gap: 14px; margin-top: 28px; flex-wrap: wrap; }
+.btn {
+  border: none;
+  border-radius: 50px;
+  padding: 13px 26px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 15px;
+  font-family: inherit;
+  transition: .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
-.btn{
-    border:none;
-    border-radius:14px;
-    padding:15px 28px;
-    font-weight:bold;
-    cursor:pointer;
-    font-size:16px;
+.btn-gold {
+  background: linear-gradient(135deg, #ffd43b, #f9a825);
+  color: #060e1c;
+  box-shadow: 0 4px 20px rgba(255,212,59,.3);
 }
-.btn-gold{
-    background:linear-gradient(135deg,#ffd43b,#ffb703);
-    color:#07111f;
-    box-shadow:0 0 25px rgba(255,212,59,.25);
+.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(255,212,59,.4); }
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,.15);
 }
-.btn-dark{
-    background:#111d33;
-    color:#fff;
-    border:1px solid rgba(255,215,0,.25);
+.btn-outline:hover { background: var(--surface2); border-color: rgba(255,255,255,.3); }
+.btn-ghost {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--radius-sm);
+  padding: 11px 20px;
+  font-size: 14px;
 }
-.container{
-    width:90%;
-    max-width:1200px;
-    margin:auto;
-    padding-bottom:60px;
+
+/* ── LAYOUT ── */
+.container { width: 92%; max-width: 1180px; margin: 0 auto; padding-bottom: 80px; }
+.grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 24px; }
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 24px;
+  padding: 30px;
+  box-shadow: 0 24px 70px rgba(0,0,0,.4);
 }
-.grid{
-    display:grid;
-    grid-template-columns:1.1fr .9fr;
-    gap:25px;
+.card-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--gold);
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
-.card{
-    background:rgba(17,29,51,.92);
-    border:1px solid rgba(255,215,0,.18);
-    border-radius:24px;
-    padding:28px;
-    box-shadow:0 20px 60px rgba(0,0,0,.35);
+.card-title svg { width: 22px; height: 22px; flex-shrink: 0; }
+
+/* ── FORM ── */
+.field { margin-bottom: 18px; }
+.field label { display: block; color: var(--muted); font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.field input[type="text"],
+.field input[type="number"] {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+  outline: none;
+  font-size: 15px;
+  font-family: inherit;
+  transition: border-color .2s;
 }
-.card h2{
-    margin-top:0;
-    color:#ffd43b;
+.field input:focus { border-color: rgba(255,212,59,.5); }
+
+/* ── ICON PICKER ── */
+.icon-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.icon-btn {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  border: 2px solid transparent;
+  cursor: pointer;
+  font-size: 0;
+  transition: .15s;
 }
-label{
-    display:block;
-    margin:16px 0 8px;
-    color:#c9d6ff;
+.icon-btn svg { width: 24px; height: 24px; }
+.icon-btn.active { border-color: var(--gold); background: var(--gold-dim); }
+.icon-btn:hover:not(.active) { border-color: rgba(255,212,59,.35); }
+
+/* ── TOURNAMENT PILLS ── */
+.tournament-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
 }
-input,select{
-    width:100%;
-    padding:14px;
-    border-radius:14px;
-    border:1px solid rgba(255,255,255,.12);
-    background:#07111f;
-    color:white;
-    outline:none;
-    font-size:16px;
+.t-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 30px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: var(--surface2);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  transition: .15s;
+  user-select: none;
 }
-select{min-height:120px}
-.icons{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-top:10px;
+.t-pill svg { width: 15px; height: 15px; opacity: .5; }
+.t-pill.active {
+  background: var(--gold-dim);
+  border-color: var(--gold-border);
+  color: var(--gold);
 }
-.icon{
-    width:44px;
-    height:44px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:12px;
-    background:#0b1729;
-    border:1px solid rgba(255,255,255,.08);
-    cursor:pointer;
-    font-size:22px;
+.t-pill.active svg { opacity: 1; }
+.t-pill:hover:not(.active) { border-color: rgba(255,255,255,.25); color: var(--text); }
+
+/* ── FEATURE CARDS ── */
+.features-grid { display: flex; flex-direction: column; gap: 10px; }
+.feature-card {
+  background: var(--surface2);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  transition: border-color .2s;
 }
-.icon.active{
-    border-color:#ffd43b;
-    background:rgba(255,212,59,.15);
+.feature-card.on { border-color: var(--gold-border); }
+
+.feature-header { display: flex; align-items: center; gap: 10px; }
+.feature-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
-.feature{
-    background:#0b1729;
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:18px;
-    padding:15px;
-    margin:12px 0;
+.feature-icon svg { width: 20px; height: 20px; }
+.feature-info { flex: 1; }
+.feature-name { font-size: 14px; font-weight: 700; }
+.feature-desc { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+
+.feature-actions { display: flex; align-items: center; gap: 8px; margin-right: auto; }
+
+/* info button */
+.info-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.15);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  transition: .15s;
+  position: relative;
 }
-.feature-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+.info-btn:hover { border-color: var(--gold); color: var(--gold); }
+.info-btn svg { width: 13px; height: 13px; }
+
+/* tooltip */
+.tooltip-wrap { position: relative; display: inline-flex; }
+.tooltip-box {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a2d50;
+  border: 1px solid var(--gold-border);
+  border-radius: 10px;
+  padding: 10px 13px;
+  font-size: 12px;
+  color: var(--text);
+  width: 200px;
+  line-height: 1.6;
+  z-index: 20;
+  pointer-events: none;
+  box-shadow: 0 8px 30px rgba(0,0,0,.5);
 }
-.feature-title{
-    font-weight:bold;
+.tooltip-box::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top: none;
+  border-bottom-color: #1a2d50;
 }
-.toggle{
-    width:54px;
-    height:28px;
-    background:#263247;
-    border-radius:20px;
-    position:relative;
-    cursor:pointer;
+.tooltip-wrap:hover .tooltip-box { display: block; }
+
+/* toggle */
+.toggle {
+  width: 46px;
+  height: 26px;
+  background: rgba(255,255,255,.1);
+  border-radius: 30px;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background .2s;
+  border: none;
 }
-.toggle::after{
-    content:"";
-    width:22px;
-    height:22px;
-    background:#fff;
-    border-radius:50%;
-    position:absolute;
-    top:3px;
-    right:4px;
-    transition:.2s;
+.toggle::after {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  transition: right .2s;
 }
-.toggle.active{
-    background:#ffd43b;
+.toggle.active { background: var(--gold); }
+.toggle.active::after { right: 23px; background: #060e1c; }
+
+.feature-body {
+  display: none;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.06);
+  align-items: center;
+  gap: 12px;
 }
-.toggle.active::after{
-    right:28px;
-    background:#07111f;
+.feature-body.show { display: flex; }
+.feature-body label { color: var(--muted); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.feature-body input {
+  width: 80px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  text-align: center;
+  outline: none;
 }
-.limit-row{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-top:12px;
+
+/* ── CREATE BTN CENTER ── */
+.create-action { margin-top: 24px; display: flex; justify-content: center; }
+.btn-create {
+  background: linear-gradient(135deg, #ffd43b, #f9a825);
+  color: #060e1c;
+  border: none;
+  border-radius: 50px;
+  padding: 15px 48px;
+  font-size: 16px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 22px rgba(255,212,59,.35);
+  transition: .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
-.limit-row span{
-    color:#9fb0d0;
-    min-width:110px;
+.btn-create:hover { transform: translateY(-2px); box-shadow: 0 7px 30px rgba(255,212,59,.45); }
+.btn-create svg { width: 18px; height: 18px; }
+
+/* ── MSG ── */
+.msg { display: none; margin-top: 14px; padding: 13px 16px; border-radius: var(--radius-sm); font-size: 14px; line-height: 1.7; }
+.msg.ok { display: block; background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.3); color: #4ade80; }
+.msg.err { display: block; background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); color: #f87171; }
+
+/* ── CODE ── */
+.code { color: var(--gold); font-weight: 800; letter-spacing: 3px; }
+
+/* ── JOIN CARD ── */
+.join-input-row { display: flex; gap: 10px; margin-top: 4px; }
+.join-input-row input {
+  flex: 1;
+  padding: 13px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+  outline: none;
+  font-size: 15px;
+  font-family: inherit;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
-.limit-row input{
-    max-width:120px;
+.join-input-row input:focus { border-color: rgba(255,212,59,.5); }
+
+/* ── MY LEAGUES ── */
+.section-sep { height: 1px; background: rgba(255,255,255,.06); margin: 24px 0; }
+.leagues-title { font-size: 16px; font-weight: 700; color: var(--gold); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.leagues-title svg { width: 18px; height: 18px; }
+
+.league-card {
+  background: linear-gradient(135deg, var(--surface2), rgba(13,24,48,.8));
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
 }
-.msg{
-    margin-top:15px;
-    padding:14px;
-    border-radius:14px;
-    display:none;
-    line-height:1.8;
+.league-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.small { color: var(--muted); font-size: 12px; margin-top: 2px; }
+.badge {
+  background: var(--gold);
+  color: #060e1c;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
 }
-.msg.ok{
-    display:block;
-    background:rgba(18,180,100,.14);
-    border:1px solid rgba(18,180,100,.35);
+.empty {
+  color: var(--muted);
+  font-size: 14px;
+  padding: 20px;
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+  text-align: center;
 }
-.msg.err{
-    display:block;
-    background:rgba(255,80,80,.12);
-    border:1px solid rgba(255,80,80,.35);
-}
-.leagues{
-    margin-top:35px;
-}
-.league-card{
-    background:linear-gradient(135deg,#13233d,#0b1729);
-    border:1px solid rgba(255,215,0,.18);
-    border-radius:20px;
-    padding:22px;
-    margin-bottom:16px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:15px;
-}
-.badge{
-    color:#07111f;
-    background:#ffd43b;
-    padding:8px 14px;
-    border-radius:20px;
-    font-weight:bold;
-}
-.code{
-    color:#ffd43b;
-    font-weight:bold;
-    letter-spacing:2px;
-}
-.small{
-    color:#9fb0d0;
-}
-.empty{
-    color:#9fb0d0;
-    padding:20px;
-    background:#0b1729;
-    border-radius:18px;
-}
-@media(max-width:850px){
-    .grid{grid-template-columns:1fr}
-    .hero h1{font-size:38px}
-    .nav{padding:0 20px}
+.league-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+
+@media (max-width: 850px) {
+  .grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 32px; }
+  .nav { padding: 0 16px; }
+  .nav-links a span { display: none; }
 }
 </style>
 </head>
-
 <body>
 
-<div class="nav">
-    <div class="logo">👑 ملك التوقعات</div>
-    <div>
-        <a href="/dashboard">الرئيسية</a>
-        <a href="/predict.html">توقع الآن</a>
-        <a href="/private-leagues">🔐 الدوريات الخاصة</a>
-    </div>
-</div>
+<!-- NAV -->
+<nav class="nav">
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#ffd43b"/>
+    </svg>
+    ملك التوقعات
+  </div>
+  <div class="nav-links">
+    <a href="/dashboard"><span>الرئيسية</span></a>
+    <a href="/predict.html"><span>توقع الآن</span></a>
+    <a href="/private-leagues" class="active"><span>الدوريات الخاصة</span></a>
+  </div>
+</nav>
 
+<!-- HERO -->
 <section class="hero">
-    <h1>الدوريات الخاصة 🔐</h1>
-    <p>أنشئ دوري بين أصحابك، اختر البطولات، فعل البطاقات، وخل المنافسة نار 🔥</p>
-    <div class="actions">
-        <button class="btn btn-gold" onclick="scrollToCreate()">+ إنشاء دوري جديد</button>
-        <button class="btn btn-dark" onclick="scrollToJoin()">🔑 الانضمام برمز</button>
-    </div>
+  <div class="hero-label">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#ffd43b" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    حصري لأصحابك
+  </div>
+  <h1>الدوريات الخاصة</h1>
+  <p>أنشئ دوري بين أصحابك، اختر البطولات، فعّل البطاقات، وخل المنافسة نار</p>
+  <div class="hero-btns">
+    <button class="btn btn-gold" onclick="scrollToCreate()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      إنشاء دوري جديد
+    </button>
+    <button class="btn btn-outline" onclick="scrollToJoin()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+      الانضمام برمز
+    </button>
+  </div>
 </section>
 
+<!-- MAIN -->
 <div class="container">
+  <div class="grid">
 
-    <div class="grid">
+    <!-- CREATE -->
+    <div class="card" id="createBox">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#ffd43b" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        إنشاء دوري خاص
+      </div>
 
-        <div class="card" id="createBox">
-            <h2>+ إنشاء دوري خاص</h2>
+      <!-- Name -->
+      <div class="field">
+        <label>اسم الدوري</label>
+        <input id="leagueName" type="text" placeholder="مثال: دوري العيال">
+      </div>
 
-            <label>اسم الدوري</label>
-            <input id="leagueName" placeholder="مثال: دوري العيال">
+      <!-- Icon -->
+      <div class="field">
+        <label>أيقونة الدوري</label>
+        <input id="leagueIcon" type="hidden" value="crown">
+        <div class="icon-row" id="iconsBox">
 
-            <label>اختر أيقونة</label>
-            <input id="leagueIcon" type="hidden" value="👑">
-            <div class="icons" id="iconsBox">
-                <div class="icon active" onclick="chooseIcon(this,'👑')">👑</div>
-                <div class="icon" onclick="chooseIcon(this,'🔥')">🔥</div>
-                <div class="icon" onclick="chooseIcon(this,'⚽')">⚽</div>
-                <div class="icon" onclick="chooseIcon(this,'🏆')">🏆</div>
-                <div class="icon" onclick="chooseIcon(this,'🦅')">🦅</div>
-                <div class="icon" onclick="chooseIcon(this,'🐎')">🐎</div>
-                <div class="icon" onclick="chooseIcon(this,'⚡')">⚡</div>
-            </div>
+          <div class="icon-btn active" onclick="chooseIcon(this,'crown')" title="تاج">
+            <svg viewBox="0 0 24 24" fill="#ffd43b"><path d="M2 20h20v2H2zM3 8l4 4 5-8 5 8 4-4 1 8H2L3 8z"/></svg>
+          </div>
 
-            <label>الحد الأقصى للأعضاء</label>
-            <input id="maxMembers" type="number" value="20" min="2">
+          <div class="icon-btn" onclick="chooseIcon(this,'trophy')" title="كأس">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          </div>
 
-            <label>البطولات التي تُحسب نقاطها</label>
-            <select id="tournamentsSelect" multiple>
-                <option value="1">كأس العالم</option>
-            </select>
+          <div class="icon-btn" onclick="chooseIcon(this,'ball')" title="كرة">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20A14.5 14.5 0 0 0 12 2"/><path d="M2 12h20"/></svg>
+          </div>
 
-            <label>خصائص الدوري</label>
+          <div class="icon-btn" onclick="chooseIcon(this,'fire')" title="نار">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+          </div>
 
-            <div id="featuresBox"></div>
+          <div class="icon-btn" onclick="chooseIcon(this,'eagle')" title="نسر">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 0 1-7-7h0a5 5 0 0 1 5-5h4.5"/><path d="M14 20l-5-5"/><path d="M22 6l-9.5 9.5"/><path d="M22 6h-5"/><path d="M22 6v5"/></svg>
+          </div>
 
-            <button class="btn btn-gold" onclick="createLeague()">إنشاء الدوري</button>
-            <div id="createMsg" class="msg"></div>
+          <div class="icon-btn" onclick="chooseIcon(this,'horse')" title="حصان">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 17h12M6 17l-1 4M18 17l1 4M12 3c-3 0-5 2-5 4v3l-1 3h12l-1-3V7c0-2-2-4-5-4z"/><path d="M9 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm6 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
+          </div>
+
+          <div class="icon-btn" onclick="chooseIcon(this,'bolt')" title="برق">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+
         </div>
+      </div>
 
-        <div class="card" id="joinBox">
-            <h2>🔑 الانضمام لدوري</h2>
+      <!-- Max members -->
+      <div class="field">
+        <label>الحد الأقصى للأعضاء</label>
+        <input id="maxMembers" type="number" value="20" min="2" max="100">
+      </div>
 
-            <label>رمز الدوري</label>
-            <input id="joinCode" placeholder="مثال: X9K4T">
-
-            <button class="btn btn-gold" onclick="joinLeague()">انضمام</button>
-            <div id="joinMsg" class="msg"></div>
-
-            <div class="leagues">
-                <h2>🏆 دورياتي</h2>
-                <div id="myLeagues">
-                    <div class="empty">جاري تحميل الدوريات...</div>
-                </div>
-            </div>
+      <!-- Tournaments -->
+      <div class="field">
+        <label>البطولات التي تُحسب نقاطها</label>
+        <div class="tournament-grid" id="tournamentsGrid">
+          <!-- filled by JS -->
         </div>
+        <input id="selectedTournaments" type="hidden" value="">
+      </div>
+
+      <!-- Features -->
+      <div class="field">
+        <label>خصائص الدوري</label>
+        <div class="features-grid" id="featuresBox"></div>
+      </div>
+
+      <!-- Submit -->
+      <div class="create-action">
+        <button class="btn-create" onclick="createLeague()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          إنشاء الدوري
+        </button>
+      </div>
+      <div id="createMsg" class="msg"></div>
+    </div>
+
+    <!-- JOIN + MY LEAGUES -->
+    <div style="display:flex;flex-direction:column;gap:24px;">
+
+      <div class="card" id="joinBox">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ffd43b" stroke-width="2.2" width="22" height="22"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+          الانضمام لدوري
+        </div>
+        <label style="color:var(--muted);font-size:13px;font-weight:600;display:block;margin-bottom:8px;">رمز الدوري</label>
+        <div class="join-input-row">
+          <input id="joinCode" type="text" placeholder="مثال: X9K4T" maxlength="8">
+          <button class="btn btn-gold" onclick="joinLeague()">انضمام</button>
+        </div>
+        <div id="joinMsg" class="msg"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ffd43b" stroke-width="2.2" width="22" height="22"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          دورياتي
+        </div>
+        <div id="myLeagues">
+          <div class="empty">جاري التحميل...</div>
+        </div>
+      </div>
 
     </div>
 
+  </div>
 </div>
 
 <script>
-const features = [
-    ['black_horse','🐎 الحصان الأسود','فرصة إضافية على الفريق الأضعف',2],
-    ['golden_match','⭐ المباراة الذهبية','مباراة بنقاط مضاعفة',1],
-    ['steal','🕵️ خاصية السرقة','تزرف توقع من لاعب قبل بداية المباراة',1],
-    ['shield','🛡️ الدرع','يحميك من السرقة والهجمات',1],
-    ['rescue','🆘 بطاقة الإنقاذ','تعطيك نقاط إذا جبت فارق الأهداف',2]
+const FEATURES = [
+  {
+    id: 'black_horse',
+    name: 'الحصان الأسود',
+    desc: 'فرصة إضافية على الفريق الأضعف',
+    tooltip: 'يمنحك فرصة للرهان على الفريق ذو الاحتمالية الأقل. إذا فاز، تحصل على نقاط مضاعفة.',
+    default: 2,
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 17h12M6 17l-1 4M18 17l1 4M12 3c-3 0-5 2-5 4v3l-1 3h12l-1-3V7c0-2-2-4-5-4z"/></svg>`
+  },
+  {
+    id: 'golden_match',
+    name: 'المباراة الذهبية',
+    desc: 'مباراة بنقاط مضاعفة',
+    tooltip: 'اختر مباراة واحدة كل جولة تتضاعف فيها نقاطك إذا صح توقعك.',
+    default: 1,
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
+  },
+  {
+    id: 'steal',
+    name: 'خاصية السرقة',
+    desc: 'تزرف توقع من لاعب قبل بداية المباراة',
+    tooltip: 'قبل انطلاق المباراة، اسرق توقع لاعب آخر واستبدله بتوقعك.',
+    default: 1,
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`
+  },
+  {
+    id: 'shield',
+    name: 'الدرع',
+    desc: 'يحميك من السرقة والهجمات',
+    tooltip: 'فعّل الدرع لحماية توقعاتك من لاعبين آخرين يحاولون سرقتها.',
+    default: 1,
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`
+  },
+  {
+    id: 'rescue',
+    name: 'بطاقة الإنقاذ',
+    desc: 'تعطيك نقاط إذا جبت فارق الأهداف',
+    tooltip: 'حتى لو خطأ النتيجة، إذا كنت قريباً من فارق الأهداف، تحصل على نقطة تعويضية.',
+    default: 2,
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`
+  }
 ];
 
-function renderFeatures(){
-    const box = document.getElementById('featuresBox');
-    box.innerHTML = '';
-
-    features.forEach(f=>{
-        box.innerHTML += `
-            <div class="feature">
-                <div class="feature-top">
-                    <div>
-                        <div class="feature-title">${f[1]}</div>
-                        <div class="small">${f[2]}</div>
-                    </div>
-                    <div class="toggle" id="${f[0]}Toggle" onclick="toggleFeature('${f[0]}')"></div>
-                </div>
-                <div class="limit-row">
-                    <span>عدد الاستخدامات</span>
-                    <input id="${f[0]}Limit" type="number" value="${f[3]}" min="0">
-                </div>
+// -- Render features --
+function renderFeatures() {
+  const box = document.getElementById('featuresBox');
+  box.innerHTML = '';
+  FEATURES.forEach(f => {
+    box.innerHTML += `
+      <div class="feature-card" id="fc_${f.id}">
+        <div class="feature-header">
+          <div class="feature-icon">${f.icon}</div>
+          <div class="feature-info">
+            <div class="feature-name">${f.name}</div>
+            <div class="feature-desc">${f.desc}</div>
+          </div>
+          <div class="feature-actions">
+            <div class="tooltip-wrap">
+              <button class="info-btn" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              </button>
+              <div class="tooltip-box">${f.tooltip}</div>
             </div>
-        `;
+            <button class="toggle" id="${f.id}Toggle" onclick="toggleFeature('${f.id}')"></button>
+          </div>
+        </div>
+        <div class="feature-body" id="${f.id}Body">
+          <label>عدد الاستخدامات</label>
+          <input id="${f.id}Limit" type="number" value="${f.default}" min="0">
+        </div>
+      </div>
+    `;
+  });
+}
+
+function toggleFeature(id) {
+  const toggle = document.getElementById(id + 'Toggle');
+  const body   = document.getElementById(id + 'Body');
+  const card   = document.getElementById('fc_' + id);
+  toggle.classList.toggle('active');
+  body.classList.toggle('show');
+  card.classList.toggle('on');
+}
+
+function isEnabled(id) {
+  return document.getElementById(id + 'Toggle').classList.contains('active');
+}
+
+// -- Icon picker --
+function chooseIcon(el, val) {
+  document.querySelectorAll('.icon-btn').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('leagueIcon').value = val;
+}
+
+// -- Tournament pills --
+async function loadTournaments() {
+  try {
+    const res = await fetch('/api/tournaments');
+    const data = await res.json();
+    if (!Array.isArray(data)) return;
+    const grid = document.getElementById('tournamentsGrid');
+    grid.innerHTML = '';
+    data.forEach(t => {
+      const pill = document.createElement('div');
+      pill.className = 't-pill';
+      pill.dataset.id = t.id;
+      pill.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        ${t.Tname || t.name || 'بطولة'}
+      `;
+      pill.onclick = () => {
+        pill.classList.toggle('active');
+        updateSelectedTournaments();
+      };
+      grid.appendChild(pill);
     });
+  } catch(e) {
+    document.getElementById('tournamentsGrid').innerHTML = '<div class="empty" style="width:100%">تعذر تحميل البطولات</div>';
+  }
 }
 
-function toggleFeature(name){
-    document.getElementById(name + 'Toggle').classList.toggle('active');
+function updateSelectedTournaments() {
+  const ids = Array.from(document.querySelectorAll('.t-pill.active')).map(p => p.dataset.id);
+  document.getElementById('selectedTournaments').value = ids.join(',');
 }
 
-function isEnabled(name){
-    return document.getElementById(name + 'Toggle').classList.contains('active');
+function getSelectedTournaments() {
+  return document.getElementById('selectedTournaments').value
+    .split(',')
+    .filter(Boolean)
+    .map(Number);
 }
 
-function chooseIcon(el, icon){
-    document.querySelectorAll('.icon').forEach(i=>i.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('leagueIcon').value = icon;
+// -- Scroll helpers --
+function scrollToCreate() { document.getElementById('createBox').scrollIntoView({behavior:'smooth'}); }
+function scrollToJoin() { document.getElementById('joinBox').scrollIntoView({behavior:'smooth'}); }
+
+// -- Msg helper --
+function showMsg(id, html, ok = true) {
+  const el = document.getElementById(id);
+  el.className = ok ? 'msg ok' : 'msg err';
+  el.innerHTML = html;
 }
 
-function scrollToCreate(){
-    document.getElementById('createBox').scrollIntoView({behavior:'smooth'});
+async function safeJson(res) {
+  try { return await res.json(); }
+  catch(e) { return {success:false, message:'تعذر قراءة الرد من السيرفر'}; }
 }
 
-function scrollToJoin(){
-    document.getElementById('joinBox').scrollIntoView({behavior:'smooth'});
-}
+// -- Create --
+async function createLeague() {
+  const name = document.getElementById('leagueName').value.trim();
+  if (!name) { showMsg('createMsg','اكتب اسم الدوري أولاً', false); return; }
 
-function showMsg(id, text, ok=true){
-    const el = document.getElementById(id);
-    el.className = ok ? 'msg ok' : 'msg err';
-    el.innerHTML = text;
-}
+  const data = {
+    name,
+    icon: document.getElementById('leagueIcon').value,
+    max_members: Number(document.getElementById('maxMembers').value || 20),
+    tournaments: getSelectedTournaments(),
+    features: Object.fromEntries(FEATURES.map(f => [f.id, {
+      enabled: isEnabled(f.id),
+      limit: Number(document.getElementById(f.id + 'Limit').value || 0)
+    }]))
+  };
 
-async function safeJson(res){
-    try { return await res.json(); }
-    catch(e){ return {success:false,message:'تعذر قراءة الرد من السيرفر'}; }
-}
-
-async function loadTournaments(){
-    try{
-        const res = await fetch('/api/tournaments');
-        const data = await safeJson(res);
-
-        if(!Array.isArray(data)) return;
-
-        const select = document.getElementById('tournamentsSelect');
-        select.innerHTML = '';
-
-        data.forEach(t=>{
-            const option = document.createElement('option');
-            option.value = t.id;
-            option.textContent = t.Tname || t.name || 'بطولة';
-            select.appendChild(option);
-        });
-    }catch(e){}
-}
-
-async function createLeague(){
-    const selectedTournaments = Array.from(
-        document.getElementById('tournamentsSelect').selectedOptions
-    ).map(o=>Number(o.value));
-
-    const name = document.getElementById('leagueName').value.trim();
-
-    if(!name){
-        showMsg('createMsg','اكتب اسم الدوري أولاً',false);
-        return;
+  try {
+    const res = await fetch('/api/private-leagues/create', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)
+    });
+    const result = await safeJson(res);
+    if (result.success) {
+      showMsg('createMsg', `تم إنشاء الدوري بنجاح 🎉<br>رمز الدوري: <span class="code">${result.code}</span>`, true);
+      loadMyLeagues();
+    } else {
+      showMsg('createMsg', result.message || 'حدث خطأ أثناء إنشاء الدوري', false);
     }
-
-    const data = {
-        name,
-        icon: document.getElementById('leagueIcon').value,
-        max_members: Number(document.getElementById('maxMembers').value || 20),
-        tournaments: selectedTournaments,
-        features: {
-            black_horse:{enabled:isEnabled('black_horse'),limit:Number(document.getElementById('black_horseLimit').value || 0)},
-            golden_match:{enabled:isEnabled('golden_match'),limit:Number(document.getElementById('golden_matchLimit').value || 0)},
-            steal:{enabled:isEnabled('steal'),limit:Number(document.getElementById('stealLimit').value || 0)},
-            shield:{enabled:isEnabled('shield'),limit:Number(document.getElementById('shieldLimit').value || 0)},
-            rescue:{enabled:isEnabled('rescue'),limit:Number(document.getElementById('rescueLimit').value || 0)}
-        }
-    };
-
-    try{
-        const res = await fetch('/api/private-leagues/create',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify(data)
-        });
-
-        const result = await safeJson(res);
-
-        if(result.success){
-            showMsg('createMsg',`تم إنشاء الدوري بنجاح 🎉<br>رمز الدوري: <span class="code">${result.code}</span>`,true);
-            loadMyLeagues();
-        }else{
-            showMsg('createMsg',result.message || 'حدث خطأ أثناء إنشاء الدوري',false);
-        }
-    }catch(e){
-        showMsg('createMsg','تعذر الاتصال بالسيرفر',false);
-    }
+  } catch(e) {
+    showMsg('createMsg','تعذر الاتصال بالسيرفر', false);
+  }
 }
 
-async function joinLeague(){
-    const code = document.getElementById('joinCode').value.trim().toUpperCase();
-
-    if(!code){
-        showMsg('joinMsg','اكتب رمز الدوري',false);
-        return;
-    }
-
-    try{
-        const res = await fetch('/api/private-leagues/join',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({code})
-        });
-
-        const result = await safeJson(res);
-        showMsg('joinMsg',result.message || 'تم تنفيذ الطلب',!!result.success);
-
-        if(result.success) loadMyLeagues();
-    }catch(e){
-        showMsg('joinMsg','تعذر الاتصال بالسيرفر',false);
-    }
+// -- Join --
+async function joinLeague() {
+  const code = document.getElementById('joinCode').value.trim().toUpperCase();
+  if (!code) { showMsg('joinMsg','اكتب رمز الدوري', false); return; }
+  try {
+    const res = await fetch('/api/private-leagues/join', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({code})
+    });
+    const result = await safeJson(res);
+    showMsg('joinMsg', result.message || 'تم تنفيذ الطلب', !!result.success);
+    if (result.success) loadMyLeagues();
+  } catch(e) { showMsg('joinMsg','تعذر الاتصال بالسيرفر', false); }
 }
 
-async function loadMyLeagues(){
-    try{
-        const res = await fetch('/api/private-leagues/my');
-        const leagues = await safeJson(res);
-        const box = document.getElementById('myLeagues');
-
-        if(!Array.isArray(leagues)){
-            box.innerHTML = '<div class="empty">سجل دخولك ثم ارجع للصفحة لعرض دورياتك.</div>';
-            return;
-        }
-
-        if(leagues.length === 0){
-            box.innerHTML = '<div class="empty">ما عندك دوريات خاصة حتى الآن.</div>';
-            return;
-        }
-
-        box.innerHTML = '';
-
-        leagues.forEach(l=>{
-            box.innerHTML += `
-                <div class="league-card">
-                    <div>
-                        <h3>${l.icon || '🏆'} ${l.name}</h3>
-                        <div class="small">الأعضاء: ${l.members_count} / ${l.max_members}</div>
-                        <div>الرمز: <span class="code">${l.code}</span></div>
-                    </div>
-                    <div>
-                        <div class="badge">${l.role === 'owner' ? 'مدير' : 'عضو'}</div>
-                        <br>
-                        <button class="btn btn-dark" onclick="openLeague(${l.id})">دخول</button>
-                    </div>
-                </div>
-            `;
-        });
-
-    }catch(e){
-        document.getElementById('myLeagues').innerHTML =
-        '<div class="empty">تعذر تحميل الدوريات حاليًا.</div>';
+// -- My leagues --
+async function loadMyLeagues() {
+  try {
+    const res = await fetch('/api/private-leagues/my');
+    const leagues = await safeJson(res);
+    const box = document.getElementById('myLeagues');
+    if (!Array.isArray(leagues)) {
+      box.innerHTML = '<div class="empty">سجل دخولك ثم ارجع للصفحة لعرض دورياتك.</div>';
+      return;
     }
+    if (leagues.length === 0) {
+      box.innerHTML = '<div class="empty">ما عندك دوريات خاصة حتى الآن.</div>';
+      return;
+    }
+    box.innerHTML = leagues.map(l => `
+      <div class="league-card">
+        <div>
+          <h3>${l.name}</h3>
+          <div class="small">الأعضاء: ${l.members_count} / ${l.max_members}</div>
+          <div style="margin-top:4px">الرمز: <span class="code">${l.code}</span></div>
+        </div>
+        <div class="league-actions">
+          <div class="badge">${l.role === 'owner' ? 'مدير' : 'عضو'}</div>
+          <button class="btn-ghost" onclick="openLeague(${l.id})">دخول</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    document.getElementById('myLeagues').innerHTML = '<div class="empty">تعذر تحميل الدوريات حاليًا.</div>';
+  }
 }
 
-function openLeague(id){
-    window.location.href = '/private-league.html?id=' + id;
-}
+function openLeague(id) { window.location.href = '/private-league.html?id=' + id; }
 
 renderFeatures();
 loadTournaments();
 loadMyLeagues();
 </script>
-
 </body>
 </html>
