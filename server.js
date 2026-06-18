@@ -2963,6 +2963,7 @@ app.get('/private-leagues', (req, res) => {
     res.sendFile(__dirname + '/public/private-leagues.html');
 });
 
+
 function generateLeagueCode() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let code = '';
@@ -2975,6 +2976,7 @@ function generateLeagueCode() {
 }
 
 app.post('/api/private-leagues/create', requireLogin, (req, res) => {
+    console.log('BODY:', JSON.stringify(req.body));
     const { name, icon, max_members, tournaments, features = {} } = req.body;
     const code = generateLeagueCode();
     const userId = req.session.userId;
