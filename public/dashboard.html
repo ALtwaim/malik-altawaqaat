@@ -520,7 +520,7 @@ fetch('/api/latest-round-winner')
 <script>
 window.addEventListener('load', function () {
 
-    if (!localStorage.getItem('round_winner_ad_seen')) {
+    if (!localStorage.getItem('round_winner_ad_seen1')) {
         document.getElementById('winnerOverlay').style.display = 'flex';
     }
 
@@ -528,7 +528,7 @@ window.addEventListener('load', function () {
 
 function closeWinnerAd() {
     document.getElementById('winnerOverlay').style.display = 'none';
-    localStorage.setItem('round_winner_ad_seen', 'yes');
+    localStorage.setItem('round_winner_ad_seen1', 'yes');
 }
 </script>
 
