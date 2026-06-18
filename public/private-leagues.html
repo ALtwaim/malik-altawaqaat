@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>الدوريات الخاصة</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box}
+body{
+    margin:0;
+    font-family:Tahoma,Arial,sans-serif;
+    background:
+        radial-gradient(circle at top right,#243b73 0,#07111f 35%,#03070d 100%);
+    color:#fff;
+    min-height:100vh;
+}
+.nav{
+    height:70px;
+    background:rgba(10,18,34,.9);
+    border-bottom:1px solid rgba(255,215,0,.18);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 50px;
+    position:sticky;
+    top:0;
+    z-index:10;
+}
+.logo{
+    color:#ffd43b;
+    font-size:24px;
+    font-weight:bold;
+}
+.nav a{
+    color:#c9d6ff;
+    text-decoration:none;
+    margin:0 10px;
+    font-weight:bold;
+}
+.hero{
+    text-align:center;
+    padding:70px 20px 45px;
+}
+.hero h1{
+    font-size:52px;
+    margin:0;
+    color:#ffd43b;
+    text-shadow:0 0 25px rgba(255,212,59,.35);
+}
+.hero p{
+    color:#c9d6ff;
+    font-size:20px;
+    margin-top:15px;
+}
+.actions{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    margin-top:30px;
+    flex-wrap:wrap;
+}
+.btn{
+    border:none;
+    border-radius:14px;
+    padding:15px 28px;
+    font-weight:bold;
+    cursor:pointer;
+    font-size:16px;
+}
+.btn-gold{
+    background:linear-gradient(135deg,#ffd43b,#ffb703);
+    color:#07111f;
+    box-shadow:0 0 25px rgba(255,212,59,.25);
+}
+.btn-dark{
+    background:#111d33;
+    color:#fff;
+    border:1px solid rgba(255,215,0,.25);
+}
+.container{
+    width:90%;
+    max-width:1200px;
+    margin:auto;
+    padding-bottom:60px;
+}
+.grid{
+    display:grid;
+    grid-template-columns:1.1fr .9fr;
+    gap:25px;
+}
+.card{
+    background:rgba(17,29,51,.92);
+    border:1px solid rgba(255,215,0,.18);
+    border-radius:24px;
+    padding:28px;
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+.card h2{
+    margin-top:0;
+    color:#ffd43b;
+}
+label{
+    display:block;
+    margin:16px 0 8px;
+    color:#c9d6ff;
+}
+input,select{
+    width:100%;
+    padding:14px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.12);
+    background:#07111f;
+    color:white;
+    outline:none;
+    font-size:16px;
+}
+select{min-height:120px}
+.icons{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:10px;
+}
+.icon{
+    width:44px;
+    height:44px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:12px;
+    background:#0b1729;
+    border:1px solid rgba(255,255,255,.08);
+    cursor:pointer;
+    font-size:22px;
+}
+.icon.active{
+    border-color:#ffd43b;
+    background:rgba(255,212,59,.15);
+}
+.feature{
+    background:#0b1729;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:18px;
+    padding:15px;
+    margin:12px 0;
+}
+.feature-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.feature-title{
+    font-weight:bold;
+}
+.toggle{
+    width:54px;
+    height:28px;
+    background:#263247;
+    border-radius:20px;
+    position:relative;
+    cursor:pointer;
+}
+.toggle::after{
+    content:"";
+    width:22px;
+    height:22px;
+    background:#fff;
+    border-radius:50%;
+    position:absolute;
+    top:3px;
+    right:4px;
+    transition:.2s;
+}
+.toggle.active{
+    background:#ffd43b;
+}
+.toggle.active::after{
+    right:28px;
+    background:#07111f;
+}
+.limit-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:12px;
+}
+.limit-row span{
+    color:#9fb0d0;
+    min-width:110px;
+}
+.limit-row input{
+    max-width:120px;
+}
+.msg{
+    margin-top:15px;
+    padding:14px;
+    border-radius:14px;
+    display:none;
+    line-height:1.8;
+}
+.msg.ok{
+    display:block;
+    background:rgba(18,180,100,.14);
+    border:1px solid rgba(18,180,100,.35);
+}
+.msg.err{
+    display:block;
+    background:rgba(255,80,80,.12);
+    border:1px solid rgba(255,80,80,.35);
+}
+.leagues{
+    margin-top:35px;
+}
+.league-card{
+    background:linear-gradient(135deg,#13233d,#0b1729);
+    border:1px solid rgba(255,215,0,.18);
+    border-radius:20px;
+    padding:22px;
+    margin-bottom:16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+}
+.badge{
+    color:#07111f;
+    background:#ffd43b;
+    padding:8px 14px;
+    border-radius:20px;
+    font-weight:bold;
+}
+.code{
+    color:#ffd43b;
+    font-weight:bold;
+    letter-spacing:2px;
+}
+.small{
+    color:#9fb0d0;
+}
+.empty{
+    color:#9fb0d0;
+    padding:20px;
+    background:#0b1729;
+    border-radius:18px;
+}
+@media(max-width:850px){
+    .grid{grid-template-columns:1fr}
+    .hero h1{font-size:38px}
+    .nav{padding:0 20px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="nav">
+    <div class="logo">👑 ملك التوقعات</div>
+    <div>
+        <a href="/dashboard">الرئيسية</a>
+        <a href="/predict.html">توقع الآن</a>
+        <a href="/private-leagues">🔐 الدوريات الخاصة</a>
+    </div>
+</div>
+
+<section class="hero">
+    <h1>الدوريات الخاصة 🔐</h1>
+    <p>أنشئ دوري بين أصحابك، اختر البطولات، فعل البطاقات، وخل المنافسة نار 🔥</p>
+    <div class="actions">
+        <button class="btn btn-gold" onclick="scrollToCreate()">+ إنشاء دوري جديد</button>
+        <button class="btn btn-dark" onclick="scrollToJoin()">🔑 الانضمام برمز</button>
+    </div>
+</section>
+
+<div class="container">
+
+    <div class="grid">
+
+        <div class="card" id="createBox">
+            <h2>+ إنشاء دوري خاص</h2>
+
+            <label>اسم الدوري</label>
+            <input id="leagueName" placeholder="مثال: دوري العيال">
+
+            <label>اختر أيقونة</label>
+            <input id="leagueIcon" type="hidden" value="👑">
+            <div class="icons" id="iconsBox">
+                <div class="icon active" onclick="chooseIcon(this,'👑')">👑</div>
+                <div class="icon" onclick="chooseIcon(this,'🔥')">🔥</div>
+                <div class="icon" onclick="chooseIcon(this,'⚽')">⚽</div>
+                <div class="icon" onclick="chooseIcon(this,'🏆')">🏆</div>
+                <div class="icon" onclick="chooseIcon(this,'🦅')">🦅</div>
+                <div class="icon" onclick="chooseIcon(this,'🐎')">🐎</div>
+                <div class="icon" onclick="chooseIcon(this,'⚡')">⚡</div>
+            </div>
+
+            <label>الحد الأقصى للأعضاء</label>
+            <input id="maxMembers" type="number" value="20" min="2">
+
+            <label>البطولات التي تُحسب نقاطها</label>
+            <select id="tournamentsSelect" multiple>
+                <option value="1">كأس العالم</option>
+            </select>
+
+            <label>خصائص الدوري</label>
+
+            <div id="featuresBox"></div>
+
+            <button class="btn btn-gold" onclick="createLeague()">إنشاء الدوري</button>
+            <div id="createMsg" class="msg"></div>
+        </div>
+
+        <div class="card" id="joinBox">
+            <h2>🔑 الانضمام لدوري</h2>
+
+            <label>رمز الدوري</label>
+            <input id="joinCode" placeholder="مثال: X9K4T">
+
+            <button class="btn btn-gold" onclick="joinLeague()">انضمام</button>
+            <div id="joinMsg" class="msg"></div>
+
+            <div class="leagues">
+                <h2>🏆 دورياتي</h2>
+                <div id="myLeagues">
+                    <div class="empty">جاري تحميل الدوريات...</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+const features = [
+    ['black_horse','🐎 الحصان الأسود','فرصة إضافية على الفريق الأضعف',2],
+    ['golden_match','⭐ المباراة الذهبية','مباراة بنقاط مضاعفة',1],
+    ['steal','🕵️ خاصية السرقة','تزرف توقع من لاعب قبل بداية المباراة',1],
+    ['shield','🛡️ الدرع','يحميك من السرقة والهجمات',1],
+    ['rescue','🆘 بطاقة الإنقاذ','تعطيك نقاط إذا جبت فارق الأهداف',2]
+];
+
+function renderFeatures(){
+    const box = document.getElementById('featuresBox');
+    box.innerHTML = '';
+
+    features.forEach(f=>{
+        box.innerHTML += `
+            <div class="feature">
+                <div class="feature-top">
+                    <div>
+                        <div class="feature-title">${f[1]}</div>
+                        <div class="small">${f[2]}</div>
+                    </div>
+                    <div class="toggle" id="${f[0]}Toggle" onclick="toggleFeature('${f[0]}')"></div>
+                </div>
+                <div class="limit-row">
+                    <span>عدد الاستخدامات</span>
+                    <input id="${f[0]}Limit" type="number" value="${f[3]}" min="0">
+                </div>
+            </div>
+        `;
+    });
+}
+
+function toggleFeature(name){
+    document.getElementById(name + 'Toggle').classList.toggle('active');
+}
+
+function isEnabled(name){
+    return document.getElementById(name + 'Toggle').classList.contains('active');
+}
+
+function chooseIcon(el, icon){
+    document.querySelectorAll('.icon').forEach(i=>i.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('leagueIcon').value = icon;
+}
+
+function scrollToCreate(){
+    document.getElementById('createBox').scrollIntoView({behavior:'smooth'});
+}
+
+function scrollToJoin(){
+    document.getElementById('joinBox').scrollIntoView({behavior:'smooth'});
+}
+
+function showMsg(id, text, ok=true){
+    const el = document.getElementById(id);
+    el.className = ok ? 'msg ok' : 'msg err';
+    el.innerHTML = text;
+}
+
+async function safeJson(res){
+    try { return await res.json(); }
+    catch(e){ return {success:false,message:'تعذر قراءة الرد من السيرفر'}; }
+}
+
+async function loadTournaments(){
+    try{
+        const res = await fetch('/api/tournaments');
+        const data = await safeJson(res);
+
+        if(!Array.isArray(data)) return;
+
+        const select = document.getElementById('tournamentsSelect');
+        select.innerHTML = '';
+
+        data.forEach(t=>{
+            const option = document.createElement('option');
+            option.value = t.id;
+            option.textContent = t.Tname || t.name || 'بطولة';
+            select.appendChild(option);
+        });
+    }catch(e){}
+}
+
+async function createLeague(){
+    const selectedTournaments = Array.from(
+        document.getElementById('tournamentsSelect').selectedOptions
+    ).map(o=>Number(o.value));
+
+    const name = document.getElementById('leagueName').value.trim();
+
+    if(!name){
+        showMsg('createMsg','اكتب اسم الدوري أولاً',false);
+        return;
+    }
+
+    const data = {
+        name,
+        icon: document.getElementById('leagueIcon').value,
+        max_members: Number(document.getElementById('maxMembers').value || 20),
+        tournaments: selectedTournaments,
+        features: {
+            black_horse:{enabled:isEnabled('black_horse'),limit:Number(document.getElementById('black_horseLimit').value || 0)},
+            golden_match:{enabled:isEnabled('golden_match'),limit:Number(document.getElementById('golden_matchLimit').value || 0)},
+            steal:{enabled:isEnabled('steal'),limit:Number(document.getElementById('stealLimit').value || 0)},
+            shield:{enabled:isEnabled('shield'),limit:Number(document.getElementById('shieldLimit').value || 0)},
+            rescue:{enabled:isEnabled('rescue'),limit:Number(document.getElementById('rescueLimit').value || 0)}
+        }
+    };
+
+    try{
+        const res = await fetch('/api/private-leagues/create',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify(data)
+        });
+
+        const result = await safeJson(res);
+
+        if(result.success){
+            showMsg('createMsg',`تم إنشاء الدوري بنجاح 🎉<br>رمز الدوري: <span class="code">${result.code}</span>`,true);
+            loadMyLeagues();
+        }else{
+            showMsg('createMsg',result.message || 'حدث خطأ أثناء إنشاء الدوري',false);
+        }
+    }catch(e){
+        showMsg('createMsg','تعذر الاتصال بالسيرفر',false);
+    }
+}
+
+async function joinLeague(){
+    const code = document.getElementById('joinCode').value.trim().toUpperCase();
+
+    if(!code){
+        showMsg('joinMsg','اكتب رمز الدوري',false);
+        return;
+    }
+
+    try{
+        const res = await fetch('/api/private-leagues/join',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({code})
+        });
+
+        const result = await safeJson(res);
+        showMsg('joinMsg',result.message || 'تم تنفيذ الطلب',!!result.success);
+
+        if(result.success) loadMyLeagues();
+    }catch(e){
+        showMsg('joinMsg','تعذر الاتصال بالسيرفر',false);
+    }
+}
+
+async function loadMyLeagues(){
+    try{
+        const res = await fetch('/api/private-leagues/my');
+        const leagues = await safeJson(res);
+        const box = document.getElementById('myLeagues');
+
+        if(!Array.isArray(leagues)){
+            box.innerHTML = '<div class="empty">سجل دخولك ثم ارجع للصفحة لعرض دورياتك.</div>';
+            return;
+        }
+
+        if(leagues.length === 0){
+            box.innerHTML = '<div class="empty">ما عندك دوريات خاصة حتى الآن.</div>';
+            return;
+        }
+
+        box.innerHTML = '';
+
+        leagues.forEach(l=>{
+            box.innerHTML += `
+                <div class="league-card">
+                    <div>
+                        <h3>${l.icon || '🏆'} ${l.name}</h3>
+                        <div class="small">الأعضاء: ${l.members_count} / ${l.max_members}</div>
+                        <div>الرمز: <span class="code">${l.code}</span></div>
+                    </div>
+                    <div>
+                        <div class="badge">${l.role === 'owner' ? 'مدير' : 'عضو'}</div>
+                        <br>
+                        <button class="btn btn-dark" onclick="openLeague(${l.id})">دخول</button>
+                    </div>
+                </div>
+            `;
+        });
+
+    }catch(e){
+        document.getElementById('myLeagues').innerHTML =
+        '<div class="empty">تعذر تحميل الدوريات حاليًا.</div>';
+    }
+}
+
+function openLeague(id){
+    window.location.href = '/private-league.html?id=' + id;
+}
+
+renderFeatures();
+loadTournaments();
+loadMyLeagues();
+</script>
+
+</body>
+</html>
