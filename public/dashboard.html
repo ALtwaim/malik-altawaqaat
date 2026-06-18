@@ -23,9 +23,9 @@
 
 <script>
 // ← فقط غيّر هنا
-var ANN_ID      = 'v3';                          // غيّر الرقم مع كل رسالة جديدة
-var ANN_TEXT    = '⚠️ تم فتح تعديل توقعات البطل والهداف حتى يوم الاثنين الساعة 12 منتصف الليل';
-var ANN_ENDDATE = '2026-06-15';                  // تاريخ الانتهاء، أو '' بدون تاريخ
+var ANN_ID      = 'v4';                          // غيّر الرقم مع كل رسالة جديدة
+var ANN_TEXT    = 'مباريات الجولة الثانيه متوفرة الان! سجل توقعاتك قبل بداية المباريات';  // نص الرسالة
+var ANN_ENDDATE = '2026-06-20';                  // تاريخ الانتهاء، أو '' بدون تاريخ
 // ────────────────────────────────────────────
 
 var storageKey = 'ann_seen_' + ANN_ID;
@@ -477,6 +477,41 @@ fetch('/api/my-tournament-predictions')
         box.innerHTML = html;
 
     });
+</script>
+
+<div class="winner-overlay" id="winnerOverlay">
+    <div class="winner-popup">
+        <button class="winner-close" onclick="closeWinnerAd()">×</button>
+
+        <h2>🏆 بطل الجولة</h2>
+
+        <p>
+            نبارك للمستخدم <strong>اسم الفائز</strong>
+            تحقيقه لقب بطل الجولة الأولى.
+        </p>
+
+        <p>
+          سيتم التواصل مع الفائز قريبًا لتسليمه جائزته 🎁
+        </p>
+
+        <p>
+            استمروا في التوقع، المنافسة لسا طويلة 🔥
+        </p>
+    </div>
+</div>
+<script>
+window.addEventListener('load', function () {
+
+    if (!localStorage.getItem('round_winner_ad_seen')) {
+        document.getElementById('winnerOverlay').style.display = 'flex';
+    }
+
+});
+
+function closeWinnerAd() {
+    document.getElementById('winnerOverlay').style.display = 'none';
+    localStorage.setItem('round_winner_ad_seen', 'yes');
+}
 </script>
 
 </body>
