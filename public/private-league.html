@@ -497,7 +497,7 @@ function loadMyLeaguePredictions(sel) {
                 return;
             }
             sel.innerHTML = preds.map(function(p) {
-                return '<option value="' + p.match_id + '">' +
+                return '<option value="' + (p.match_id || p.Mid) + '">' +
                     p.home_team + ' ضد ' + p.away_team +
                     ' (' + p.predicted_home_score + '-' + p.predicted_away_score + ')</option>';
             }).join('');

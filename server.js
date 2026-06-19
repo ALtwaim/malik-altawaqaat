@@ -3500,7 +3500,7 @@ app.get('/api/private-leagues/:id/stealable', requireLogin, (req, res) => {
     // توقعات المستهدف الحقيقية (من predictions العام)، على مباريات بطولات هذا
     // الدوري بالذات، ولسا ما بدأت، وما سُرقت من قبل بنفس الدوري
     db.query(
-        `SELECT pr.id, pr.match_id, pr.predicted_home_score, pr.predicted_away_score,
+        `SELECT pr.Pid AS id, pr.match_id, pr.predicted_home_score, pr.predicted_away_score,
                 m.home_team, m.away_team, m.match_date, m.round_id
          FROM predictions pr
          JOIN matches m ON pr.match_id = m.Mid
