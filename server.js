@@ -3076,7 +3076,6 @@ app.get('/api/private-leagues/:id', requireLogin, (req, res) => {
     const leagueId = req.params.id;
     const userId = getUserId(req);
 
-    // تحقق إن المستخدم عضو
     db.query(
         `SELECT role FROM private_league_members WHERE league_id = ? AND user_id = ?`,
         [leagueId, userId],
@@ -3099,12 +3098,13 @@ app.get('/api/private-leagues/:id', requireLogin, (req, res) => {
                             p.Uid,
                             p.Username,
                             COALESCE(SUM(
-                                CASE WHEN plt.tournament_id IS NOT NULL THEN pr.points ELSE 0 END
+                                CASE WHEN plt.tournament_id IS NOT NULL THEN plp.points ELSE 0 END
                             ), 0) AS total_points
                         FROM private_league_members lm
                         JOIN person p ON lm.user_id = p.Uid
-                        LEFT JOIN predictions pr ON pr.user_id = p.Uid
-                        LEFT JOIN matches m ON pr.match_id = m.Mid
+                        LEFT JOIN private_league_predictions plp 
+                            ON plp.user_id = p.Uid AND plp.league_id = lm.league_id
+                        LEFT JOIN matches m ON plp.match_id = m.Mid
                         LEFT JOIN private_league_tournaments plt
                             ON plt.tournament_id = m.tournament_id
                             AND plt.league_id = lm.league_id
@@ -3113,48 +3113,52 @@ app.get('/api/private-leagues/:id', requireLogin, (req, res) => {
                         ORDER BY total_points DESC`,
                         [leagueId],
                         (err4, leaderboard) => {
-    if (err4) return res.status(500).json(err4);
+                            if (err4) return res.status(500).json(err4);
 
-    const league = leagueResult[0];
-    league.my_role = myRole;
-    league.my_uid  = userId;
+                            const league = leagueResult[0];
+                            league.my_role = myRole;
+                            league.my_uid  = userId;
 
-    // جيب الدروع النشطة + سجل الأحداث
-    db.query(
-        `SELECT cu.user_id FROM private_league_card_usage cu
-         JOIN private_league_shields pls 
-             ON pls.league_id = cu.league_id AND pls.user_id = cu.user_id
-         WHERE cu.league_id = ? AND cu.card_type = 'shield'
-           AND pls.round_id = (
-               SELECT Rid FROM rounds ORDER BY Rid DESC LIMIT 1
-           )`,
-        [leagueId],
-        (err5, shields) => {
-            if (err5) shields = [];
+                            // الدروع النشطة في الجولة الحالية
+                            db.query(
+                                `SELECT pls.user_id FROM private_league_shields pls
+                                 WHERE pls.league_id = ?
+                                   AND pls.round_id = (
+                                       SELECT Rid FROM rounds ORDER BY Rid DESC LIMIT 1
+                                   )`,
+                                [leagueId],
+                                (err5, shields) => {
+                                    if (err5) shields = [];
 
-            db.query(
-                `SELECT cu.card_type, cu.created_at,
-                        actor.Username AS actor_name,
-                        target.Username AS target_name
-                 FROM private_league_card_usage cu
-                 JOIN person actor ON cu.user_id = actor.Uid
-                 LEFT JOIN person target ON cu.target_user_id = target.Uid
-                 WHERE cu.league_id = ?
-                 ORDER BY cu.created_at DESC LIMIT 50`,
-                [leagueId],
-                (err6, events) => {
-                    res.json({
-                        league,
-                        features: featuresResult[0] || null,
-                        leaderboard,
-                        shields: shields || [],
-                        events:  events  || []
-                    });
-                }
-            );
-        }
-    );
-}
+                                    // سجل الأحداث
+                                    db.query(
+                                        `SELECT 
+                                            cu.card_type,
+                                            cu.created_at,
+                                            actor.Username AS actor_name,
+                                            target.Username AS target_name
+                                         FROM private_league_card_usage cu
+                                         JOIN person actor ON cu.user_id = actor.Uid
+                                         LEFT JOIN person target ON cu.target_user_id = target.Uid
+                                         WHERE cu.league_id = ?
+                                         ORDER BY cu.created_at DESC
+                                         LIMIT 50`,
+                                        [leagueId],
+                                        (err6, events) => {
+                                            if (err6) events = [];
+
+                                            res.json({
+                                                league,
+                                                features:   featuresResult[0] || null,
+                                                leaderboard,
+                                                shields:    shields || [],
+                                                events:     events  || []
+                                            });
+                                        }
+                                    );
+                                }
+                            );
+                        }
                     );
                 });
             });
