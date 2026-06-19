@@ -1041,209 +1041,141 @@ app.get('/api/matches/:tournamentId', (req, res) => {
 
 });
 
-app.get('/predict', (req, res) => {
-
-    if (!req.session.user) {
-        return res.redirect('/login.html');
-    }
-
-    res.sendFile(__dirname + '/public/predict.html');
-
-});
-
-
 app.post('/api/predictions', (req, res) => {
 
     if (!req.session.user) {
-        return res.status(401).json({
-            error: 'لازم تسجل دخول'
-        });
+        return res.status(401).json({ error: 'لازم تسجل دخول' });
     }
 
-    const {
-        match_id,
-        predicted_home_score,
-        predicted_away_score,
-        used_loser_card
-    } = req.body;
+    const { match_id, predicted_home_score, predicted_away_score, used_loser_card } = req.body;
 
-    const wantsLoserCard =
-        used_loser_card === true || used_loser_card === 1 || used_loser_card === '1';
+    const wantsLoserCard = used_loser_card === true || used_loser_card === 1 || used_loser_card === '1';
 
     db.query(
-        `SELECT match_date, tournament_id, home_team, away_team, underdog_team
-FROM matches
-WHERE Mid = ?`,
+        `SELECT match_date, tournament_id, home_team, away_team, underdog_team, round_id
+         FROM matches WHERE Mid = ?`,
         [match_id],
         (err, matchResult) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (matchResult.length === 0) return res.status(404).json({ error: 'المباراة غير موجودة' });
 
-            if (err) {
-                return res.status(500).json({ error: err.message });
-            }
-
-            if (matchResult.length === 0) {
-                return res.status(404).json({
-                    error: 'المباراة غير موجودة'
-                });
-            }
-
-            const matchDate = new Date(matchResult[0].match_date);
+            const matchDate    = new Date(matchResult[0].match_date);
             const tournamentId = matchResult[0].tournament_id;
-            const homeTeam = matchResult[0].home_team;
-            const awayTeam = matchResult[0].away_team;
+            const homeTeam     = matchResult[0].home_team;
+            const awayTeam     = matchResult[0].away_team;
             const underdogTeam = matchResult[0].underdog_team;
+            const roundId      = matchResult[0].round_id;
 
             if (matchDate <= new Date()) {
-                return res.status(400).json({
-                    error: '❌ انتهى وقت التوقع لهذه المباراة'
-                });
+                return res.status(400).json({ error: '❌ انتهى وقت التوقع لهذه المباراة' });
             }
+
             if (wantsLoserCard) {
+                const predictedHome = Number(predicted_home_score);
+                const predictedAway = Number(predicted_away_score);
+                let predictedWinner = '';
+                if (predictedHome > predictedAway)       predictedWinner = homeTeam;
+                else if (predictedAway > predictedHome)  predictedWinner = awayTeam;
+                else                                     predictedWinner = 'draw';
 
-    const predictedHome = Number(predicted_home_score);
-    const predictedAway = Number(predicted_away_score);
+                if (predictedWinner !== underdogTeam) {
+                    return res.status(400).json({
+                        error: '🐎 بطاقة الحصان الأسود تُستخدم فقط إذا توقعت فوز الفريق غير المرشح'
+                    });
+                }
+            }
 
-    let predictedWinner = '';
-
-    if (predictedHome > predictedAway) {
-        predictedWinner = homeTeam;
-    } else if (predictedAway > predictedHome) {
-        predictedWinner = awayTeam;
-    } else {
-        predictedWinner = 'draw';
-    }
-
-    if (predictedWinner !== underdogTeam) {
-        return res.status(400).json({
-            error: '🐎 بطاقة الحصان الأسود تُستخدم فقط إذا توقعت فوز الفريق غير المرشح'
-        });
-    }
-
-}
-
+            // ── جلب التوقع الموجود ──
             db.query(
-                `SELECT *
-                 FROM predictions
-                 WHERE user_id = ?
-                 AND match_id = ?`,
+                `SELECT * FROM predictions WHERE user_id = ? AND match_id = ?`,
                 [req.session.user.id, match_id],
-                (err, existingPrediction) => {
-
-                    if (err) {
-                        return res.status(500).json({ error: err.message });
-                    }
-
-                    const oldUsedLoserCard =
-                        existingPrediction.length > 0
-                            ? existingPrediction[0].used_loser_card
-                            : 0;
-
-                    if (wantsLoserCard && oldUsedLoserCard != 1) {
-
-                        db.query(
-                            `SELECT COUNT(*) AS usedCards
-                             FROM predictions
-                             JOIN matches ON predictions.match_id = matches.Mid
-                             WHERE predictions.user_id = ?
-                             AND predictions.used_loser_card = 1
-                             AND matches.tournament_id = ?`,
-                            [req.session.user.id, tournamentId],
-                            (err, cardResult) => {
-
-                                if (err) {
-                                    return res.status(500).json({ error: err.message });
-                                }
-
-                                if (cardResult[0].usedCards >= 2) {
-                                    return res.status(400).json({
-                                        error: '🐎 استخدمت بطاقتي الحصان الأسود المسموحة في هذه البطولة'
-                                    });
-                                }
-
-                                saveOrUpdatePrediction(existingPrediction);
-
-                            }
-                        );
-
-                    } else {
-                        saveOrUpdatePrediction(existingPrediction);
-                    }
-
+                (err2, existingPrediction) => {
+                    if (err2) return res.status(500).json({ error: err2.message });
+                    saveOrUpdatePrediction(existingPrediction);
                 }
             );
 
+            // ── دالة الحفظ / التحديث ──
+            function saveOrUpdatePrediction(existingPrediction) {
+
+                // بعد الحفظ الأساسي — نزامن مع الدوريات الخاصة
+                function syncPrivateLeagues(callback) {
+                    const userId = req.session.user.id;
+
+                    // جلب كل الدوريات الخاصة التي ينتمي لها اللاعب وفيها هذه البطولة
+                    db.query(
+                        `SELECT pl.id AS league_id
+                         FROM private_league_members plm
+                         JOIN private_leagues pl ON plm.league_id = pl.id
+                         JOIN private_league_tournaments plt ON plt.league_id = pl.id
+                         WHERE plm.user_id = ? AND plt.tournament_id = ?`,
+                        [userId, tournamentId],
+                        (err, leagues) => {
+                            if (err || leagues.length === 0) return callback();
+
+                            let done = 0;
+                            leagues.forEach(league => {
+                                db.query(
+                                    `INSERT INTO private_league_predictions
+                                     (league_id, user_id, match_id, predicted_home_score, predicted_away_score, used_black_horse)
+                                     VALUES (?, ?, ?, ?, ?, ?)
+                                     ON DUPLICATE KEY UPDATE
+                                         predicted_home_score = VALUES(predicted_home_score),
+                                         predicted_away_score = VALUES(predicted_away_score),
+                                         used_black_horse     = VALUES(used_black_horse)`,
+                                    [
+                                        league.league_id,
+                                        userId,
+                                        match_id,
+                                        predicted_home_score,
+                                        predicted_away_score,
+                                        wantsLoserCard ? 1 : 0
+                                    ],
+                                    () => {
+                                        done++;
+                                        if (done === leagues.length) callback();
+                                    }
+                                );
+                            });
+                        }
+                    );
+                }
+
+                if (existingPrediction.length > 0) {
+                    db.query(
+                        `UPDATE predictions
+                         SET predicted_home_score = ?,
+                             predicted_away_score = ?,
+                             used_loser_card = ?
+                         WHERE user_id = ? AND match_id = ?`,
+                        [predicted_home_score, predicted_away_score, wantsLoserCard ? 1 : 0,
+                         req.session.user.id, match_id],
+                        (err) => {
+                            if (err) return res.status(500).json({ error: err.message });
+
+                            syncPrivateLeagues(() => {
+                                res.json({ message: '✅ تم تحديث التوقع' });
+                            });
+                        }
+                    );
+                } else {
+                    db.query(
+                        `INSERT INTO predictions
+                         (user_id, match_id, predicted_home_score, predicted_away_score, used_loser_card, points)
+                         VALUES (?, ?, ?, ?, ?, 0)`,
+                        [req.session.user.id, match_id, predicted_home_score, predicted_away_score, wantsLoserCard ? 1 : 0],
+                        (err) => {
+                            if (err) return res.status(500).json({ error: err.message });
+
+                            syncPrivateLeagues(() => {
+                                res.json({ message: '✅ تم حفظ التوقع' });
+                            });
+                        }
+                    );
+                }
+            }
         }
     );
-
-    function saveOrUpdatePrediction(existingPrediction) {
-
-        if (existingPrediction.length > 0) {
-
-            db.query(
-                `UPDATE predictions
-                 SET
-                    predicted_home_score = ?,
-                    predicted_away_score = ?,
-                    used_loser_card = ?
-                 WHERE user_id = ?
-                 AND match_id = ?`,
-                [
-                    predicted_home_score,
-                    predicted_away_score,
-                    wantsLoserCard ? 1 : 0,
-                    req.session.user.id,
-                    match_id
-                ],
-                (err) => {
-
-                    if (err) {
-                        return res.status(500).json({ error: err.message });
-                    }
-
-                    res.json({
-                        message: '✅ تم تحديث التوقع'
-                    });
-
-                }
-            );
-
-        } else {
-
-            db.query(
-                `INSERT INTO predictions
-                (
-                    user_id,
-                    match_id,
-                    predicted_home_score,
-                    predicted_away_score,
-                    used_loser_card,
-                    points
-                )
-                VALUES (?, ?, ?, ?, ?, 0)`,
-                [
-                    req.session.user.id,
-                    match_id,
-                    predicted_home_score,
-                    predicted_away_score,
-                    wantsLoserCard ? 1 : 0
-                ],
-                (err) => {
-
-                    if (err) {
-                        return res.status(500).json({ error: err.message });
-                    }
-
-                    res.json({
-                        message: '✅ تم حفظ التوقع'
-                    });
-
-                }
-            );
-
-        }
-
-    }
-
 });
 
 app.post('/admin/update-match', isAdmin, (req, res) => {
@@ -1482,32 +1414,21 @@ app.post('/admin/update-result', isAdmin, (req, res) => {
 function calculateMatchPoints(matchId, res) {
 
     db.query(
-        `SELECT *
-         FROM matches
-         WHERE Mid = ?`,
+        `SELECT * FROM matches WHERE Mid = ?`,
         [matchId],
         (err, matchResult) => {
 
-            if (err) {
-                return res.send(err);
-            }
-
-            if (matchResult.length === 0) {
-                return res.send('المباراة غير موجودة');
-            }
+            if (err) return res.send(err);
+            if (matchResult.length === 0) return res.send('المباراة غير موجودة');
 
             const match = matchResult[0];
 
             db.query(
-                `SELECT *
-                 FROM predictions
-                 WHERE match_id = ?`,
+                `SELECT * FROM predictions WHERE match_id = ?`,
                 [matchId],
                 (err, predictions) => {
 
-                    if (err) {
-                        return res.send(err);
-                    }
+                    if (err) return res.send(err);
 
                     predictions.forEach(prediction => {
 
@@ -1515,23 +1436,18 @@ function calculateMatchPoints(matchId, res) {
 
                         const predictedHome = Number(prediction.predicted_home_score);
                         const predictedAway = Number(prediction.predicted_away_score);
+                        const actualHome    = Number(match.home_score);
+                        const actualAway    = Number(match.away_score);
 
-                        const actualHome = Number(match.home_score);
-                        const actualAway = Number(match.away_score);
-
-                        const exactScore =
-                            predictedHome === actualHome &&
-                            predictedAway === actualAway;
+                        const exactScore = predictedHome === actualHome && predictedAway === actualAway;
 
                         const predictedWinner =
                             predictedHome > predictedAway ? match.home_team :
-                            predictedAway > predictedHome ? match.away_team :
-                            'draw';
+                            predictedAway > predictedHome ? match.away_team : 'draw';
 
                         const actualWinner =
                             actualHome > actualAway ? match.home_team :
-                            actualAway > actualHome ? match.away_team :
-                            'draw';
+                            actualAway > actualHome ? match.away_team : 'draw';
 
                         if (exactScore) {
                             points = 3;
@@ -1548,30 +1464,24 @@ function calculateMatchPoints(matchId, res) {
                             actualWinner === match.underdog_team &&
                             predictedWinner === actualWinner
                         ) {
-                            if (exactScore) {
-                                points = 10;
-                            } else {
-                                points = 3;
-                            }
+                            points = exactScore ? 10 : 3;
                         }
 
                         db.query(
-                            `UPDATE predictions
-                             SET points = ?
-                             WHERE Pid = ?`,
+                            `UPDATE predictions SET points = ? WHERE Pid = ?`,
                             [points, prediction.Pid]
                         );
 
                     });
 
-                    updateUsersTotalPoints(res);
+                    // ✅ احتساب نقاط الدوريات الخاصة تلقائياً
+                    calcPrivateLeaguePoints(matchId, db);
 
+                    updateUsersTotalPoints(res);
                 }
             );
-
         }
     );
-
 }
 
 function updateUsersTotalPoints(res) {
@@ -3294,6 +3204,432 @@ app.get('/api/private-leagues/:id/my-usage', requireLogin, (req, res) => {
         }
     );
 });
+
+// ══════════════════════════════════════════════
+//  HELPER: تحقق إن اللاعب في الدوري
+// ══════════════════════════════════════════════
+function checkMember(leagueId, userId, db, cb) {
+    db.query(
+        `SELECT role FROM private_league_members WHERE league_id = ? AND user_id = ?`,
+        [leagueId, userId],
+        (err, rows) => {
+            if (err) return cb(err);
+            if (rows.length === 0) return cb(new Error('لست عضواً في هذا الدوري'));
+            cb(null, rows[0].role);
+        }
+    );
+}
+
+// HELPER: تحقق إن الخاصية مفعّلة وكم باقي للاعب
+function checkCardLimit(leagueId, userId, cardType, db, cb) {
+    db.query(
+        `SELECT * FROM private_league_features WHERE league_id = ?`,
+        [leagueId],
+        (err, rows) => {
+            if (err) return cb(err);
+            if (rows.length === 0) return cb(new Error('لا توجد إعدادات للدوري'));
+
+            const f = rows[0];
+            const enabledCol = cardType + '_enabled';
+            const limitCol   = cardType + '_limit';
+
+            if (!f[enabledCol]) return cb(new Error('هذه الخاصية غير مفعّلة في الدوري'));
+
+            const limit = f[limitCol] || 0;
+
+            db.query(
+                `SELECT COUNT(*) AS used FROM private_league_card_usage
+                 WHERE league_id = ? AND user_id = ? AND card_type = ?`,
+                [leagueId, userId, cardType],
+                (err2, usageRows) => {
+                    if (err2) return cb(err2);
+                    const used = usageRows[0].used;
+                    if (used >= limit) return cb(new Error('استنفدت عدد استخدامات هذه الخاصية'));
+                    cb(null, { used, limit });
+                }
+            );
+        }
+    );
+}
+
+// ══════════════════════════════════════════════
+//  1. المباراة الذهبية — المشرف يحددها
+// ══════════════════════════════════════════════
+app.post('/api/private-leagues/:id/golden-match', requireLogin, (req, res) => {
+    const leagueId = req.params.id;
+    const userId   = req.session.userId || req.session.Uid || req.session.user?.id;
+    const { match_id } = req.body;
+
+    if (!match_id) return res.json({ success: false, message: 'حدد المباراة' });
+
+    checkMember(leagueId, userId, db, (err, role) => {
+        if (err) return res.json({ success: false, message: err.message });
+        if (role !== 'owner') return res.json({ success: false, message: 'فقط المشرف يقدر يحدد المباراة الذهبية' });
+
+        // تحقق إن المباراة في بطولة الدوري
+        db.query(
+            `SELECT m.Mid, m.round_id FROM matches m
+             JOIN private_league_tournaments plt ON plt.tournament_id = m.tournament_id
+             WHERE m.Mid = ? AND plt.league_id = ?`,
+            [match_id, leagueId],
+            (err2, matchRows) => {
+                if (err2) return res.status(500).json(err2);
+                if (matchRows.length === 0) return res.json({ success: false, message: 'المباراة مو في بطولة الدوري' });
+
+                const roundId = matchRows[0].round_id;
+
+                db.query(
+                    `INSERT INTO private_league_golden_match (league_id, match_id, round_id, created_by)
+                     VALUES (?, ?, ?, ?)
+                     ON DUPLICATE KEY UPDATE match_id = VALUES(match_id), created_by = VALUES(created_by)`,
+                    [leagueId, match_id, roundId, userId],
+                    (err3) => {
+                        if (err3) return res.status(500).json(err3);
+                        res.json({ success: true, message: 'تم تحديد المباراة الذهبية ⭐' });
+                    }
+                );
+            }
+        );
+    });
+});
+
+// جلب المباراة الذهبية للجولة الحالية
+app.get('/api/private-leagues/:id/golden-match', requireLogin, (req, res) => {
+    const leagueId = req.params.id;
+    const { round_id } = req.query;
+
+    db.query(
+        `SELECT plg.*, m.home_team, m.away_team, m.match_date
+         FROM private_league_golden_match plg
+         JOIN matches m ON plg.match_id = m.Mid
+         WHERE plg.league_id = ? AND plg.round_id = ?`,
+        [leagueId, round_id],
+        (err, rows) => {
+            if (err) return res.status(500).json(err);
+            res.json(rows[0] || null);
+        }
+    );
+});
+
+// ══════════════════════════════════════════════
+//  2. الدرع — اللاعب يحمي نفسه جولة كاملة
+// ══════════════════════════════════════════════
+app.post('/api/private-leagues/:id/shield', requireLogin, (req, res) => {
+    const leagueId = req.params.id;
+    const userId   = req.session.userId || req.session.Uid || req.session.user?.id;
+    const { round_id } = req.body;
+
+    if (!round_id) return res.json({ success: false, message: 'حدد الجولة' });
+
+    checkMember(leagueId, userId, db, (err) => {
+        if (err) return res.json({ success: false, message: err.message });
+
+        checkCardLimit(leagueId, userId, 'shield', db, (err2) => {
+            if (err2) return res.json({ success: false, message: err2.message });
+
+            // تحقق ما عنده درع في نفس الجولة
+            db.query(
+                `SELECT id FROM private_league_shields WHERE league_id = ? AND user_id = ? AND round_id = ?`,
+                [leagueId, userId, round_id],
+                (err3, existing) => {
+                    if (err3) return res.status(500).json(err3);
+                    if (existing.length > 0) return res.json({ success: false, message: 'فعّلت الدرع في هذه الجولة مسبقاً' });
+
+                    db.query(
+                        `INSERT INTO private_league_shields (league_id, user_id, round_id) VALUES (?, ?, ?)`,
+                        [leagueId, userId, round_id],
+                        (err4) => {
+                            if (err4) return res.status(500).json(err4);
+
+                            // سجل الاستخدام
+                            db.query(
+                                `INSERT INTO private_league_card_usage (league_id, user_id, card_type, round_id)
+                                 VALUES (?, ?, 'shield', ?)`,
+                                [leagueId, userId, round_id],
+                                (err5) => {
+                                    if (err5) return res.status(500).json(err5);
+                                    res.json({ success: true, message: 'تم تفعيل الدرع 🛡️ أنت محمي هذه الجولة' });
+                                }
+                            );
+                        }
+                    );
+                }
+            );
+        });
+    });
+});
+
+// ══════════════════════════════════════════════
+//  3. السرقة — يسرق توقع من لاعب آخر
+// ══════════════════════════════════════════════
+app.get('/api/private-leagues/:id/stealable', requireLogin, (req, res) => {
+    const leagueId   = req.params.id;
+    const userId     = req.session.userId || req.session.Uid || req.session.user?.id;
+    const { target_user_id } = req.query;
+
+    if (!target_user_id) return res.json({ success: false, message: 'حدد اللاعب' });
+
+    // جلب توقعات اللاعب المستهدف اللي ما نزلت نتايجها بعد
+    db.query(
+        `SELECT plp.id, plp.match_id, plp.predicted_home_score, plp.predicted_away_score,
+                m.home_team, m.away_team, m.match_date, m.round_id
+         FROM private_league_predictions plp
+         JOIN matches m ON plp.match_id = m.Mid
+         WHERE plp.league_id = ? AND plp.user_id = ?
+           AND m.match_date > NOW()
+           AND (m.home_score IS NULL OR m.home_score = -1)
+           AND plp.is_stolen = 0`,
+        [leagueId, target_user_id],
+        (err, rows) => {
+            if (err) return res.status(500).json(err);
+            res.json(rows);
+        }
+    );
+});
+
+app.post('/api/private-leagues/:id/steal', requireLogin, (req, res) => {
+    const leagueId       = req.params.id;
+    const userId         = req.session.userId || req.session.Uid || req.session.user?.id;
+    const { target_user_id, prediction_id } = req.body;
+
+    if (!target_user_id || !prediction_id) {
+        return res.json({ success: false, message: 'بيانات ناقصة' });
+    }
+    if (String(target_user_id) === String(userId)) {
+        return res.json({ success: false, message: 'ما تقدر تسرق من نفسك' });
+    }
+
+    checkMember(leagueId, userId, db, (err) => {
+        if (err) return res.json({ success: false, message: err.message });
+
+        checkCardLimit(leagueId, userId, 'steal', db, (err2) => {
+            if (err2) return res.json({ success: false, message: err2.message });
+
+            // تحقق إن المستهدف ما عنده درع في هذه الجولة
+            db.query(
+                `SELECT plp.match_id, plp.predicted_home_score, plp.predicted_away_score,
+                        m.match_date, m.round_id
+                 FROM private_league_predictions plp
+                 JOIN matches m ON plp.match_id = m.Mid
+                 WHERE plp.id = ? AND plp.league_id = ? AND plp.user_id = ?
+                   AND m.match_date > NOW()`,
+                [prediction_id, leagueId, target_user_id],
+                (err3, predRows) => {
+                    if (err3) return res.status(500).json(err3);
+                    if (predRows.length === 0) return res.json({ success: false, message: 'التوقع غير موجود أو انتهى وقته' });
+
+                    const pred    = predRows[0];
+                    const roundId = pred.round_id;
+
+                    // تحقق من الدرع
+                    db.query(
+                        `SELECT id FROM private_league_shields
+                         WHERE league_id = ? AND user_id = ? AND round_id = ?`,
+                        [leagueId, target_user_id, roundId],
+                        (err4, shieldRows) => {
+                            if (err4) return res.status(500).json(err4);
+                            if (shieldRows.length > 0) {
+                                return res.json({ success: false, message: '🛡️ هذا اللاعب محمي بالدرع هذه الجولة' });
+                            }
+
+                            // تحقق ما سرق من نفس الشخص في نفس الجولة
+                            db.query(
+                                `SELECT id FROM private_league_card_usage
+                                 WHERE league_id = ? AND user_id = ? AND card_type = 'steal'
+                                   AND target_user_id = ? AND round_id = ?`,
+                                [leagueId, userId, target_user_id, roundId],
+                                (err5, prevSteal) => {
+                                    if (err5) return res.status(500).json(err5);
+                                    if (prevSteal.length > 0) {
+                                        return res.json({ success: false, message: 'سرقت من هذا اللاعب في هذه الجولة مسبقاً' });
+                                    }
+
+                                    // نقل التوقع: أضفه للسارق واحذفه من المسروق
+                                    db.query(
+                                        `INSERT INTO private_league_predictions
+                                         (league_id, user_id, match_id, predicted_home_score, predicted_away_score, is_stolen, stolen_from)
+                                         VALUES (?, ?, ?, ?, ?, 1, ?)
+                                         ON DUPLICATE KEY UPDATE
+                                             predicted_home_score = VALUES(predicted_home_score),
+                                             predicted_away_score = VALUES(predicted_away_score),
+                                             is_stolen = 1,
+                                             stolen_from = VALUES(stolen_from)`,
+                                        [leagueId, userId, pred.match_id,
+                                         pred.predicted_home_score, pred.predicted_away_score, target_user_id],
+                                        (err6) => {
+                                            if (err6) return res.status(500).json(err6);
+
+                                            // احذف التوقع من المسروق
+                                            db.query(
+                                                `DELETE FROM private_league_predictions
+                                                 WHERE id = ? AND league_id = ? AND user_id = ?`,
+                                                [prediction_id, leagueId, target_user_id],
+                                                (err7) => {
+                                                    if (err7) return res.status(500).json(err7);
+
+                                                    // سجل الاستخدام
+                                                    db.query(
+                                                        `INSERT INTO private_league_card_usage
+                                                         (league_id, user_id, card_type, target_user_id, match_id, round_id)
+                                                         VALUES (?, ?, 'steal', ?, ?, ?)`,
+                                                        [leagueId, userId, target_user_id, pred.match_id, roundId],
+                                                        (err8) => {
+                                                            if (err8) return res.status(500).json(err8);
+                                                            res.json({ success: true, message: '🕵️ تمت السرقة بنجاح' });
+                                                        }
+                                                    );
+                                                }
+                                            );
+                                        }
+                                    );
+                                }
+                            );
+                        }
+                    );
+                }
+            );
+        });
+    });
+});
+
+// ══════════════════════════════════════════════
+//  4. بطاقة الإنقاذ — تفعيل على مباراة معينة
+// ══════════════════════════════════════════════
+app.post('/api/private-leagues/:id/rescue', requireLogin, (req, res) => {
+    const leagueId = req.params.id;
+    const userId   = req.session.userId || req.session.Uid || req.session.user?.id;
+    const { match_id } = req.body;
+
+    if (!match_id) return res.json({ success: false, message: 'حدد المباراة' });
+
+    checkMember(leagueId, userId, db, (err) => {
+        if (err) return res.json({ success: false, message: err.message });
+
+        checkCardLimit(leagueId, userId, 'rescue', db, (err2) => {
+            if (err2) return res.json({ success: false, message: err2.message });
+
+            // تحقق إن عنده توقع على هذه المباراة
+            db.query(
+                `SELECT plp.id, m.match_date, m.round_id FROM private_league_predictions plp
+                 JOIN matches m ON plp.match_id = m.Mid
+                 WHERE plp.league_id = ? AND plp.user_id = ? AND plp.match_id = ?
+                   AND m.match_date > NOW()`,
+                [leagueId, userId, match_id],
+                (err3, predRows) => {
+                    if (err3) return res.status(500).json(err3);
+                    if (predRows.length === 0) {
+                        return res.json({ success: false, message: 'ما عندك توقع على هذه المباراة أو بدأت' });
+                    }
+
+                    const roundId = predRows[0].round_id;
+
+                    // فعّل بطاقة الإنقاذ على التوقع
+                    db.query(
+                        `UPDATE private_league_predictions SET used_rescue = 1
+                         WHERE league_id = ? AND user_id = ? AND match_id = ?`,
+                        [leagueId, userId, match_id],
+                        (err4) => {
+                            if (err4) return res.status(500).json(err4);
+
+                            // سجل الاستخدام
+                            db.query(
+                                `INSERT INTO private_league_card_usage
+                                 (league_id, user_id, card_type, match_id, round_id)
+                                 VALUES (?, ?, 'rescue', ?, ?)`,
+                                [leagueId, userId, match_id, roundId],
+                                (err5) => {
+                                    if (err5) return res.status(500).json(err5);
+                                    res.json({ success: true, message: '🆘 تم تفعيل بطاقة الإنقاذ' });
+                                }
+                            );
+                        }
+                    );
+                }
+            );
+        });
+    });
+});
+
+// ══════════════════════════════════════════════
+//  5. احتساب النقاط بعد انتهاء المباراة
+//     استدعِ هذه الدالة من route احتساب النقاط الأساسي
+// ══════════════════════════════════════════════
+function calcPrivateLeaguePoints(matchId, db) {
+    // جلب نتيجة المباراة
+    db.query(
+        `SELECT home_score, away_score, round_id, underdog_team, home_team, away_team
+         FROM matches WHERE Mid = ?`,
+        [matchId],
+        (err, matchRows) => {
+            if (err || matchRows.length === 0) return;
+
+            const m = matchRows[0];
+            if (m.home_score === null || m.home_score === -1) return;
+
+            const actualHome = m.home_score;
+            const actualAway = m.away_score;
+            const actualWinner = actualHome > actualAway ? m.home_team
+                               : actualAway > actualHome ? m.away_team
+                               : 'draw';
+
+            // جلب كل التوقعات في الدوريات الخاصة لهذه المباراة
+            db.query(
+                `SELECT plp.*, plgm.match_id AS golden_match_id
+                 FROM private_league_predictions plp
+                 LEFT JOIN private_league_golden_match plgm
+                     ON plgm.league_id = plp.league_id
+                     AND plgm.match_id = plp.match_id
+                 WHERE plp.match_id = ?`,
+                [matchId],
+                (err2, preds) => {
+                    if (err2 || preds.length === 0) return;
+
+                    preds.forEach(pred => {
+                        const ph = pred.predicted_home_score;
+                        const pa = pred.predicted_away_score;
+                        const predWinner = ph > pa ? m.home_team
+                                         : pa > ph ? m.away_team
+                                         : 'draw';
+
+                        let pts = 0;
+                        const isGolden = !!pred.golden_match_id;
+
+                        // نتيجة صح كاملة
+                        if (ph === actualHome && pa === actualAway) {
+                            pts = pred.used_black_horse ? 7 : 3;
+                        }
+                        // الفايز صح بس النتيجة غلط
+                        else if (predWinner === actualWinner && actualWinner !== 'draw') {
+                            pts = pred.used_black_horse ? 3 : 1;
+
+                            // بطاقة الإنقاذ: نفس الفارق ونفس الفايز
+                            if (pred.used_rescue && pts === 1) {
+                                const predDiff   = Math.abs(ph - pa);
+                                const actualDiff = Math.abs(actualHome - actualAway);
+                                if (predDiff === actualDiff) pts = 2;
+                            }
+                        }
+                        // تعادل صح
+                        else if (predWinner === 'draw' && actualWinner === 'draw') {
+                            pts = 1;
+                        }
+
+                        // مضاعفة المباراة الذهبية
+                        if (isGolden) pts *= 2;
+
+                        // حفظ النقاط في private_league_predictions
+                        db.query(
+                            `UPDATE private_league_predictions SET points = ? 
+                             WHERE league_id = ? AND user_id = ? AND match_id = ?`,
+                            [pts, pred.league_id, pred.user_id, matchId],
+                            () => {}
+                        );
+                    });
+                }
+            );
+        }
+    );
+}
 
 
 app.listen(3000, () => {

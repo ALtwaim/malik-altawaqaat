@@ -2,831 +2,571 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>الدوريات الخاصة</title>
+<title>الدوريات الخاصة — ملك التوقعات</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#ffd43b;--gold-dim:rgba(255,212,59,.12);--gold-border:rgba(255,212,59,.25);
+  --bg:#060e1c;--surface:#0c1729;--surface2:#101f38;
+  --text:#e8edf8;--muted:#7a90b5;
+  --green:#22c55e;--red:#ef4444;
+  --radius:18px;--radius-sm:12px;
+}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
+  background-image:radial-gradient(ellipse 80% 50% at 80% -10%,rgba(36,59,115,.45) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 10% 90%,rgba(15,30,80,.3) 0%,transparent 55%);}
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* NAV */
+.nav{height:64px;background:rgba(6,14,28,.9);border-bottom:1px solid var(--gold-border);
+  display:flex;align-items:center;justify-content:space-between;padding:0 40px;
+  position:sticky;top:0;z-index:200;backdrop-filter:blur(12px);}
+.logo{color:var(--gold);font-size:20px;font-weight:900;text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-links{display:flex;gap:6px}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:600;
+  padding:7px 14px;border-radius:30px;transition:.2s;display:flex;align-items:center;gap:5px}
+.nav-links a:hover,.nav-links a.active{color:var(--text);background:var(--surface2)}
 
-:root {
-  --gold: #ffd43b;
-  --gold-dim: rgba(255,212,59,.15);
-  --gold-border: rgba(255,212,59,.22);
-  --bg: #060e1c;
-  --surface: #0c1729;
-  --surface2: #101f38;
-  --text: #e8edf8;
-  --muted: #7a90b5;
-  --radius: 18px;
-  --radius-sm: 12px;
-}
+/* CONTAINER */
+.container{width:92%;max-width:1100px;margin:0 auto;padding:40px 0 80px}
 
-body {
-  font-family: 'Cairo', Tahoma, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  background-image:
-    radial-gradient(ellipse 80% 50% at 80% -10%, rgba(36,59,115,.55) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 10% 90%, rgba(15,30,80,.4) 0%, transparent 55%);
-}
+/* PAGE HEADER */
+.page-header{margin-bottom:32px}
+.page-header h1{font-size:32px;font-weight:900;color:var(--gold);margin-bottom:6px}
+.page-header p{color:var(--muted);font-size:15px}
 
-/* ── NAV ── */
-.nav {
-  height: 64px;
-  background: rgba(6,14,28,.92);
-  border-bottom: 1px solid var(--gold-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 40px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(12px);
-}
-.logo { color: var(--gold); font-size: 20px; font-weight: 900; display: flex; align-items: center; gap: 8px; }
-.logo svg { width: 26px; height: 26px; }
-.nav-links { display: flex; gap: 6px; }
-.nav-links a {
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
-  padding: 7px 14px;
-  border-radius: 30px;
-  transition: .2s;
-}
-.nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--surface2); }
+/* ACTION BUTTONS */
+.action-row{display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:var(--radius-sm);
+  font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border:none;transition:.2s}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#f0a500);color:#060e1c}
+.btn-gold:hover{opacity:.9;transform:translateY(-1px)}
+.btn-outline{background:transparent;border:1.5px solid var(--gold-border);color:var(--text)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-sm{padding:8px 16px;font-size:13px;border-radius:10px}
+.btn-danger{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#ef4444}
 
-/* ── HERO ── */
-.hero {
-  text-align: center;
-  padding: 60px 20px 40px;
-}
-.hero-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--gold-dim);
-  border: 1px solid var(--gold-border);
-  color: var(--gold);
-  font-size: 13px;
-  font-weight: 700;
-  padding: 5px 14px;
-  border-radius: 30px;
-  margin-bottom: 18px;
-}
-.hero h1 {
-  font-size: 46px;
-  font-weight: 900;
-  color: var(--gold);
-  line-height: 1.15;
-  text-shadow: 0 0 40px rgba(255,212,59,.3);
-}
-.hero p { color: var(--muted); font-size: 17px; margin-top: 12px; line-height: 1.8; }
-.hero-btns { display: flex; justify-content: center; gap: 14px; margin-top: 28px; flex-wrap: wrap; }
-.btn {
-  border: none;
-  border-radius: 50px;
-  padding: 13px 26px;
-  font-weight: 700;
-  cursor: pointer;
-  font-size: 15px;
-  font-family: inherit;
-  transition: .2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-.btn-gold {
-  background: linear-gradient(135deg, #ffd43b, #f9a825);
-  color: #060e1c;
-  box-shadow: 0 4px 20px rgba(255,212,59,.3);
-}
-.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(255,212,59,.4); }
-.btn-outline {
-  background: transparent;
-  color: var(--text);
-  border: 1px solid rgba(255,255,255,.15);
-}
-.btn-outline:hover { background: var(--surface2); border-color: rgba(255,255,255,.3); }
-.btn-ghost {
-  background: var(--surface2);
-  color: var(--text);
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: var(--radius-sm);
-  padding: 11px 20px;
-  font-size: 14px;
-}
+/* LEAGUES GRID */
+.leagues-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
 
-/* ── LAYOUT ── */
-.container { width: 92%; max-width: 1180px; margin: 0 auto; padding-bottom: 80px; }
-.grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 24px; }
+.league-card{
+  background:var(--surface);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:22px;padding:22px;
+  cursor:pointer;
+  transition:border-color .2s,transform .2s,box-shadow .2s;
+  text-decoration:none;color:inherit;display:block;
+}
+.league-card:hover{border-color:var(--gold-border);transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,.4)}
+.league-card.owner-card{border-color:rgba(255,212,59,.2)}
 
-/* ── CARD ── */
-.card {
-  background: var(--surface);
-  border: 1px solid rgba(255,255,255,.07);
-  border-radius: 24px;
-  padding: 30px;
-  box-shadow: 0 24px 70px rgba(0,0,0,.4);
-}
-.card-title {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--gold);
-  margin-bottom: 22px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.card-title svg { width: 22px; height: 22px; flex-shrink: 0; }
+.lc-top{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.lc-icon{width:50px;height:50px;border-radius:14px;background:var(--gold-dim);
+  border:1.5px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.lc-info h3{font-size:17px;font-weight:800;color:var(--text);margin-bottom:3px}
+.lc-role{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;
+  padding:3px 9px;border-radius:20px;
+  background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)}
+.lc-role.member{background:rgba(255,255,255,.05);color:var(--muted);border-color:rgba(255,255,255,.08)}
 
-/* ── FORM ── */
-.field { margin-bottom: 18px; }
-.field label { display: block; color: var(--muted); font-size: 13px; font-weight: 600; margin-bottom: 8px; }
-.field input[type="text"],
-.field input[type="number"] {
-  width: 100%;
-  padding: 13px 16px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255,255,255,.1);
-  background: rgba(255,255,255,.04);
-  color: var(--text);
-  outline: none;
-  font-size: 15px;
-  font-family: inherit;
-  transition: border-color .2s;
-}
-.field input:focus { border-color: rgba(255,212,59,.5); }
+.lc-stats{display:flex;gap:10px}
+.lc-stat{flex:1;background:var(--surface2);border-radius:10px;padding:10px 12px;text-align:center}
+.lc-stat .val{font-size:18px;font-weight:900;color:var(--gold)}
+.lc-stat .lbl{font-size:11px;color:var(--muted);margin-top:2px}
 
-/* ── ICON PICKER ── */
-.icon-row { display: flex; gap: 10px; flex-wrap: wrap; }
-.icon-btn {
-  width: 46px;
-  height: 46px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-sm);
-  background: var(--surface2);
-  border: 2px solid transparent;
-  cursor: pointer;
-  font-size: 0;
-  transition: .15s;
-}
-.icon-btn svg { width: 24px; height: 24px; }
-.icon-btn.active { border-color: var(--gold); background: var(--gold-dim); }
-.icon-btn:hover:not(.active) { border-color: rgba(255,212,59,.35); }
+.lc-code{margin-top:14px;padding:10px 14px;background:var(--gold-dim);border:1px solid var(--gold-border);
+  border-radius:10px;display:flex;align-items:center;justify-content:space-between}
+.lc-code span{font-size:13px;font-weight:600;color:var(--muted)}
+.lc-code strong{font-size:16px;font-weight:900;color:var(--gold);letter-spacing:3px}
+.copy-mini{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;transition:color .2s}
+.copy-mini:hover{color:var(--gold)}
 
-/* ── TOURNAMENT PILLS ── */
-.tournament-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 4px;
-}
-.t-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: 30px;
-  border: 1px solid rgba(255,255,255,.1);
-  background: var(--surface2);
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
-  transition: .15s;
-  user-select: none;
-}
-.t-pill svg { width: 15px; height: 15px; opacity: .5; }
-.t-pill.active {
-  background: var(--gold-dim);
-  border-color: var(--gold-border);
-  color: var(--gold);
-}
-.t-pill.active svg { opacity: 1; }
-.t-pill:hover:not(.active) { border-color: rgba(255,255,255,.25); color: var(--text); }
+/* EMPTY */
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-state i{font-size:48px;display:block;margin-bottom:16px;color:rgba(255,212,59,.3)}
+.empty-state h3{font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px}
+.empty-state p{font-size:14px;line-height:1.7}
 
-/* ── FEATURE CARDS ── */
-.features-grid { display: flex; flex-direction: column; gap: 10px; }
-.feature-card {
-  background: var(--surface2);
-  border: 1px solid rgba(255,255,255,.07);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  transition: border-color .2s;
-}
-.feature-card.on { border-color: var(--gold-border); }
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;gap:12px;padding:60px;color:var(--muted)}
+.spinner{width:22px;height:22px;border:2px solid rgba(255,212,59,.2);
+  border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-.feature-header { display: flex; align-items: center; gap: 10px; }
-.feature-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: rgba(255,255,255,.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.feature-icon svg { width: 20px; height: 20px; }
-.feature-info { flex: 1; }
-.feature-name { font-size: 14px; font-weight: 700; }
-.feature-desc { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;
+  display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:#0c1729;border:1px solid var(--gold-border);border-radius:24px;
+  width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:30px;
+  transform:translateY(20px);transition:transform .25s;position:relative}
+.overlay.open .modal{transform:translateY(0)}
+.modal-close{position:absolute;top:16px;left:16px;background:none;border:none;
+  color:var(--muted);font-size:22px;cursor:pointer;transition:color .2s;line-height:1}
+.modal-close:hover{color:var(--text)}
+.modal h2{font-size:22px;font-weight:900;color:var(--gold);margin-bottom:24px;
+  display:flex;align-items:center;gap:10px}
 
-.feature-actions { display: flex; align-items: center; gap: 8px; margin-right: auto; }
+/* FORM */
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin-bottom:7px}
+.form-group input,.form-group select{
+  width:100%;padding:12px 14px;background:var(--surface2);
+  border:1.5px solid rgba(255,255,255,.1);border-radius:var(--radius-sm);
+  color:var(--text);font-family:'Cairo',sans-serif;font-size:15px;outline:none;transition:border-color .2s}
+.form-group input:focus,.form-group select:focus{border-color:var(--gold)}
+.form-group select option{background:#0c1729}
 
-/* info button */
-.info-btn {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,.15);
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: inherit;
-  transition: .15s;
-  position: relative;
-}
-.info-btn:hover { border-color: var(--gold); color: var(--gold); }
-.info-btn svg { width: 13px; height: 13px; }
+/* ICON PICKER */
+.icon-grid{display:flex;gap:8px;flex-wrap:wrap}
+.icon-opt{width:44px;height:44px;border-radius:10px;border:1.5px solid rgba(255,255,255,.1);
+  background:var(--surface2);display:flex;align-items:center;justify-content:center;
+  font-size:20px;cursor:pointer;transition:all .2s}
+.icon-opt:hover{border-color:var(--gold-border)}
+.icon-opt.selected{border-color:var(--gold);background:var(--gold-dim)}
 
-/* tooltip */
-.tooltip-wrap { position: relative; display: inline-flex; }
-.tooltip-box {
-  display: none;
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1a2d50;
-  border: 1px solid var(--gold-border);
-  border-radius: 10px;
-  padding: 10px 13px;
-  font-size: 12px;
-  color: var(--text);
-  width: 200px;
-  line-height: 1.6;
-  z-index: 20;
-  pointer-events: none;
-  box-shadow: 0 8px 30px rgba(0,0,0,.5);
-}
-.tooltip-box::before {
-  content: "";
-  position: absolute;
-  top: -6px;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top: none;
-  border-bottom-color: #1a2d50;
-}
-.tooltip-wrap:hover .tooltip-box { display: block; }
+/* TOURNAMENT CHECKBOXES */
+.tournament-list{display:flex;flex-direction:column;gap:8px}
+.t-item{display:flex;align-items:center;gap:10px;padding:11px 14px;
+  background:var(--surface2);border:1.5px solid rgba(255,255,255,.07);
+  border-radius:var(--radius-sm);cursor:pointer;transition:border-color .2s}
+.t-item:hover{border-color:var(--gold-border)}
+.t-item.selected{border-color:var(--gold);background:var(--gold-dim)}
+.t-item input[type=checkbox]{display:none}
+.t-check{width:20px;height:20px;border-radius:6px;border:2px solid rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.t-item.selected .t-check{background:var(--gold);border-color:var(--gold);color:#060e1c}
+.t-name{font-size:14px;font-weight:700}
 
-/* toggle */
-.toggle {
-  width: 46px;
-  height: 26px;
-  background: rgba(255,255,255,.1);
-  border-radius: 30px;
-  position: relative;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background .2s;
-  border: none;
-}
-.toggle::after {
-  content: "";
-  width: 20px;
-  height: 20px;
-  background: #fff;
-  border-radius: 50%;
-  position: absolute;
-  top: 3px;
-  right: 3px;
-  transition: right .2s;
-}
-.toggle.active { background: var(--gold); }
-.toggle.active::after { right: 23px; background: #060e1c; }
+/* FEATURES SECTION */
+.features-section{margin-bottom:20px}
+.features-section h3{font-size:15px;font-weight:800;color:var(--text);
+  margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;gap:8px}
 
-.feature-body {
-  display: none;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255,255,255,.06);
-  align-items: center;
-  gap: 12px;
-}
-.feature-body.show { display: flex; }
-.feature-body label { color: var(--muted); font-size: 12px; font-weight: 600; white-space: nowrap; }
-.feature-body input {
-  width: 80px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,.1);
-  background: rgba(255,255,255,.04);
-  color: var(--text);
-  font-size: 14px;
-  font-family: inherit;
-  text-align: center;
-  outline: none;
-}
+.feat-row{background:var(--surface2);border:1.5px solid rgba(255,255,255,.07);
+  border-radius:var(--radius-sm);padding:14px;margin-bottom:10px;transition:border-color .2s}
+.feat-row.feat-on{border-color:var(--gold-border)}
+.feat-top{display:flex;align-items:center;gap:12px}
+.feat-icon{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.05);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.feat-text{flex:1}
+.feat-name{font-size:14px;font-weight:700}
+.feat-desc{font-size:11px;color:var(--muted);margin-top:2px}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{display:none}
+.toggle-track{width:100%;height:100%;border-radius:30px;background:rgba(255,255,255,.1);
+  cursor:pointer;transition:background .25s;display:block}
+.toggle input:checked+.toggle-track{background:var(--gold)}
+.toggle-thumb{position:absolute;top:3px;right:3px;width:18px;height:18px;
+  border-radius:50%;background:white;transition:transform .25s;pointer-events:none}
+.toggle input:checked~.toggle-thumb{transform:translateX(-20px)}
 
-/* ── CREATE BTN CENTER ── */
-.create-action { margin-top: 24px; display: flex; justify-content: center; }
-.btn-create {
-  background: linear-gradient(135deg, #ffd43b, #f9a825);
-  color: #060e1c;
-  border: none;
-  border-radius: 50px;
-  padding: 15px 48px;
-  font-size: 16px;
-  font-weight: 800;
-  font-family: inherit;
-  cursor: pointer;
-  box-shadow: 0 4px 22px rgba(255,212,59,.35);
-  transition: .2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-.btn-create:hover { transform: translateY(-2px); box-shadow: 0 7px 30px rgba(255,212,59,.45); }
-.btn-create svg { width: 18px; height: 18px; }
+.feat-limit{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;gap:10px}
+.feat-limit label{font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap}
+.feat-limit input{flex:1;padding:8px 12px;border-radius:8px;font-size:14px;max-width:100px}
 
-/* ── MSG ── */
-.msg { display: none; margin-top: 14px; padding: 13px 16px; border-radius: var(--radius-sm); font-size: 14px; line-height: 1.7; }
-.msg.ok { display: block; background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.3); color: #4ade80; }
-.msg.err { display: block; background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); color: #f87171; }
+/* DIVIDER */
+.divider{border:none;border-top:1px solid rgba(255,255,255,.07);margin:22px 0}
 
-/* ── CODE ── */
-.code { color: var(--gold); font-weight: 800; letter-spacing: 3px; }
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#1a2d50;border:1px solid var(--gold-border);border-radius:12px;
+  padding:11px 22px;font-size:14px;font-weight:600;color:var(--gold);
+  opacity:0;transition:.3s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* ── JOIN CARD ── */
-.join-input-row { display: flex; gap: 10px; margin-top: 4px; }
-.join-input-row input {
-  flex: 1;
-  padding: 13px 16px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255,255,255,.1);
-  background: rgba(255,255,255,.04);
-  color: var(--text);
-  outline: none;
-  font-size: 15px;
-  font-family: inherit;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-.join-input-row input:focus { border-color: rgba(255,212,59,.5); }
+/* JOIN BOX */
+.join-box{background:var(--surface);border:1px solid rgba(255,255,255,.07);
+  border-radius:22px;padding:24px;margin-bottom:28px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.join-box input{flex:1;min-width:160px;padding:12px 16px;background:var(--surface2);
+  border:1.5px solid rgba(255,255,255,.1);border-radius:var(--radius-sm);
+  color:var(--text);font-family:'Cairo',sans-serif;font-size:16px;font-weight:700;
+  letter-spacing:2px;outline:none;transition:border-color .2s;text-transform:uppercase}
+.join-box input:focus{border-color:var(--gold)}
+.join-box input::placeholder{letter-spacing:0;font-weight:400;text-transform:none}
 
-/* ── MY LEAGUES ── */
-.section-sep { height: 1px; background: rgba(255,255,255,.06); margin: 24px 0; }
-.leagues-title { font-size: 16px; font-weight: 700; color: var(--gold); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-.leagues-title svg { width: 18px; height: 18px; }
+/* SECTION TITLE */
+.section-title{font-size:18px;font-weight:800;color:var(--text);
+  margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.section-title i{color:var(--gold)}
 
-.league-card {
-  background: linear-gradient(135deg, var(--surface2), rgba(13,24,48,.8));
-  border: 1px solid var(--gold-border);
-  border-radius: var(--radius);
-  padding: 16px 18px;
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 14px;
-}
-.league-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
-.small { color: var(--muted); font-size: 12px; margin-top: 2px; }
-.badge {
-  background: var(--gold);
-  color: #060e1c;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-.empty {
-  color: var(--muted);
-  font-size: 14px;
-  padding: 20px;
-  background: var(--surface2);
-  border-radius: var(--radius-sm);
-  text-align: center;
-}
-.league-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-
-@media (max-width: 850px) {
-  .grid { grid-template-columns: 1fr; }
-  .hero h1 { font-size: 32px; }
-  .nav { padding: 0 16px; }
-  .nav-links a span { display: none; }
+@media(max-width:700px){
+  .nav{padding:0 16px}
+  .container{width:96%;padding:24px 0 60px}
+  .action-row{flex-direction:column}
+  .btn{width:100%;justify-content:center}
+  .join-box{flex-direction:column}
+  .join-box input{width:100%}
+  .leagues-grid{grid-template-columns:1fr}
+  .modal{padding:22px 18px}
 }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav class="nav">
-  <div class="logo">
-    <svg viewBox="0 0 24 24" fill="none">
-      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#ffd43b"/>
-    </svg>
-    ملك التوقعات
-  </div>
+  <a class="logo" href="/dashboard">
+    <i class="bi bi-award-fill"></i> ملك التوقعات
+  </a>
   <div class="nav-links">
-    <a href="/dashboard"><span>الرئيسية</span></a>
-    <a href="/predict.html"><span>توقع الآن</span></a>
-    <a href="/private-leagues" class="active"><span>الدوريات الخاصة</span></a>
+    <a href="/dashboard"><i class="bi bi-house-fill"></i> الرئيسية</a>
+    <a href="/predict"><i class="bi bi-lightning-charge-fill"></i> توقع</a>
+    <a href="/leaderboard"><i class="bi bi-trophy-fill"></i> المتصدرون</a>
+    <a href="/private-leagues" class="active"><i class="bi bi-shield-fill"></i> الدوريات</a>
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-label">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#ffd43b" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-    حصري لأصحابك
-  </div>
-  <h1>الدوريات الخاصة</h1>
-  <p>أنشئ دوري بين أصحابك، اختر البطولات، فعّل البطاقات، وخل المنافسة نار</p>
-  <div class="hero-btns">
-    <button class="btn btn-gold" onclick="scrollToCreate()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      إنشاء دوري جديد
-    </button>
-    <button class="btn btn-outline" onclick="scrollToJoin()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-      الانضمام برمز
-    </button>
-  </div>
-</section>
-
-<!-- MAIN -->
 <div class="container">
-  <div class="grid">
 
-    <!-- CREATE -->
-    <div class="card" id="createBox">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#ffd43b" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        إنشاء دوري خاص
-      </div>
+  <div class="page-header">
+    <h1><i class="bi bi-shield-fill" style="color:var(--gold)"></i> الدوريات الخاصة</h1>
+    <p>أنشئ دوري خاص مع أصحابك أو انضم برمز الدعوة</p>
+  </div>
 
-      <!-- Name -->
-      <div class="field">
-        <label>اسم الدوري</label>
-        <input id="leagueName" type="text" placeholder="مثال: دوري العيال">
-      </div>
-
-      <!-- Icon -->
-      <div class="field">
-        <label>أيقونة الدوري</label>
-        <input id="leagueIcon" type="hidden" value="crown">
-        <div class="icon-row" id="iconsBox">
-
-          <div class="icon-btn active" onclick="chooseIcon(this,'crown')" title="تاج">
-            <svg viewBox="0 0 24 24" fill="#ffd43b"><path d="M2 20h20v2H2zM3 8l4 4 5-8 5 8 4-4 1 8H2L3 8z"/></svg>
-          </div>
-
-          <div class="icon-btn" onclick="chooseIcon(this,'trophy')" title="كأس">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-          </div>
-
-          <div class="icon-btn" onclick="chooseIcon(this,'ball')" title="كرة">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20A14.5 14.5 0 0 0 12 2"/><path d="M2 12h20"/></svg>
-          </div>
-
-          <div class="icon-btn" onclick="chooseIcon(this,'fire')" title="نار">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
-          </div>
-
-          <div class="icon-btn" onclick="chooseIcon(this,'eagle')" title="نسر">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 0 1-7-7h0a5 5 0 0 1 5-5h4.5"/><path d="M14 20l-5-5"/><path d="M22 6l-9.5 9.5"/><path d="M22 6h-5"/><path d="M22 6v5"/></svg>
-          </div>
-
-          <div class="icon-btn" onclick="chooseIcon(this,'horse')" title="حصان">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 17h12M6 17l-1 4M18 17l1 4M12 3c-3 0-5 2-5 4v3l-1 3h12l-1-3V7c0-2-2-4-5-4z"/><path d="M9 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm6 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
-          </div>
-
-          <div class="icon-btn" onclick="chooseIcon(this,'bolt')" title="برق">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Max members -->
-      <div class="field">
-        <label>الحد الأقصى للأعضاء</label>
-        <input id="maxMembers" type="number" value="20" min="2" max="100">
-      </div>
-
-      <!-- Tournaments -->
-      <div class="field">
-        <label>البطولات التي تُحسب نقاطها</label>
-        <div class="tournament-grid" id="tournamentsGrid">
-          <!-- filled by JS -->
-        </div>
-        <input id="selectedTournaments" type="hidden" value="">
-      </div>
-
-      <!-- Features -->
-      <div class="field">
-        <label>خصائص الدوري</label>
-        <div class="features-grid" id="featuresBox"></div>
-      </div>
-
-      <!-- Submit -->
-      <div class="create-action">
-        <button class="btn-create" onclick="createLeague()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          إنشاء الدوري
+  <!-- JOIN BOX -->
+  <div class="join-box">
+    <i class="bi bi-door-open" style="font-size:26px;color:var(--gold);flex-shrink:0"></i>
+    <div style="flex:1">
+      <div style="font-size:14px;font-weight:700;margin-bottom:8px">انضم بالرمز</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <input type="text" id="joinCodeInput" placeholder="أدخل رمز الدوري (مثال: AB3X9K)" maxlength="6">
+        <button class="btn btn-outline" onclick="joinLeague()">
+          <i class="bi bi-box-arrow-in-right"></i> انضمام
         </button>
       </div>
-      <div id="createMsg" class="msg"></div>
     </div>
-
-    <!-- JOIN + MY LEAGUES -->
-    <div style="display:flex;flex-direction:column;gap:24px;">
-
-      <div class="card" id="joinBox">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#ffd43b" stroke-width="2.2" width="22" height="22"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-          الانضمام لدوري
-        </div>
-        <label style="color:var(--muted);font-size:13px;font-weight:600;display:block;margin-bottom:8px;">رمز الدوري</label>
-        <div class="join-input-row">
-          <input id="joinCode" type="text" placeholder="مثال: X9K4T" maxlength="8">
-          <button class="btn btn-gold" onclick="joinLeague()">انضمام</button>
-        </div>
-        <div id="joinMsg" class="msg"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#ffd43b" stroke-width="2.2" width="22" height="22"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-          دورياتي
-        </div>
-        <div id="myLeagues">
-          <div class="empty">جاري التحميل...</div>
-        </div>
-      </div>
-
-    </div>
-
   </div>
+
+  <!-- ACTION -->
+  <div class="action-row">
+    <button class="btn btn-gold" onclick="openCreateModal()">
+      <i class="bi bi-plus-circle-fill"></i> إنشاء دوري جديد
+    </button>
+  </div>
+
+  <!-- MY LEAGUES -->
+  <div class="section-title">
+    <i class="bi bi-collection-fill"></i> دورياتي
+  </div>
+
+  <div id="leaguesContainer">
+    <div class="loading"><div class="spinner"></div> جاري التحميل...</div>
+  </div>
+
 </div>
 
+<!-- ═══ CREATE MODAL ═══ -->
+<div class="overlay" id="createOverlay" onclick="handleOverlayClick(event,'createOverlay')">
+<div class="modal" id="createModal">
+  <button class="modal-close" onclick="closeModal('createOverlay')">×</button>
+  <h2><i class="bi bi-plus-circle-fill"></i> إنشاء دوري</h2>
+
+  <!-- اسم -->
+  <div class="form-group">
+    <label>اسم الدوري</label>
+    <input type="text" id="leagueName" placeholder="مثال: دوري الأصدقاء" maxlength="60">
+  </div>
+
+  <!-- أيقونة -->
+  <div class="form-group">
+    <label>أيقونة الدوري</label>
+    <div class="icon-grid" id="iconGrid"></div>
+  </div>
+
+  <!-- عدد الأعضاء -->
+  <div class="form-group">
+    <label>الحد الأقصى للأعضاء</label>
+    <select id="maxMembers">
+      <option value="5">5 أعضاء</option>
+      <option value="10">10 أعضاء</option>
+      <option value="15">15 عضو</option>
+      <option value="20" selected>20 عضو</option>
+      <option value="30">30 عضو</option>
+    </select>
+  </div>
+
+  <!-- البطولات -->
+  <div class="form-group">
+    <label>البطولات المشمولة في الدوري</label>
+    <div class="tournament-list" id="tournamentList">
+      <div class="loading" style="padding:20px"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- الخصائص -->
+  <div class="features-section">
+    <h3><i class="bi bi-lightning-fill" style="color:var(--gold)"></i> الخصائص الخاصة</h3>
+    <div id="featuresForm"></div>
+  </div>
+
+  <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:8px" onclick="createLeague()">
+    <i class="bi bi-check-circle-fill"></i> إنشاء الدوري
+  </button>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-const FEATURES = [
-  {
-    id: 'black_horse',
-    name: 'الحصان الأسود',
-    desc: 'فرصة إضافية على الفريق الأضعف',
-    tooltip: 'يمنحك فرصة للرهان على الفريق ذو الاحتمالية الأقل. إذا فاز، تحصل على نقاط مضاعفة.',
-    default: 2,
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 17h12M6 17l-1 4M18 17l1 4M12 3c-3 0-5 2-5 4v3l-1 3h12l-1-3V7c0-2-2-4-5-4z"/></svg>`
-  },
-  {
-    id: 'golden_match',
-    name: 'المباراة الذهبية',
-    desc: 'مباراة بنقاط مضاعفة',
-    tooltip: 'اختر مباراة واحدة كل جولة تتضاعف فيها نقاطك إذا صح توقعك.',
-    default: 1,
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
-  },
-  {
-    id: 'steal',
-    name: 'خاصية السرقة',
-    desc: 'تزرف توقع من لاعب قبل بداية المباراة',
-    tooltip: 'قبل انطلاق المباراة، اسرق توقع لاعب آخر واضفها الى توقعاتك.',
-    default: 1,
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`
-  },
-  {
-    id: 'shield',
-    name: 'الدرع',
-    desc: 'يحميك من السرقة والهجمات',
-    tooltip: 'فعّل الدرع لحماية توقعاتك من لاعبين آخرين يحاولون سرقتها.',
-    default: 1,
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`
-  },
-  {
-    id: 'rescue',
-    name: 'بطاقة الإنقاذ',
-    desc: 'تعطيك نقاط إذا جبت فارق الأهداف',
-    tooltip: 'حتى لو خطأ النتيجة، إذا كنت قريباً من فارق الأهداف، تحصل على نقطة تعويضية.',
-    default: 2,
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`
-  }
+// ── Config ─────────────────────────────────────────────────────────────────
+const ICONS = ['🏆','⚽','🥇','🔥','👑','⚡','🎯','💎','🛡️','🦁','🚀','🌟'];
+
+const FEATURES_CONFIG = [
+    { key:'black_horse',  name:'الحصان الأسود',   desc:'توقع الفريق الأضعف بنقاط مضاعفة', icon:'🐎' },
+    { key:'golden_match', name:'المباراة الذهبية', desc:'مباراة واحدة بنقاط مضاعفة',        icon:'⭐' },
+    { key:'steal',        name:'بطاقة السرقة',     desc:'سرقة توقع من لاعب آخر',            icon:'🕵️' },
+    { key:'shield',       name:'بطاقة الدرع',      desc:'الحماية من السرقة لجولة كاملة',    icon:'🛡️' },
+    { key:'rescue',       name:'بطاقة الإنقاذ',    desc:'نقطة إضافية إذا صح فارق الأهداف', icon:'🆘' },
 ];
 
-// -- Render features --
-function renderFeatures() {
-  const box = document.getElementById('featuresBox');
-  box.innerHTML = '';
-  FEATURES.forEach(f => {
-    box.innerHTML += `
-      <div class="feature-card" id="fc_${f.id}">
-        <div class="feature-header">
-          <div class="feature-icon">${f.icon}</div>
-          <div class="feature-info">
-            <div class="feature-name">${f.name}</div>
-            <div class="feature-desc">${f.desc}</div>
-          </div>
-          <div class="feature-actions">
-            <div class="tooltip-wrap">
-              <button class="info-btn" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-              </button>
-              <div class="tooltip-box">${f.tooltip}</div>
-            </div>
-            <button class="toggle" id="${f.id}Toggle" onclick="toggleFeature('${f.id}')"></button>
-          </div>
+let selectedIcon = ICONS[0];
+let selectedTournaments = [];
+
+// ── Init ───────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+    buildIconGrid();
+    buildFeaturesForm();
+    loadMyLeagues();
+});
+
+// ── Icon Grid ──────────────────────────────────────────────────────────────
+function buildIconGrid() {
+    const grid = document.getElementById('iconGrid');
+    grid.innerHTML = ICONS.map((icon, i) => `
+        <div class="icon-opt ${i===0?'selected':''}" onclick="selectIcon('${icon}', this)">
+            ${icon}
         </div>
-        <div class="feature-body" id="${f.id}Body">
-          <label>عدد الاستخدامات</label>
-          <input id="${f.id}Limit" type="number" value="${f.default}" min="0">
-        </div>
-      </div>
-    `;
-  });
-}
-
-function toggleFeature(id) {
-  const toggle = document.getElementById(id + 'Toggle');
-  const body   = document.getElementById(id + 'Body');
-  const card   = document.getElementById('fc_' + id);
-  toggle.classList.toggle('active');
-  body.classList.toggle('show');
-  card.classList.toggle('on');
-}
-
-function isEnabled(id) {
-  return document.getElementById(id + 'Toggle').classList.contains('active');
-}
-
-// -- Icon picker --
-function chooseIcon(el, val) {
-  document.querySelectorAll('.icon-btn').forEach(i => i.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('leagueIcon').value = val;
-}
-
-// -- Tournament pills --
-async function loadTournaments() {
-  try {
-    const res = await fetch('/api/tournaments');
-    const data = await res.json();
-    if (!Array.isArray(data)) return;
-    const grid = document.getElementById('tournamentsGrid');
-    grid.innerHTML = '';
-    data.forEach(t => {
-      const pill = document.createElement('div');
-      pill.className = 't-pill';
-      pill.dataset.id = t.id;
-      pill.innerHTML = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-        ${t.Tname || t.name || 'بطولة'}
-      `;
-      pill.onclick = () => {
-        pill.classList.toggle('active');
-        updateSelectedTournaments();
-      };
-      grid.appendChild(pill);
-    });
-  } catch(e) {
-    document.getElementById('tournamentsGrid').innerHTML = '<div class="empty" style="width:100%">تعذر تحميل البطولات</div>';
-  }
-}
-
-function updateSelectedTournaments() {
-  const ids = Array.from(document.querySelectorAll('.t-pill.active')).map(p => p.dataset.id);
-  document.getElementById('selectedTournaments').value = ids.join(',');
-}
-
-function getSelectedTournaments() {
-  return document.getElementById('selectedTournaments').value
-    .split(',')
-    .filter(Boolean)
-    .map(Number);
-}
-
-// -- Scroll helpers --
-function scrollToCreate() { document.getElementById('createBox').scrollIntoView({behavior:'smooth'}); }
-function scrollToJoin() { document.getElementById('joinBox').scrollIntoView({behavior:'smooth'}); }
-
-// -- Msg helper --
-function showMsg(id, html, ok = true) {
-  const el = document.getElementById(id);
-  el.className = ok ? 'msg ok' : 'msg err';
-  el.innerHTML = html;
-}
-
-async function safeJson(res) {
-    try {
-        const data = await res.json();
-        if (res.status === 401) {
-            window.location.href = '/login';
-            return { success: false };
-        }
-        return data;
-    } catch(e) {
-        return { success: false, message: 'تعذر قراءة الرد من السيرفر' };
-    }
-}
-
-// -- Create --
-async function createLeague() {
-  const name = document.getElementById('leagueName').value.trim();
-  if (!name) { showMsg('createMsg','اكتب اسم الدوري أولاً', false); return; }
-
-  const data = {
-    name,
-    icon: document.getElementById('leagueIcon').value,
-    max_members: Number(document.getElementById('maxMembers').value || 20),
-    tournaments: getSelectedTournaments(),
-    features: Object.fromEntries(FEATURES.map(f => [f.id, {
-      enabled: isEnabled(f.id),
-      limit: Number(document.getElementById(f.id + 'Limit').value || 0)
-    }]))
-  };
-
-  try {
-    const res = await fetch('/api/private-leagues/create', {
-      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)
-    });
-    const result = await safeJson(res);
-    if (result.success) {
-      showMsg('createMsg', `تم إنشاء الدوري بنجاح 🎉<br>رمز الدوري: <span class="code">${result.code}</span>`, true);
-      loadMyLeagues();
-    } else {
-      showMsg('createMsg', result.message || 'حدث خطأ أثناء إنشاء الدوري', false);
-    }
-  } catch(e) {
-    showMsg('createMsg','تعذر الاتصال بالسيرفر', false);
-  }
-}
-
-// -- Join --
-async function joinLeague() {
-  const code = document.getElementById('joinCode').value.trim().toUpperCase();
-  if (!code) { showMsg('joinMsg','اكتب رمز الدوري', false); return; }
-  try {
-    const res = await fetch('/api/private-leagues/join', {
-      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({code})
-    });
-    const result = await safeJson(res);
-    showMsg('joinMsg', result.message || 'تم تنفيذ الطلب', !!result.success);
-    if (result.success) loadMyLeagues();
-  } catch(e) { showMsg('joinMsg','تعذر الاتصال بالسيرفر', false); }
-}
-
-// -- My leagues --
-async function loadMyLeagues() {
-  try {
-    const res = await fetch('/api/private-leagues/my');
-    const leagues = await safeJson(res);
-    const box = document.getElementById('myLeagues');
-    if (!Array.isArray(leagues)) {
-      box.innerHTML = '<div class="empty">سجل دخولك ثم ارجع للصفحة لعرض دورياتك.</div>';
-      return;
-    }
-    if (leagues.length === 0) {
-      box.innerHTML = '<div class="empty">ما عندك دوريات خاصة حتى الآن.</div>';
-      return;
-    }
-    box.innerHTML = leagues.map(l => `
-      <div class="league-card">
-        <div>
-          <h3>${l.name}</h3>
-          <div class="small">الأعضاء: ${l.members_count} / ${l.max_members}</div>
-          <div style="margin-top:4px">الرمز: <span class="code">${l.code}</span></div>
-        </div>
-        <div class="league-actions">
-          <div class="badge">${l.role === 'owner' ? 'مدير' : 'عضو'}</div>
-          <button class="btn-ghost" onclick="openLeague(${l.id})">دخول</button>
-        </div>
-      </div>
     `).join('');
-  } catch(e) {
-    document.getElementById('myLeagues').innerHTML = '<div class="empty">تعذر تحميل الدوريات حاليًا.</div>';
-  }
 }
 
-function openLeague(id) { window.location.href = '/private-league.html?id=' + id; }
+function selectIcon(icon, el) {
+    selectedIcon = icon;
+    document.querySelectorAll('.icon-opt').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+}
 
-renderFeatures();
-loadTournaments();
-loadMyLeagues();
+// ── Features Form ──────────────────────────────────────────────────────────
+function buildFeaturesForm() {
+    const box = document.getElementById('featuresForm');
+    box.innerHTML = FEATURES_CONFIG.map(f => `
+        <div class="feat-row" id="feat-row-${f.key}">
+            <div class="feat-top">
+                <div class="feat-icon">${f.icon}</div>
+                <div class="feat-text">
+                    <div class="feat-name">${f.name}</div>
+                    <div class="feat-desc">${f.desc}</div>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" id="feat-${f.key}" onchange="toggleFeat('${f.key}', this.checked)">
+                    <span class="toggle-track"></span>
+                    <span class="toggle-thumb"></span>
+                </label>
+            </div>
+            <div class="feat-limit" id="limit-${f.key}" style="display:none">
+                <label>عدد الاستخدامات لكل لاعب:</label>
+                <input type="number" id="limit-val-${f.key}" value="2" min="1" max="20"
+                    class="form-group input" style="max-width:80px;padding:8px 10px;border-radius:8px;
+                    background:var(--surface);border:1.5px solid rgba(255,255,255,.1);color:var(--text);
+                    font-family:'Cairo',sans-serif;font-size:14px;outline:none">
+            </div>
+        </div>
+    `).join('');
+}
+
+function toggleFeat(key, checked) {
+    const row   = document.getElementById('feat-row-' + key);
+    const limit = document.getElementById('limit-' + key);
+    row.classList.toggle('feat-on', checked);
+    limit.style.display = checked ? 'flex' : 'none';
+}
+
+// ── Load Tournaments ────────────────────────────────────────────────────────
+function loadTournaments() {
+    fetch('/api/tournaments')
+        .then(r => r.json())
+        .then(data => {
+            const list = document.getElementById('tournamentList');
+            if (!data || data.length === 0) {
+                list.innerHTML = '<p style="color:var(--muted);font-size:14px;padding:10px">لا توجد بطولات متاحة</p>';
+                return;
+            }
+            list.innerHTML = data.map(t => `
+                <div class="t-item" id="t-${t.id}" onclick="toggleTournament(${t.id}, this)">
+                    <div class="t-check"><i class="bi bi-check" style="font-size:12px"></i></div>
+                    <span class="t-name">${t.Tname}</span>
+                </div>
+            `).join('');
+        })
+        .catch(() => {
+            document.getElementById('tournamentList').innerHTML =
+                '<p style="color:var(--muted);font-size:14px;padding:10px">تعذر تحميل البطولات</p>';
+        });
+}
+
+function toggleTournament(id, el) {
+    el.classList.toggle('selected');
+    const idx = selectedTournaments.indexOf(id);
+    if (idx === -1) selectedTournaments.push(id);
+    else selectedTournaments.splice(idx, 1);
+}
+
+// ── Load My Leagues ────────────────────────────────────────────────────────
+function loadMyLeagues() {
+    fetch('/api/private-leagues/my')
+        .then(r => r.json())
+        .then(leagues => {
+            const box = document.getElementById('leaguesContainer');
+            if (!leagues || leagues.length === 0) {
+                box.innerHTML = `
+                    <div class="empty-state">
+                        <i class="bi bi-shield-slash"></i>
+                        <h3>ما عندك دوريات بعد</h3>
+                        <p>أنشئ دوري خاص أو انضم لدوري موجود برمز الدعوة</p>
+                    </div>`;
+                return;
+            }
+            box.innerHTML = '<div class="leagues-grid">' +
+                leagues.map(l => `
+                    <a class="league-card ${l.role==='owner'?'owner-card':''}"
+                       href="/private-league.html?id=${l.id}">
+                        <div class="lc-top">
+                            <div class="lc-icon">${l.icon || '🏆'}</div>
+                            <div class="lc-info">
+                                <h3>${l.name}</h3>
+                                <span class="lc-role ${l.role==='owner'?'':'member'}">
+                                    ${l.role==='owner' ? '👑 مدير' : '🎮 لاعب'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="lc-stats">
+                            <div class="lc-stat">
+                                <div class="val">${l.members_count}</div>
+                                <div class="lbl">عضو</div>
+                            </div>
+                            <div class="lc-stat">
+                                <div class="val">${l.max_members}</div>
+                                <div class="lbl">الحد الأقصى</div>
+                            </div>
+                        </div>
+                        <div class="lc-code">
+                            <div>
+                                <span>رمز الدوري</span>
+                                <strong style="display:block">${l.code}</strong>
+                            </div>
+                            <button class="copy-mini" onclick="event.preventDefault();copyCode('${l.code}')" title="نسخ الرمز">
+                                <i class="bi bi-copy"></i>
+                            </button>
+                        </div>
+                    </a>
+                `).join('') + '</div>';
+        })
+        .catch(() => {
+            document.getElementById('leaguesContainer').innerHTML =
+                '<div class="empty-state"><i class="bi bi-wifi-off"></i><h3>تعذر التحميل</h3><p>تحقق من اتصالك وأعد المحاولة</p></div>';
+        });
+}
+
+// ── Create League ──────────────────────────────────────────────────────────
+function createLeague() {
+    const name = document.getElementById('leagueName').value.trim();
+    if (!name) { showToast('⚠️ اكتب اسم الدوري'); return; }
+    if (selectedTournaments.length === 0) { showToast('⚠️ اختر بطولة واحدة على الأقل'); return; }
+
+    const features = {};
+    FEATURES_CONFIG.forEach(f => {
+        const enabled = document.getElementById('feat-' + f.key).checked;
+        const limit   = parseInt(document.getElementById('limit-val-' + f.key)?.value) || 0;
+        features[f.key] = { enabled, limit: enabled ? limit : 0 };
+    });
+
+    const body = {
+        name,
+        icon: selectedIcon,
+        max_members: parseInt(document.getElementById('maxMembers').value),
+        tournaments: selectedTournaments,
+        features
+    };
+
+    fetch('/api/private-leagues/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) { showToast('❌ ' + data.message); return; }
+        showToast('✅ تم إنشاء الدوري! الرمز: ' + data.code);
+        closeModal('createOverlay');
+        loadMyLeagues();
+    })
+    .catch(() => showToast('❌ حدث خطأ، حاول مجدداً'));
+}
+
+// ── Join League ────────────────────────────────────────────────────────────
+function joinLeague() {
+    const code = document.getElementById('joinCodeInput').value.trim().toUpperCase();
+    if (code.length !== 6) { showToast('⚠️ الرمز يجب أن يكون 6 أحرف'); return; }
+
+    fetch('/api/private-leagues/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) { showToast('❌ ' + data.message); return; }
+        showToast('✅ ' + data.message);
+        document.getElementById('joinCodeInput').value = '';
+        setTimeout(() => {
+            window.location.href = '/private-league.html?id=' + data.leagueId;
+        }, 1200);
+    })
+    .catch(() => showToast('❌ حدث خطأ، حاول مجدداً'));
+}
+
+// ── Modal ──────────────────────────────────────────────────────────────────
+function openCreateModal() {
+    selectedTournaments = [];
+    document.getElementById('leagueName').value = '';
+    document.querySelectorAll('.icon-opt').forEach((e,i) => e.classList.toggle('selected', i===0));
+    selectedIcon = ICONS[0];
+    document.querySelectorAll('.t-item').forEach(e => e.classList.remove('selected'));
+    FEATURES_CONFIG.forEach(f => {
+        const cb = document.getElementById('feat-' + f.key);
+        if (cb) { cb.checked = false; toggleFeat(f.key, false); }
+    });
+    loadTournaments();
+    document.getElementById('createOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e, id) {
+    if (e.target.id === id) closeModal(id);
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function copyCode(code) {
+    navigator.clipboard.writeText(code).then(() => showToast('تم نسخ الرمز ✓'));
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
 </script>
 </body>
 </html>
