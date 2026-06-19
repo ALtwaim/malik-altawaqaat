@@ -3341,6 +3341,83 @@ app.post('/api/private-leagues/:id/golden-match', requireLogin, (req, res) => {
     });
 });
 
+app.post('/api/private-leagues/:id/black-horse', requireLogin, (req, res) => {
+    const leagueId = req.params.id;
+    const userId   = getUserId(req);
+    const { match_id } = req.body;
+ 
+    if (!match_id) return res.json({ success: false, message: 'حدد المباراة' });
+ 
+    checkMember(leagueId, userId, db, (err) => {
+        if (err) return res.json({ success: false, message: err.message });
+ 
+        checkCardLimit(leagueId, userId, 'black_horse', db, (err2) => {
+            if (err2) return res.json({ success: false, message: err2.message });
+ 
+            // تحقق إن المباراة في بطولات هذا الدوري
+            db.query(
+                `SELECT m.Mid, m.match_date, m.round_id, m.underdog_team
+                 FROM matches m
+                 JOIN private_league_tournaments plt ON plt.tournament_id = m.tournament_id
+                 WHERE m.Mid = ? AND plt.league_id = ?
+                   AND m.match_date > NOW()`,
+                [match_id, leagueId],
+                (err3, matchRows) => {
+                    if (err3) return res.status(500).json(err3);
+                    if (matchRows.length === 0) {
+                        return res.json({ success: false, message: 'المباراة غير موجودة أو بدأت' });
+                    }
+ 
+                    const match = matchRows[0];
+ 
+                    // تحقق إن المباراة فيها حصان أسود
+                    if (!match.underdog_team) {
+                        return res.json({ success: false, message: 'هذه المباراة ليس فيها فريق حصان أسود' });
+                    }
+ 
+                    // تحقق إن عنده توقع على المباراة
+                    db.query(
+                        `SELECT id FROM predictions
+                         WHERE user_id = ? AND match_id = ?`,
+                        [userId, match_id],
+                        (err4, predRows) => {
+                            if (err4) return res.status(500).json(err4);
+                            if (predRows.length === 0) {
+                                return res.json({ success: false, message: 'ما عندك توقع على هذه المباراة' });
+                            }
+ 
+                            // تحقق ما استخدمها على نفس المباراة من قبل
+                            db.query(
+                                `SELECT id FROM private_league_card_usage
+                                 WHERE league_id = ? AND user_id = ? AND card_type = 'black_horse' AND match_id = ?`,
+                                [leagueId, userId, match_id],
+                                (err5, existing) => {
+                                    if (err5) return res.status(500).json(err5);
+                                    if (existing.length > 0) {
+                                        return res.json({ success: false, message: 'استخدمت الحصان الأسود على هذه المباراة مسبقاً' });
+                                    }
+ 
+                                    // سجّل الاستخدام
+                                    db.query(
+                                        `INSERT INTO private_league_card_usage
+                                         (league_id, user_id, card_type, match_id, round_id)
+                                         VALUES (?, ?, 'black_horse', ?, ?)`,
+                                        [leagueId, userId, match_id, match.round_id],
+                                        (err6) => {
+                                            if (err6) return res.status(500).json(err6);
+                                            res.json({ success: true, message: '🐎 تم تفعيل بطاقة الحصان الأسود!' });
+                                        }
+                                    );
+                                }
+                            );
+                        }
+                    );
+                }
+            );
+        });
+    });
+});
+
 // جلب المباراة الذهبية للجولة الحالية
 app.get('/api/private-leagues/:id/golden-match', requireLogin, (req, res) => {
     const leagueId = req.params.id;
