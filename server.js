@@ -3094,26 +3094,84 @@ app.get('/api/private-leagues/:id', requireLogin, (req, res) => {
                     if (err3) return res.status(500).json(err3);
 
                     db.query(
-                        `SELECT 
-                            p.Uid,
-                            p.Username,
-                            COALESCE(SUM(
-                                CASE WHEN plt.tournament_id IS NOT NULL THEN plp.points ELSE 0 END
-                            ), 0) AS total_points
-                        FROM private_league_members lm
-                        JOIN person p ON lm.user_id = p.Uid
-                        LEFT JOIN private_league_predictions plp 
-                            ON plp.user_id = p.Uid AND plp.league_id = lm.league_id
-                        LEFT JOIN matches m ON plp.match_id = m.Mid
-                        LEFT JOIN private_league_tournaments plt
-                            ON plt.tournament_id = m.tournament_id
-                            AND plt.league_id = lm.league_id
-                        WHERE lm.league_id = ?
-                        GROUP BY p.Uid, p.Username
-                        ORDER BY total_points DESC`,
-                        [leagueId],
-                        (err4, leaderboard) => {
-                            if (err4) return res.status(500).json(err4);
+    `SELECT 
+        p.Uid,
+        p.Username,
+ 
+        -- النقاط الأساسية من predictions العام (قراءة فقط، بدون أي تعديل)
+        COALESCE(SUM(pr.points), 0) AS base_points,
+ 
+        -- النقاط الإضافية من الحصان الأسود (طبقة منفصلة فوق الأساسية)
+        -- الفرق يعتمد على نقاط predictions الأساسية:
+        --   لو الأساس = 1 (فايز صح بس) ← الحصان يخليها 3  → فرق +2
+        --   لو الأساس = 3 (نتيجة صح كاملة) ← الحصان يخليها 10 → فرق +7
+        COALESCE(SUM(
+            CASE 
+                WHEN bh.card_type = 'black_horse'
+                 AND m.underdog_team IS NOT NULL
+                 AND m.home_score IS NOT NULL 
+                 AND m.away_score IS NOT NULL
+                 AND (
+                        (m.home_score > m.away_score AND m.underdog_team = m.home_team)
+                     OR (m.away_score > m.home_score AND m.underdog_team = m.away_team)
+                 )
+                THEN
+                    CASE 
+                        WHEN pr.points = 3 THEN 7   -- نتيجة دقيقة صح → 3+7=10
+                        WHEN pr.points = 1 THEN 2   -- فايز صح بس → 1+2=3
+                        ELSE 0
+                    END
+                ELSE 0
+            END
+        ), 0) AS black_horse_bonus,
+ 
+        -- المجموع النهائي اللي يظهر بالترتيب
+        COALESCE(SUM(pr.points), 0) + COALESCE(SUM(
+            CASE 
+                WHEN bh.card_type = 'black_horse'
+                 AND m.underdog_team IS NOT NULL
+                 AND m.home_score IS NOT NULL 
+                 AND m.away_score IS NOT NULL
+                 AND (
+                        (m.home_score > m.away_score AND m.underdog_team = m.home_team)
+                     OR (m.away_score > m.home_score AND m.underdog_team = m.away_team)
+                 )
+                THEN
+                    CASE 
+                        WHEN pr.points = 3 THEN 7
+                        WHEN pr.points = 1 THEN 2
+                        ELSE 0
+                    END
+                ELSE 0
+            END
+        ), 0) AS total_points
+ 
+    FROM private_league_members lm
+    JOIN person p ON lm.user_id = p.Uid
+ 
+    -- البطولات المسموحة بهذا الدوري فقط
+    JOIN private_league_tournaments plt ON plt.league_id = lm.league_id
+ 
+    -- توقعات المستخدم الأساسية، مفلترة على بطولات الدوري فقط
+    LEFT JOIN predictions pr 
+        ON pr.user_id = p.Uid
+    LEFT JOIN matches m 
+        ON pr.match_id = m.Mid 
+        AND m.tournament_id = plt.tournament_id
+ 
+    -- استخدام الحصان الأسود (لو موجود) على نفس المباراة بنفس الدوري
+    LEFT JOIN private_league_card_usage bh
+        ON bh.league_id = lm.league_id
+        AND bh.user_id = p.Uid
+        AND bh.match_id = m.Mid
+        AND bh.card_type = 'black_horse'
+ 
+    WHERE lm.league_id = ?
+    GROUP BY p.Uid, p.Username
+    ORDER BY total_points DESC`,
+    [leagueId],
+    (err4, leaderboard) => {
+        if (err4) return res.status(500).json(err4);
 
                             const league = leagueResult[0];
                             league.my_role = myRole;
@@ -3680,19 +3738,7 @@ app.get('/api/private-leagues/:id/events', requireLogin, (req, res) => {
     );
 });
 
-// ── الدروع النشطة في الجولة الحالية (لعرضها في الليدربورد) ──
-// أضف هذا في route /api/private-leagues/:id الموجود — أضف shields للـ response
-// في الـ query الأخير بعد leaderboard أضف:
-/*
-db.query(
-    `SELECT user_id FROM private_league_shields
-     WHERE league_id = ? AND round_id = (SELECT Rid FROM rounds ORDER BY Rid DESC LIMIT 1)`,
-    [leagueId],
-    (err5, shields) => {
-        res.json({ league, features: featuresResult[0], leaderboard, shields: shields || [] });
-    }
-);
-*/
+
 
 
 app.listen(3000, () => {
