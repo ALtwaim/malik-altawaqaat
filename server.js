@@ -981,6 +981,10 @@ app.get('/api/me', (req, res) => {
 
 });
 
+function getUserId(req) {
+    return req.session.userId || req.session.Uid || req.session.user?.Uid || req.session.user?.id;
+}
+
 app.get('/api/matches/:tournamentId', (req, res) => {
 
     if (!req.session.user) {
@@ -988,7 +992,7 @@ app.get('/api/matches/:tournamentId', (req, res) => {
     }
 
     const tournamentId = req.params.tournamentId;
-    const userId = req.session.user.id;
+    const userId = getUserId(req);
 
     db.query(
         `SELECT 
@@ -1004,38 +1008,25 @@ app.get('/api/matches/:tournamentId', (req, res) => {
             matches.underdog_team,
             matches.home_win_percent,
             matches.away_win_percent,
-
             rounds.round_name,
-
             predictions.predicted_home_score,
             predictions.predicted_away_score,
             predictions.points,
             predictions.used_loser_card
-
         FROM matches
-
-        LEFT JOIN rounds 
-            ON matches.round_id = rounds.Rid
-
+        LEFT JOIN rounds ON matches.round_id = rounds.Rid
         LEFT JOIN predictions
             ON predictions.match_id = matches.Mid
             AND predictions.user_id = ?
-
         WHERE matches.tournament_id = ?
-
         ORDER BY matches.match_date ASC`,
         [userId, tournamentId],
         (err, result) => {
-
             if (err) {
-                return res.status(500).json({
-                    error: err.message
-                });
+                return res.status(500).json({ error: err.message });
             }
-            console.log(result[0]);
 
             res.json(result);
-
         }
     );
 
@@ -1047,133 +1038,121 @@ app.post('/api/predictions', (req, res) => {
         return res.status(401).json({ error: 'لازم تسجل دخول' });
     }
 
-    const { match_id, predicted_home_score, predicted_away_score, used_loser_card } = req.body;
+    const userId = getUserId(req);
 
-    const wantsLoserCard = used_loser_card === true || used_loser_card === 1 || used_loser_card === '1';
+    const {
+        match_id,
+        predicted_home_score,
+        predicted_away_score,
+        used_loser_card
+    } = req.body;
+
+    const wantsLoserCard =
+        used_loser_card === true ||
+        used_loser_card === 1 ||
+        used_loser_card === '1';
 
     db.query(
-        `SELECT match_date, tournament_id, home_team, away_team, underdog_team, round_id
-         FROM matches WHERE Mid = ?`,
+        `SELECT match_date, home_team, away_team, underdog_team
+         FROM matches 
+         WHERE Mid = ?`,
         [match_id],
         (err, matchResult) => {
+
             if (err) return res.status(500).json({ error: err.message });
-            if (matchResult.length === 0) return res.status(404).json({ error: 'المباراة غير موجودة' });
 
-            const matchDate    = new Date(matchResult[0].match_date);
-            const tournamentId = matchResult[0].tournament_id;
-            const homeTeam     = matchResult[0].home_team;
-            const awayTeam     = matchResult[0].away_team;
-            const underdogTeam = matchResult[0].underdog_team;
-            const roundId      = matchResult[0].round_id;
+            if (matchResult.length === 0) {
+                return res.status(404).json({ error: 'المباراة غير موجودة' });
+            }
 
-            if (matchDate <= new Date()) {
-                return res.status(400).json({ error: '❌ انتهى وقت التوقع لهذه المباراة' });
+            const match = matchResult[0];
+
+            if (new Date(match.match_date) <= new Date()) {
+                return res.status(400).json({
+                    error: '❌ انتهى وقت التوقع لهذه المباراة'
+                });
             }
 
             if (wantsLoserCard) {
                 const predictedHome = Number(predicted_home_score);
                 const predictedAway = Number(predicted_away_score);
-                let predictedWinner = '';
-                if (predictedHome > predictedAway)       predictedWinner = homeTeam;
-                else if (predictedAway > predictedHome)  predictedWinner = awayTeam;
-                else                                     predictedWinner = 'draw';
 
-                if (predictedWinner !== underdogTeam) {
+                let predictedWinner = '';
+
+                if (predictedHome > predictedAway) {
+                    predictedWinner = match.home_team;
+                } else if (predictedAway > predictedHome) {
+                    predictedWinner = match.away_team;
+                } else {
+                    predictedWinner = 'draw';
+                }
+
+                if (predictedWinner !== match.underdog_team) {
                     return res.status(400).json({
                         error: '🐎 بطاقة الحصان الأسود تُستخدم فقط إذا توقعت فوز الفريق غير المرشح'
                     });
                 }
             }
 
-            // ── جلب التوقع الموجود ──
             db.query(
-                `SELECT * FROM predictions WHERE user_id = ? AND match_id = ?`,
-                [req.session.user.id, match_id],
+                `SELECT * FROM predictions 
+                 WHERE user_id = ? AND match_id = ?`,
+                [userId, match_id],
                 (err2, existingPrediction) => {
-                    if (err2) return res.status(500).json({ error: err2.message });
-                    saveOrUpdatePrediction(existingPrediction);
+
+                    if (err2) {
+                        return res.status(500).json({ error: err2.message });
+                    }
+
+                    if (existingPrediction.length > 0) {
+
+                        db.query(
+                            `UPDATE predictions
+                             SET predicted_home_score = ?,
+                                 predicted_away_score = ?,
+                                 used_loser_card = ?
+                             WHERE user_id = ? AND match_id = ?`,
+                            [
+                                predicted_home_score,
+                                predicted_away_score,
+                                wantsLoserCard ? 1 : 0,
+                                userId,
+                                match_id
+                            ],
+                            (err3) => {
+                                if (err3) {
+                                    return res.status(500).json({ error: err3.message });
+                                }
+
+                                res.json({ message: '✅ تم تحديث التوقع' });
+                            }
+                        );
+
+                    } else {
+
+                        db.query(
+                            `INSERT INTO predictions
+                             (user_id, match_id, predicted_home_score, predicted_away_score, used_loser_card, points)
+                             VALUES (?, ?, ?, ?, ?, 0)`,
+                            [
+                                userId,
+                                match_id,
+                                predicted_home_score,
+                                predicted_away_score,
+                                wantsLoserCard ? 1 : 0
+                            ],
+                            (err4) => {
+                                if (err4) {
+                                    return res.status(500).json({ error: err4.message });
+                                }
+
+                                res.json({ message: '✅ تم حفظ التوقع' });
+                            }
+                        );
+
+                    }
                 }
             );
-
-            // ── دالة الحفظ / التحديث ──
-            function saveOrUpdatePrediction(existingPrediction) {
-
-                // بعد الحفظ الأساسي — نزامن مع الدوريات الخاصة
-                function syncPrivateLeagues(callback) {
-                    const userId = req.session.user.id;
-
-                    // جلب كل الدوريات الخاصة التي ينتمي لها اللاعب وفيها هذه البطولة
-                    db.query(
-                        `SELECT pl.id AS league_id
-                         FROM private_league_members plm
-                         JOIN private_leagues pl ON plm.league_id = pl.id
-                         JOIN private_league_tournaments plt ON plt.league_id = pl.id
-                         WHERE plm.user_id = ? AND plt.tournament_id = ?`,
-                        [userId, tournamentId],
-                        (err, leagues) => {
-                            if (err || leagues.length === 0) return callback();
-
-                            let done = 0;
-                            leagues.forEach(league => {
-                                db.query(
-                                    `INSERT INTO private_league_predictions
-                                     (league_id, user_id, match_id, predicted_home_score, predicted_away_score, used_black_horse)
-                                     VALUES (?, ?, ?, ?, ?, ?)
-                                     ON DUPLICATE KEY UPDATE
-                                         predicted_home_score = VALUES(predicted_home_score),
-                                         predicted_away_score = VALUES(predicted_away_score),
-                                         used_black_horse     = VALUES(used_black_horse)`,
-                                    [
-                                        league.league_id,
-                                        userId,
-                                        match_id,
-                                        predicted_home_score,
-                                        predicted_away_score,
-                                        wantsLoserCard ? 1 : 0
-                                    ],
-                                    () => {
-                                        done++;
-                                        if (done === leagues.length) callback();
-                                    }
-                                );
-                            });
-                        }
-                    );
-                }
-
-                if (existingPrediction.length > 0) {
-                    db.query(
-                        `UPDATE predictions
-                         SET predicted_home_score = ?,
-                             predicted_away_score = ?,
-                             used_loser_card = ?
-                         WHERE user_id = ? AND match_id = ?`,
-                        [predicted_home_score, predicted_away_score, wantsLoserCard ? 1 : 0,
-                         req.session.user.id, match_id],
-                        (err) => {
-                            if (err) return res.status(500).json({ error: err.message });
-
-                            syncPrivateLeagues(() => {
-                                res.json({ message: '✅ تم تحديث التوقع' });
-                            });
-                        }
-                    );
-                } else {
-                    db.query(
-                        `INSERT INTO predictions
-                         (user_id, match_id, predicted_home_score, predicted_away_score, used_loser_card, points)
-                         VALUES (?, ?, ?, ?, ?, 0)`,
-                        [req.session.user.id, match_id, predicted_home_score, predicted_away_score, wantsLoserCard ? 1 : 0],
-                        (err) => {
-                            if (err) return res.status(500).json({ error: err.message });
-
-                            syncPrivateLeagues(() => {
-                                res.json({ message: '✅ تم حفظ التوقع' });
-                            });
-                        }
-                    );
-                }
-            }
         }
     );
 });
