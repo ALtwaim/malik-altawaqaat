@@ -12,8 +12,7 @@
 :root{
   --gold:#ffd43b;--gold-dim:rgba(255,212,59,.12);--gold-border:rgba(255,212,59,.25);
   --bg:#060e1c;--surface:#0c1729;--surface2:#101f38;
-  --text:#e8edf8;--muted:#7a90b5;
-  --green:#22c55e;--red:#ef4444;
+  --text:#e8edf8;--muted:#7a90b5;--green:#22c55e;--red:#ef4444;
   --radius:18px;--radius-sm:12px;
 }
 body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
@@ -21,155 +20,178 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-h
     radial-gradient(ellipse 60% 40% at 10% 90%,rgba(15,30,80,.3) 0%,transparent 55%);}
 
 /* NAV */
-.nav{height:64px;background:rgba(6,14,28,.9);border-bottom:1px solid var(--gold-border);
-  display:flex;align-items:center;justify-content:space-between;padding:0 40px;
+.nav{height:60px;background:rgba(6,14,28,.95);border-bottom:1px solid var(--gold-border);
+  display:flex;align-items:center;justify-content:space-between;padding:0 16px;
   position:sticky;top:0;z-index:200;backdrop-filter:blur(12px);}
-.logo{color:var(--gold);font-size:20px;font-weight:900;text-decoration:none;display:flex;align-items:center;gap:8px}
-.nav-links{display:flex;gap:6px}
-.nav-links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:600;
-  padding:7px 14px;border-radius:30px;transition:.2s;display:flex;align-items:center;gap:5px}
+.logo{color:var(--gold);font-size:18px;font-weight:900;text-decoration:none;display:flex;align-items:center;gap:6px}
+.nav-links{display:flex;gap:2px}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:600;
+  padding:6px 10px;border-radius:20px;transition:.2s;display:flex;align-items:center;gap:4px}
 .nav-links a:hover,.nav-links a.active{color:var(--text);background:var(--surface2)}
+.nav-links a span{display:none}
+@media(min-width:600px){.nav-links a span{display:inline};.nav{padding:0 28px}}
+@media(min-width:900px){.nav{padding:0 40px}}
 
-/* CONTAINER & GRID */
-.container{width:92%;max-width:1100px;margin:0 auto;padding:32px 0 80px}
-.grid{display:grid;grid-template-columns:1fr 340px;gap:22px;align-items:start}
+/* CONTAINER */
+.container{width:100%;max-width:960px;margin:0 auto;padding:16px 14px 80px}
+@media(min-width:600px){.container{padding:24px 20px 80px}}
+@media(min-width:960px){.container{padding:28px 0 80px}}
 
-/* HERO */
+/* HERO BAR */
 .hero-bar{background:var(--surface);border:1px solid rgba(255,255,255,.07);
-  border-radius:22px;padding:24px 28px;margin-bottom:22px;
-  display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
-.hero-left{display:flex;align-items:center;gap:16px}
-.hero-icon{width:58px;height:58px;border-radius:16px;background:var(--gold-dim);
-  border:2px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:26px}
-.hero-info h1{font-size:24px;font-weight:900;color:var(--gold);margin-bottom:4px}
-.hero-meta{display:flex;gap:8px;flex-wrap:wrap}
-.meta-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;
-  font-size:12px;font-weight:700;background:var(--surface2);color:var(--muted);
+  border-radius:18px;padding:16px;margin-bottom:16px}
+.hero-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.hero-icon{width:50px;height:50px;border-radius:14px;background:var(--gold-dim);
+  border:2px solid var(--gold-border);display:flex;align-items:center;justify-content:center;
+  font-size:24px;flex-shrink:0}
+.hero-info{flex:1;min-width:0}
+.hero-info h1{font-size:18px;font-weight:900;color:var(--gold);margin-bottom:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-meta{display:flex;gap:6px;flex-wrap:wrap}
+.meta-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;
+  font-size:11px;font-weight:700;background:var(--surface2);color:var(--muted);
   border:1px solid rgba(255,255,255,.07)}
 .meta-pill.gold{background:var(--gold-dim);color:var(--gold);border-color:var(--gold-border)}
-
-.code-box{background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:14px;
-  padding:14px 18px;display:flex;align-items:center;gap:14px}
-.code-label{font-size:11px;color:var(--muted);font-weight:600;margin-bottom:2px}
-.code-val{font-size:24px;font-weight:900;color:var(--gold);letter-spacing:4px}
+.code-box{background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:12px;
+  padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.code-left .code-label{font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:2px}
+.code-left .code-val{font-size:20px;font-weight:900;color:var(--gold);letter-spacing:3px}
 .copy-btn{background:var(--surface2);border:1px solid rgba(255,255,255,.1);border-radius:8px;
-  padding:8px 14px;color:var(--text);font-size:13px;font-weight:700;cursor:pointer;
-  font-family:'Cairo',sans-serif;display:flex;align-items:center;gap:6px;transition:.15s}
+  padding:7px 12px;color:var(--text);font-size:12px;font-weight:700;cursor:pointer;
+  font-family:'Cairo',sans-serif;display:flex;align-items:center;gap:5px;transition:.15s;white-space:nowrap}
 .copy-btn:hover{border-color:var(--gold);color:var(--gold)}
+@media(min-width:600px){
+  .hero-bar{padding:20px 24px}
+  .hero-top{margin-bottom:0}
+  .hero-bar{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .hero-top{flex:1;margin-bottom:0}
+  .hero-info h1{font-size:22px}
+  .code-box{flex-shrink:0}
+  .code-left .code-val{font-size:22px}
+}
+
+/* GRID */
+.grid{display:flex;flex-direction:column;gap:14px}
+@media(min-width:820px){
+  .grid{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start}
+}
 
 /* CARD */
 .card{background:var(--surface);border:1px solid rgba(255,255,255,.07);
-  border-radius:22px;padding:24px;box-shadow:0 16px 40px rgba(0,0,0,.3)}
-.card-title{font-size:16px;font-weight:800;color:var(--gold);
-  margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.06);
-  display:flex;align-items:center;gap:8px}
+  border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+@media(min-width:600px){.card{padding:22px}}
+.card-title{font-size:15px;font-weight:800;color:var(--gold);
+  margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;gap:7px}
 
 /* LEADERBOARD */
-.lb-row{display:flex;align-items:center;gap:12px;padding:12px 14px;
-  border-radius:var(--radius-sm);margin-bottom:8px;
+.lb-row{display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-radius:10px;margin-bottom:7px;
   background:var(--surface2);border:1px solid rgba(255,255,255,.05);transition:.15s}
 .lb-row:hover{border-color:rgba(255,212,59,.2)}
 .lb-row.me{border-color:var(--gold-border);background:var(--gold-dim)}
-.rank{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-size:13px;font-weight:800;flex-shrink:0;background:rgba(255,255,255,.06);color:var(--muted)}
+.rank{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;flex-shrink:0;background:rgba(255,255,255,.06);color:var(--muted)}
 .rank.r1{background:linear-gradient(135deg,#ffd43b,#f0a500);color:#060e1c}
 .rank.r2{background:linear-gradient(135deg,#c0c0c0,#a0a0a0);color:#060e1c}
 .rank.r3{background:linear-gradient(135deg,#cd7f32,#a0522d);color:#fff}
-.lb-name{flex:1;font-weight:700;font-size:15px}
-.lb-pts{font-size:18px;font-weight:900;color:var(--gold);display:flex;align-items:baseline;gap:4px}
-.lb-pts span{font-size:11px;color:var(--muted);font-weight:600}
-.lb-shield{font-size:14px;margin-right:4px}
+.lb-name{flex:1;font-weight:700;font-size:14px;min-width:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-pts{font-size:16px;font-weight:900;color:var(--gold);
+  display:flex;align-items:baseline;gap:3px;flex-shrink:0}
+.lb-pts span{font-size:10px;color:var(--muted);font-weight:600}
 
-/* FEATURES CARDS */
+/* FEATURES */
 .feat-card{background:var(--surface2);border:1.5px solid rgba(255,255,255,.07);
-  border-radius:var(--radius);padding:16px;margin-bottom:12px;transition:.2s}
+  border-radius:14px;padding:13px;margin-bottom:10px;transition:.2s}
 .feat-card.enabled{border-color:rgba(255,212,59,.2)}
 .feat-card.disabled{opacity:.4;pointer-events:none}
-.feat-top{display:flex;align-items:center;gap:12px}
-.feat-icon{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.05);
-  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.feat-info{flex:1}
-.feat-name{font-size:14px;font-weight:800}
-.feat-desc{font-size:11px;color:var(--muted);margin-top:2px}
-.feat-status{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.feat-top{display:flex;align-items:center;gap:10px}
+.feat-icon{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.05);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.feat-info{flex:1;min-width:0}
+.feat-name{font-size:13px;font-weight:800}
+.feat-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
+.feat-status{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
 .feat-status.on{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.3)}
 .feat-status.off{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid rgba(255,255,255,.08)}
-
-/* USAGE BAR */
-.usage-bar-wrap{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)}
-.usage-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px}
+.usage-bar-wrap{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06)}
+.usage-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-weight:600;margin-bottom:5px}
 .usage-label strong{color:var(--text)}
-.bar-bg{height:6px;border-radius:10px;background:rgba(255,255,255,.07);overflow:hidden}
+.bar-bg{height:5px;border-radius:10px;background:rgba(255,255,255,.07);overflow:hidden}
 .bar-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--gold),#f0a500);transition:width .4s}
 .bar-fill.full{background:linear-gradient(90deg,var(--red),#dc2626)}
-
-/* USE BUTTON */
-.use-btn{margin-top:12px;width:100%;padding:10px;border:none;border-radius:10px;
+.use-btn{margin-top:10px;width:100%;padding:9px;border:none;border-radius:9px;
   background:linear-gradient(135deg,var(--gold),#f0a500);color:#060e1c;
   font-family:'Cairo',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:.2s}
 .use-btn:hover{opacity:.9}
 .use-btn:disabled{opacity:.4;cursor:not-allowed;background:rgba(255,255,255,.1);color:var(--muted)}
 
-/* EVENTS LOG */
-.event-row{display:flex;align-items:center;gap:10px;padding:10px 12px;
-  border-radius:10px;background:var(--surface2);border:1px solid rgba(255,255,255,.05);
-  margin-bottom:8px;font-size:13px}
-.event-icon{font-size:18px;flex-shrink:0}
+/* EVENTS */
+.event-row{display:flex;align-items:center;gap:8px;padding:9px 11px;
+  border-radius:9px;background:var(--surface2);border:1px solid rgba(255,255,255,.05);
+  margin-bottom:7px;font-size:12px}
+.event-icon{font-size:16px;flex-shrink:0}
 .event-text{flex:1;line-height:1.5}
-.event-time{font-size:11px;color:var(--muted);white-space:nowrap}
+.event-time{font-size:10px;color:var(--muted);white-space:nowrap;flex-shrink:0}
 
-/* MODAL */
+/* MODAL - sheet on mobile */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;
-  display:flex;align-items:center;justify-content:center;padding:20px;
+  display:flex;align-items:flex-end;justify-content:center;
   opacity:0;pointer-events:none;transition:opacity .25s}
 .overlay.open{opacity:1;pointer-events:all}
-.modal{background:#0c1729;border:1px solid var(--gold-border);border-radius:24px;
-  width:100%;max-width:480px;padding:28px;position:relative;
-  transform:translateY(20px);transition:transform .25s;max-height:85vh;overflow-y:auto}
+.modal{background:#0c1729;border:1px solid var(--gold-border);
+  border-radius:22px 22px 0 0;width:100%;max-height:88vh;overflow-y:auto;
+  padding:22px 18px;position:relative;
+  transform:translateY(100%);transition:transform .3s}
 .overlay.open .modal{transform:translateY(0)}
+@media(min-width:600px){
+  .overlay{align-items:center}
+  .modal{border-radius:22px;max-width:460px;padding:26px;
+    transform:translateY(16px)}
+  .overlay.open .modal{transform:translateY(0)}
+}
+.modal-handle{width:40px;height:4px;border-radius:4px;background:rgba(255,255,255,.15);
+  margin:0 auto 16px;display:block}
+@media(min-width:600px){.modal-handle{display:none}}
 .modal-close{position:absolute;top:14px;left:14px;background:none;border:none;
-  color:var(--muted);font-size:22px;cursor:pointer;line-height:1;transition:color .2s}
+  color:var(--muted);font-size:20px;cursor:pointer;line-height:1;transition:color .2s;padding:4px}
 .modal-close:hover{color:var(--text)}
-.modal h2{font-size:20px;font-weight:900;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.modal p{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:16px}
-.modal select{width:100%;padding:12px 14px;background:var(--surface2);
+.modal h2{font-size:18px;font-weight:900;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.modal p{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:14px}
+.modal select{width:100%;padding:11px 13px;background:var(--surface2);
   border:1.5px solid rgba(255,255,255,.1);border-radius:var(--radius-sm);
-  color:var(--text);font-family:'Cairo',sans-serif;font-size:15px;outline:none;
-  margin-bottom:16px;transition:border-color .2s}
+  color:var(--text);font-family:'Cairo',sans-serif;font-size:14px;outline:none;
+  margin-bottom:14px;transition:border-color .2s}
 .modal select:focus{border-color:var(--gold)}
 .modal select option{background:#0c1729}
-.modal-label{font-size:13px;color:var(--muted);font-weight:700;display:block;margin-bottom:8px}
-.modal-actions{display:flex;gap:10px;margin-top:4px}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:var(--radius-sm);
+.modal-label{font-size:12px;color:var(--muted);font-weight:700;display:block;margin-bottom:7px}
+.modal-actions{display:flex;gap:8px;margin-top:4px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:11px 18px;border-radius:var(--radius-sm);
   font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:.2s}
-.btn-gold{background:linear-gradient(135deg,var(--gold),#f0a500);color:#060e1c;flex:1;justify-content:center}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#f0a500);color:#060e1c;flex:1}
 .btn-gold:hover{opacity:.9}
-.btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,.1);color:var(--muted);padding:12px 16px}
+.btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,.1);color:var(--muted);padding:11px 14px}
 .btn-outline:hover{border-color:var(--gold);color:var(--gold)}
-
-/* tip box inside modal */
 .tip-box{background:rgba(255,212,59,.07);border:1px solid var(--gold-border);border-radius:10px;
-  padding:10px 14px;font-size:12px;color:var(--gold);margin-bottom:16px;line-height:1.6}
+  padding:9px 13px;font-size:12px;color:var(--gold);margin-bottom:14px;line-height:1.6}
 
 /* LOADING / EMPTY */
-.loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:40px;color:var(--muted);font-size:14px}
+.loading{display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:36px;color:var(--muted);font-size:14px}
 .spinner{width:20px;height:20px;border:2px solid rgba(255,212,59,.2);
   border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.empty-box{text-align:center;padding:24px;color:var(--muted);font-size:14px}
+.empty-box{text-align:center;padding:20px;color:var(--muted);font-size:13px}
 
 /* TOAST */
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
   background:#1a2d50;border:1px solid var(--gold-border);border-radius:12px;
-  padding:11px 22px;font-size:14px;font-weight:600;color:var(--gold);
-  opacity:0;transition:.3s;pointer-events:none;z-index:999;white-space:nowrap}
+  padding:10px 18px;font-size:13px;font-weight:600;color:var(--gold);
+  opacity:0;transition:.3s;pointer-events:none;z-index:999;
+  white-space:nowrap;max-width:90vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-@media(max-width:820px){
-  .grid{grid-template-columns:1fr}
-  .nav{padding:0 16px}
-  .hero-bar{flex-direction:column;align-items:flex-start}
-}
 </style>
 </head>
 <body>
@@ -177,9 +199,9 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-h
 <nav class="nav">
   <a class="logo" href="/dashboard"><i class="bi bi-award-fill"></i> ملك التوقعات</a>
   <div class="nav-links">
-    <a href="/dashboard"><i class="bi bi-house-fill"></i> الرئيسية</a>
-    <a href="/predict"><i class="bi bi-lightning-charge-fill"></i> توقع</a>
-    <a href="/private-leagues" class="active"><i class="bi bi-shield-fill"></i> الدوريات</a>
+    <a href="/dashboard"><i class="bi bi-house-fill"></i><span> الرئيسية</span></a>
+    <a href="/predict"><i class="bi bi-lightning-charge-fill"></i><span> توقع</span></a>
+    <a href="/private-leagues" class="active"><i class="bi bi-shield-fill"></i><span> الدوريات</span></a>
   </div>
 </nav>
 
@@ -187,13 +209,13 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-h
   <div id="pageLoading" class="loading"><div class="spinner"></div> جاري التحميل...</div>
   <div id="pageError" style="display:none" class="empty-box">
     <i class="bi bi-exclamation-triangle" style="font-size:36px;color:var(--red);display:block;margin-bottom:12px"></i>
-    تعذر تحميل الدوري — تأكد من رابطك أو سجل دخولك.
+    تعذر تحميل الدوري.
   </div>
 
   <div id="pageContent" style="display:none">
     <!-- Hero -->
     <div class="hero-bar">
-      <div class="hero-left">
+      <div class="hero-top">
         <div class="hero-icon" id="heroIcon">🏆</div>
         <div class="hero-info">
           <h1 id="heroName">—</h1>
@@ -204,29 +226,28 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-h
         </div>
       </div>
       <div class="code-box">
-        <div>
-          <div class="code-label">رمز الدعوة</div>
-          <div class="code-val" id="heroCode">——</div>
+        <div class="code-left">
+          <span class="code-label">رمز الدعوة</span>
+          <span class="code-val" id="heroCode">——</span>
         </div>
         <button class="copy-btn" onclick="copyCode()"><i class="bi bi-copy"></i> نسخ</button>
       </div>
     </div>
 
     <div class="grid">
-      <!-- Leaderboard -->
+      <!-- RIGHT COL on desktop / TOP on mobile -->
       <div>
-        <div class="card" style="margin-bottom:22px">
+        <div class="card" style="margin-bottom:14px">
           <div class="card-title"><i class="bi bi-trophy-fill"></i> ترتيب الأعضاء</div>
           <div id="leaderboardBox"><div class="loading"><div class="spinner"></div></div></div>
         </div>
-        <!-- Events Log -->
         <div class="card">
           <div class="card-title"><i class="bi bi-activity"></i> سجل الأحداث</div>
           <div id="eventsBox"><div class="loading"><div class="spinner"></div></div></div>
         </div>
       </div>
 
-      <!-- Sidebar: Features -->
+      <!-- SIDEBAR / BOTTOM on mobile -->
       <div class="card">
         <div class="card-title"><i class="bi bi-lightning-charge-fill"></i> الخصائص المتاحة</div>
         <div id="featuresBox"><div class="loading"><div class="spinner"></div></div></div>
@@ -238,29 +259,27 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-h
 <!-- MODAL -->
 <div class="overlay" id="useCardOverlay" onclick="handleOverlay(event)">
   <div class="modal">
+    <div class="modal-handle"></div>
     <button class="modal-close" onclick="closeOverlay()">×</button>
     <h2 id="cardModalTitle"></h2>
     <p id="cardModalDesc"></p>
     <div class="tip-box" id="cardTip" style="display:none"></div>
 
-    <!-- الدرع: اختيار جولة -->
     <div id="shieldRoundWrap" style="display:none">
       <label class="modal-label">اختر الجولة للحماية:</label>
       <select id="shieldRoundSelect"></select>
     </div>
 
-    <!-- الحصان الأسود / المباراة الذهبية / الإنقاذ: اختيار مباراة -->
     <div id="matchSelectWrap" style="display:none">
       <label class="modal-label" id="matchSelectLabel">اختر المباراة:</label>
       <select id="matchSelect"></select>
     </div>
 
-    <!-- السرقة: اختيار لاعب ثم توقع -->
     <div id="targetPlayerWrap" style="display:none">
       <label class="modal-label">اختر اللاعب:</label>
       <select id="targetPlayerSelect" onchange="loadStealableMatches()"></select>
       <div id="stealMatchWrap" style="display:none;margin-top:4px">
-        <label class="modal-label">اختر التوقع للسرقة:</label>
+        <label class="modal-label" style="margin-top:10px">اختر التوقع للسرقة:</label>
         <select id="stealMatchSelect"></select>
       </div>
     </div>
@@ -278,333 +297,263 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-h
 
 <script>
 var LEAGUE_ID  = new URLSearchParams(location.search).get('id');
-var myUid      = null;
-var myRole     = null;
-var leagueData = null;
-var activeCard = null;
+var myUid = null, myRole = null, leagueData = null, activeCard = null;
 
 var FEATURES_META = {
-  black_horse:  { name:'الحصان الأسود',   icon:'🐎', desc:'توقع الفريق الأضعف — إذا فاز تحصل على 3 نقاط بدل 1، وإذا جبت النتيجة الصحيحة تحصل على 7 بدل 3.' },
+  black_horse:  { name:'الحصان الأسود',   icon:'🐎', desc:'توقع الفريق الأضعف — إذا فاز 3 نقاط بدل 1، وإذا جبت النتيجة 7 بدل 3.' },
   golden_match: { name:'المباراة الذهبية', icon:'⭐', desc:'المشرف يحدد مباراة تتضاعف فيها نقاط جميع الأعضاء.' },
-  steal:        { name:'بطاقة السرقة',     icon:'🕵️', desc:'اسرق توقع من لاعب آخر قبل بدء المباراة، وتُحذف من توقعاته.' },
+  steal:        { name:'بطاقة السرقة',     icon:'🕵️', desc:'اسرق توقع من لاعب آخر قبل بدء المباراة.' },
   shield:       { name:'بطاقة الدرع',      icon:'🛡️', desc:'احمِ نفسك من السرقة لجولة كاملة.' },
-  rescue:       { name:'بطاقة الإنقاذ',   icon:'🆘', desc:'إذا جبت نفس فارق الأهداف ونفس الفايز تحصل على نقطتين بدل نقطة.' },
+  rescue:       { name:'بطاقة الإنقاذ',   icon:'🆘', desc:'نفس فارق الأهداف ونفس الفايز = نقطتين بدل نقطة.' },
 };
 
 var EVENT_META = {
-  steal:        { icon:'🕵️', label: function(e){ return (e.actor_name||'لاعب') + ' سرق توقع من ' + (e.target_name||'لاعب آخر'); } },
-  shield:       { icon:'🛡️', label: function(e){ return (e.actor_name||'لاعب') + ' فعّل الدرع هذه الجولة'; } },
-  golden_match: { icon:'⭐', label: function(e){ return (e.actor_name||'المشرف') + ' حدد المباراة الذهبية'; } },
-  rescue:       { icon:'🆘', label: function(e){ return (e.actor_name||'لاعب') + ' فعّل بطاقة الإنقاذ'; } },
-  black_horse:  { icon:'🐎', label: function(e){ return (e.actor_name||'لاعب') + ' فعّل الحصان الأسود'; } },
+  steal:        { icon:'🕵️', label:function(e){ return (e.actor_name||'لاعب')+' سرق توقع من '+(e.target_name||'لاعب آخر'); } },
+  shield:       { icon:'🛡️', label:function(e){ return (e.actor_name||'لاعب')+' فعّل الدرع هذه الجولة'; } },
+  golden_match: { icon:'⭐', label:function(e){ return (e.actor_name||'المشرف')+' حدد المباراة الذهبية'; } },
+  rescue:       { icon:'🆘', label:function(e){ return (e.actor_name||'لاعب')+' فعّل بطاقة الإنقاذ'; } },
+  black_horse:  { icon:'🐎', label:function(e){ return (e.actor_name||'لاعب')+' فعّل الحصان الأسود'; } },
 };
 
 if (!LEAGUE_ID) { showError(); } else { loadAll(); }
 
-// ── Boot ──────────────────────────────────────
 async function loadAll() {
   try {
     const [dataRes, usageRes] = await Promise.all([
-    fetch('/api/private-leagues/' + LEAGUE_ID),
-    fetch('/api/private-leagues/' + LEAGUE_ID + '/my-usage')
-]);
-const data  = await dataRes.json();
-const usage = await usageRes.json();
-const events = data.events || [];
-
+      fetch('/api/private-leagues/'+LEAGUE_ID),
+      fetch('/api/private-leagues/'+LEAGUE_ID+'/my-usage')
+    ]);
+    const data  = await dataRes.json();
+    const usage = await usageRes.json();
     if (!data || !data.league) { showError(); return; }
 
-    leagueData = data;
-    myRole = data.league.my_role;
-    myUid  = data.league.my_uid;
+    leagueData = data; myRole = data.league.my_role; myUid = data.league.my_uid;
 
     renderHero(data.league, data.leaderboard);
-    renderLeaderboard(data.leaderboard, data.shields || []);
-    renderEvents(events);
-    renderFeatures(data.features, usage?.usage || []);
-    renderEvents(events || []);
+    renderLeaderboard(data.leaderboard, data.shields||[]);
+    renderFeatures(data.features, usage?.usage||[]);
+    renderEvents(data.events||[]);
 
-    document.getElementById('pageLoading').style.display = 'none';
-    document.getElementById('pageContent').style.display = 'block';
+    document.getElementById('pageLoading').style.display='none';
+    document.getElementById('pageContent').style.display='block';
   } catch(e) { showError(); }
 }
 
-// ── Hero ──────────────────────────────────────
 function renderHero(league, leaderboard) {
-  document.title = league.name + ' — ملك التوقعات';
-  document.getElementById('heroIcon').textContent = league.icon || '🏆';
+  document.title = league.name+' — ملك التوقعات';
+  document.getElementById('heroIcon').textContent = league.icon||'🏆';
   document.getElementById('heroName').textContent = league.name;
   document.getElementById('heroCode').textContent = league.code;
   document.getElementById('heroPillMembers').innerHTML =
-    '<i class="bi bi-people-fill"></i> ' + (leaderboard?.length||0) + ' / ' + league.max_members + ' عضو';
-  document.getElementById('heroPillRole').textContent = myRole === 'owner' ? '👑 مدير' : '🎮 لاعب';
+    '<i class="bi bi-people-fill"></i> '+(leaderboard?.length||0)+' / '+league.max_members+' عضو';
+  document.getElementById('heroPillRole').textContent = myRole==='owner'?'👑 مدير':'🎮 لاعب';
 }
 
-// ── Leaderboard ───────────────────────────────
 function renderLeaderboard(leaderboard, shields) {
   var box = document.getElementById('leaderboardBox');
-  if (!leaderboard || !leaderboard.length) {
-    box.innerHTML = '<div class="empty-box">لا يوجد أعضاء بعد.</div>'; return;
-  }
-  var shieldedIds = (shields||[]).map(function(s){ return String(s.user_id); });
-  box.innerHTML = leaderboard.map(function(p, i) {
-    var r = i+1;
-    var rc = r===1?'r1':r===2?'r2':r===3?'r3':'';
-    var medal = r<=3?['🥇','🥈','🥉'][r-1]:r;
-    var isMe  = String(p.Uid) === String(myUid);
-    var hasShield = shieldedIds.indexOf(String(p.Uid)) > -1;
+  if (!leaderboard||!leaderboard.length){box.innerHTML='<div class="empty-box">لا يوجد أعضاء بعد.</div>';return;}
+  var shieldedIds=(shields||[]).map(function(s){return String(s.user_id);});
+  box.innerHTML = leaderboard.map(function(p,i){
+    var r=i+1, rc=r===1?'r1':r===2?'r2':r===3?'r3':'';
+    var medal=r<=3?['🥇','🥈','🥉'][r-1]:r;
+    var isMe=String(p.Uid)===String(myUid);
+    var hasShield=shieldedIds.indexOf(String(p.Uid))>-1;
     return '<div class="lb-row '+(isMe?'me':'')+'">' +
       '<div class="rank '+rc+'">'+medal+'</div>' +
-      '<div class="lb-name">'+(hasShield?'<span class="lb-shield">🛡️</span>':'')+p.Username+(isMe?' <span style="font-size:11px;color:var(--gold)">(أنت)</span>':'')+' </div>' +
+      '<div class="lb-name">'+(hasShield?'🛡️ ':'')+p.Username+(isMe?' <span style="font-size:10px;color:var(--gold)">(أنت)</span>':'')+' </div>' +
       '<div class="lb-pts">'+p.total_points+'<span>نقطة</span></div>' +
     '</div>';
   }).join('');
 }
 
-// ── Features ──────────────────────────────────
 function renderFeatures(features, usageArr) {
-  var box = document.getElementById('featuresBox');
-  if (!features) { box.innerHTML = '<div class="empty-box">لا توجد خصائص.</div>'; return; }
-
-  var usageMap = {};
-  usageArr.forEach(function(u){ usageMap[u.card_type] = u.used_count; });
-
-  var keys = ['black_horse','golden_match','steal','shield','rescue'];
-  // للمشرف فقط المباراة الذهبية، للاعبين الباقي
-  box.innerHTML = keys.map(function(key) {
-    if (key === 'golden_match' && myRole !== 'owner') return '';
-    var meta    = FEATURES_META[key];
-    var enabled = !!features[key+'_enabled'];
-    var limit   = features[key+'_limit'] || 0;
-    var used    = usageMap[key] || 0;
-    var rem     = Math.max(0, limit - used);
-    var pct     = limit > 0 ? Math.min(100, used/limit*100) : 0;
-    var full    = rem === 0 && enabled;
-
+  var box=document.getElementById('featuresBox');
+  if(!features){box.innerHTML='<div class="empty-box">لا توجد خصائص.</div>';return;}
+  var usageMap={};
+  usageArr.forEach(function(u){usageMap[u.card_type]=u.used_count;});
+  var keys=['black_horse','golden_match','steal','shield','rescue'];
+  box.innerHTML=keys.map(function(key){
+    if(key==='golden_match'&&myRole!=='owner') return '';
+    var meta=FEATURES_META[key];
+    var enabled=!!features[key+'_enabled'];
+    var limit=features[key+'_limit']||0;
+    var used=usageMap[key]||0;
+    var rem=Math.max(0,limit-used);
+    var pct=limit>0?Math.min(100,used/limit*100):0;
+    var full=rem===0&&enabled;
     return '<div class="feat-card '+(enabled?'enabled':'disabled')+'">' +
       '<div class="feat-top">' +
         '<div class="feat-icon">'+meta.icon+'</div>' +
         '<div class="feat-info"><div class="feat-name">'+meta.name+'</div><div class="feat-desc">'+meta.desc+'</div></div>' +
         '<span class="feat-status '+(enabled?'on':'off')+'">'+(enabled?'متاحة':'مغلقة')+'</span>' +
       '</div>' +
-      (enabled ? '<div class="usage-bar-wrap">' +
+      (enabled?'<div class="usage-bar-wrap">' +
         '<div class="usage-label"><span>الاستخدامات</span><strong>'+rem+' / '+limit+' باقي</strong></div>' +
         '<div class="bar-bg"><div class="bar-fill '+(full?'full':'')+'" style="width:'+pct+'%"></div></div>' +
       '</div>' +
       '<button class="use-btn" onclick="openUseCard(\''+key+'\')" '+(full?'disabled':'')+'>'+
-        (full ? '✕ نفذت الاستخدامات' : meta.icon+' استخدم '+meta.name) +
-      '</button>' : '') +
+        (full?'✕ نفذت الاستخدامات':meta.icon+' استخدم '+meta.name)+'</button>':'') +
     '</div>';
   }).join('');
 }
 
-// ── Events ────────────────────────────────────
 function renderEvents(events) {
-  var box = document.getElementById('eventsBox');
-  if (!events.length) { box.innerHTML = '<div class="empty-box">لا توجد أحداث بعد.</div>'; return; }
-  box.innerHTML = events.map(function(e) {
-    var m = EVENT_META[e.card_type];
-    if (!m) return '';
-    var d = new Date(e.created_at);
-    var timeStr = d.toLocaleDateString('ar-SA',{month:'short',day:'numeric'}) + ' ' +
-                  d.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+  var box=document.getElementById('eventsBox');
+  if(!events||!events.length){box.innerHTML='<div class="empty-box">لا توجد أحداث بعد.</div>';return;}
+  box.innerHTML=events.map(function(e){
+    var m=EVENT_META[e.card_type]; if(!m) return '';
+    var d=new Date(e.created_at);
+    var t=d.toLocaleDateString('ar-SA',{month:'short',day:'numeric'})+' '+
+          d.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
     return '<div class="event-row">' +
       '<div class="event-icon">'+m.icon+'</div>' +
       '<div class="event-text">'+m.label(e)+'</div>' +
-      '<div class="event-time">'+timeStr+'</div>' +
-    '</div>';
+      '<div class="event-time">'+t+'</div></div>';
   }).join('');
 }
 
-// ── Open modal ────────────────────────────────
 function openUseCard(cardKey) {
-  activeCard = cardKey;
-  var meta = FEATURES_META[cardKey];
-  document.getElementById('cardModalTitle').textContent = meta.icon + ' ' + meta.name;
-  document.getElementById('cardModalDesc').textContent  = meta.desc;
-  document.getElementById('cardTip').style.display = 'none';
-
+  activeCard=cardKey;
+  var meta=FEATURES_META[cardKey];
+  document.getElementById('cardModalTitle').textContent=meta.icon+' '+meta.name;
+  document.getElementById('cardModalDesc').textContent=meta.desc;
+  document.getElementById('cardTip').style.display='none';
   ['shieldRoundWrap','matchSelectWrap','targetPlayerWrap','stealMatchWrap'].forEach(function(id){
-    document.getElementById(id).style.display = 'none';
+    document.getElementById(id).style.display='none';
   });
 
-  if (cardKey === 'shield') {
-    var sel = document.getElementById('shieldRoundSelect');
-    sel.innerHTML = '<option>جاري التحميل...</option>';
+  if(cardKey==='shield'){
+    var sel=document.getElementById('shieldRoundSelect');
+    sel.innerHTML='<option>جاري التحميل...</option>';
     fetch('/api/current-round').then(function(r){return r.json();}).then(function(round){
-      if (round && round.Rid) sel.innerHTML = '<option value="'+round.Rid+'">'+round.round_name+'</option>';
-      else sel.innerHTML = '<option value="">لا توجد جولة حالية</option>';
+      if(round&&round.Rid) sel.innerHTML='<option value="'+round.Rid+'">'+round.round_name+'</option>';
+      else sel.innerHTML='<option value="">لا توجد جولة حالية</option>';
     });
-    document.getElementById('shieldRoundWrap').style.display = 'block';
+    document.getElementById('shieldRoundWrap').style.display='block';
 
-  } else if (cardKey === 'golden_match') {
-    document.getElementById('matchSelectLabel').textContent = 'اختر المباراة الذهبية:';
-    loadLeagueMatches(document.getElementById('matchSelect'), false);
-    document.getElementById('matchSelectWrap').style.display = 'block';
+  } else if(cardKey==='golden_match'){
+    document.getElementById('matchSelectLabel').textContent='اختر المباراة الذهبية:';
+    loadLeagueMatches(document.getElementById('matchSelect'),false);
+    document.getElementById('matchSelectWrap').style.display='block';
 
-  } else if (cardKey === 'black_horse') {
-    // جيب مباريات فيها underdog
-    document.getElementById('matchSelectLabel').textContent = 'اختر المباراة (يجب أن تكون فيها فريق أضعف):';
-    loadLeagueMatches(document.getElementById('matchSelect'), true);
-    document.getElementById('matchSelectWrap').style.display = 'block';
-    var tip = document.getElementById('cardTip');
-    tip.textContent = '💡 بعد اختيار المباراة، توقعك فيها سيُحسب تلقائياً كحصان أسود عند التوقع من صفحة التوقعات.';
-    tip.style.display = 'block';
+  } else if(cardKey==='black_horse'){
+    document.getElementById('matchSelectLabel').textContent='اختر المباراة (فيها فريق أضعف):';
+    loadLeagueMatches(document.getElementById('matchSelect'),true);
+    document.getElementById('matchSelectWrap').style.display='block';
+    var tip=document.getElementById('cardTip');
+    tip.textContent='💡 توقعك في هذه المباراة سيُحسب تلقائياً كحصان أسود من صفحة التوقعات.';
+    tip.style.display='block';
 
-  } else if (cardKey === 'rescue') {
-    document.getElementById('matchSelectLabel').textContent = 'اختر المباراة التي توقعتها:';
+  } else if(cardKey==='rescue'){
+    document.getElementById('matchSelectLabel').textContent='اختر المباراة التي توقعتها:';
     loadMyPredictedMatches(document.getElementById('matchSelect'));
-    document.getElementById('matchSelectWrap').style.display = 'block';
+    document.getElementById('matchSelectWrap').style.display='block';
 
-  } else if (cardKey === 'steal') {
-    var playerSel = document.getElementById('targetPlayerSelect');
-    var members = (leagueData?.leaderboard || []).filter(function(p){ return String(p.Uid) !== String(myUid); });
-    if (!members.length) {
-      playerSel.innerHTML = '<option value="">لا يوجد أعضاء آخرون</option>';
-    } else {
-      playerSel.innerHTML = members.map(function(p){
-        return '<option value="'+p.Uid+'">'+p.Username+'</option>';
-      }).join('');
-    }
-    document.getElementById('targetPlayerWrap').style.display = 'block';
-    // جيب توقعات أول لاعب تلقائياً
+  } else if(cardKey==='steal'){
+    var playerSel=document.getElementById('targetPlayerSelect');
+    var members=(leagueData?.leaderboard||[]).filter(function(p){return String(p.Uid)!==String(myUid);});
+    playerSel.innerHTML=members.length
+      ? members.map(function(p){return '<option value="'+p.Uid+'">'+p.Username+'</option>';}).join('')
+      : '<option value="">لا يوجد أعضاء آخرون</option>';
+    document.getElementById('targetPlayerWrap').style.display='block';
     loadStealableMatches();
   }
-
   document.getElementById('useCardOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  document.body.style.overflow='hidden';
 }
 
-// جيب مباريات الدوري القادمة
-function loadLeagueMatches(sel, underdogOnly) {
-  sel.innerHTML = '<option>جاري التحميل...</option>';
-  fetch('/api/private-leagues/' + LEAGUE_ID + '/upcoming-matches')
-    .then(function(r){ return r.json(); })
+function loadLeagueMatches(sel,underdogOnly){
+  sel.innerHTML='<option>جاري التحميل...</option>';
+  fetch('/api/private-leagues/'+LEAGUE_ID+'/upcoming-matches')
+    .then(function(r){return r.json();})
     .then(function(matches){
-      var list = matches || [];
-      if (underdogOnly) list = list.filter(function(m){ return m.underdog_team; });
-      if (!list.length) { sel.innerHTML = '<option value="">لا توجد مباريات متاحة</option>'; return; }
-      sel.innerHTML = list.map(function(m){
-        var label = m.home_team + ' ضد ' + m.away_team;
-        if (underdogOnly && m.underdog_team) label += ' (الأضعف: ' + m.underdog_team + ')';
+      var list=matches||[];
+      if(underdogOnly) list=list.filter(function(m){return m.underdog_team;});
+      if(!list.length){sel.innerHTML='<option value="">لا توجد مباريات متاحة</option>';return;}
+      sel.innerHTML=list.map(function(m){
+        var label=m.home_team+' ضد '+m.away_team;
+        if(underdogOnly&&m.underdog_team) label+=' (الأضعف: '+m.underdog_team+')';
         return '<option value="'+m.Mid+'">'+label+'</option>';
       }).join('');
-    }).catch(function(){ sel.innerHTML = '<option value="">تعذر التحميل</option>'; });
+    }).catch(function(){sel.innerHTML='<option value="">تعذر التحميل</option>';});
 }
 
-// جيب توقعاتي في الدوري الخاص للإنقاذ
-function loadMyPredictedMatches(sel) {
-  sel.innerHTML = '<option>جاري التحميل...</option>';
-  fetch('/api/private-leagues/' + LEAGUE_ID + '/my-predictions')
-    .then(function(r){ return r.json(); })
+function loadMyPredictedMatches(sel){
+  sel.innerHTML='<option>جاري التحميل...</option>';
+  fetch('/api/private-leagues/'+LEAGUE_ID+'/my-predictions')
+    .then(function(r){return r.json();})
     .then(function(preds){
-      var list = preds || [];
-      if (!list.length) { sel.innerHTML = '<option value="">ما عندك توقعات على مباريات لم تبدأ</option>'; return; }
-      sel.innerHTML = list.map(function(p){
+      var list=preds||[];
+      if(!list.length){sel.innerHTML='<option value="">ما عندك توقعات على مباريات لم تبدأ</option>';return;}
+      sel.innerHTML=list.map(function(p){
         return '<option value="'+p.match_id+'">'+p.home_team+' ضد '+p.away_team+
-          ' (توقعك: '+p.predicted_home_score+'-'+p.predicted_away_score+')</option>';
+          ' ('+p.predicted_home_score+'-'+p.predicted_away_score+')</option>';
       }).join('');
-    }).catch(function(){ sel.innerHTML = '<option value="">تعذر التحميل</option>'; });
+    }).catch(function(){sel.innerHTML='<option value="">تعذر التحميل</option>';});
 }
 
-// جيب توقعات اللاعب المستهدف للسرقة
-function loadStealableMatches() {
-  var targetId = document.getElementById('targetPlayerSelect').value;
-  if (!targetId) return;
-  var wrap = document.getElementById('stealMatchWrap');
-  var sel  = document.getElementById('stealMatchSelect');
-  wrap.style.display = 'none';
-  sel.innerHTML = '<option>جاري التحميل...</option>';
-
-  fetch('/api/private-leagues/' + LEAGUE_ID + '/stealable?target_user_id=' + targetId)
-    .then(function(r){ return r.json(); })
+function loadStealableMatches(){
+  var targetId=document.getElementById('targetPlayerSelect').value;
+  if(!targetId) return;
+  var wrap=document.getElementById('stealMatchWrap');
+  var sel=document.getElementById('stealMatchSelect');
+  wrap.style.display='none';
+  fetch('/api/private-leagues/'+LEAGUE_ID+'/stealable?target_user_id='+targetId)
+    .then(function(r){return r.json();})
     .then(function(rows){
-      if (!rows || !rows.length) {
-        sel.innerHTML = '<option value="">لا توجد توقعات قابلة للسرقة</option>';
-      } else {
-        sel.innerHTML = rows.map(function(p){
+      sel.innerHTML=(!rows||!rows.length)
+        ?'<option value="">لا توجد توقعات قابلة للسرقة</option>'
+        :rows.map(function(p){
           return '<option value="'+p.id+'">'+p.home_team+' ضد '+p.away_team+
             ' ('+p.predicted_home_score+'-'+p.predicted_away_score+')</option>';
         }).join('');
-      }
-      wrap.style.display = 'block';
+      wrap.style.display='block';
     });
 }
 
-// ── Confirm ───────────────────────────────────
-function confirmUseCard() {
-  var endpoint = '/api/private-leagues/' + LEAGUE_ID + '/';
-  var body = {};
-
-  if (activeCard === 'shield') {
-    var round_id = document.getElementById('shieldRoundSelect').value;
-    if (!round_id) { showToast('⚠️ اختر الجولة'); return; }
-    endpoint += 'shield'; body = { round_id: round_id };
-
-  } else if (activeCard === 'golden_match') {
-    var match_id = document.getElementById('matchSelect').value;
-    if (!match_id) { showToast('⚠️ اختر المباراة'); return; }
-    endpoint += 'golden-match'; body = { match_id: match_id };
-
-  } else if (activeCard === 'black_horse') {
-    // الحصان الأسود لا يحتاج API هنا، يُفعّل في صفحة التوقعات تلقائياً
-    closeOverlay();
-    showToast('🐎 عند توقع هذه المباراة اختر الفريق الأضعف وسيُفعّل تلقائياً');
-    return;
-
-  } else if (activeCard === 'rescue') {
-    var match_id = document.getElementById('matchSelect').value;
-    if (!match_id) { showToast('⚠️ اختر المباراة'); return; }
-    endpoint += 'rescue'; body = { match_id: match_id };
-
-  } else if (activeCard === 'steal') {
-    var target_user_id = document.getElementById('targetPlayerSelect').value;
-    var prediction_id  = document.getElementById('stealMatchSelect').value;
-    if (!target_user_id || !prediction_id) { showToast('⚠️ اختر اللاعب والتوقع'); return; }
-    endpoint += 'steal'; body = { target_user_id: target_user_id, prediction_id: prediction_id };
+function confirmUseCard(){
+  var endpoint='/api/private-leagues/'+LEAGUE_ID+'/';
+  var body={};
+  if(activeCard==='shield'){
+    var rid=document.getElementById('shieldRoundSelect').value;
+    if(!rid){showToast('⚠️ اختر الجولة');return;}
+    endpoint+='shield';body={round_id:rid};
+  } else if(activeCard==='golden_match'){
+    var mid=document.getElementById('matchSelect').value;
+    if(!mid){showToast('⚠️ اختر المباراة');return;}
+    endpoint+='golden-match';body={match_id:mid};
+  } else if(activeCard==='black_horse'){
+    closeOverlay();showToast('🐎 توقع المباراة من صفحة التوقعات وسيُفعّل تلقائياً');return;
+  } else if(activeCard==='rescue'){
+    var mid=document.getElementById('matchSelect').value;
+    if(!mid){showToast('⚠️ اختر المباراة');return;}
+    endpoint+='rescue';body={match_id:mid};
+  } else if(activeCard==='steal'){
+    var tid=document.getElementById('targetPlayerSelect').value;
+    var pid=document.getElementById('stealMatchSelect').value;
+    if(!tid||!pid){showToast('⚠️ اختر اللاعب والتوقع');return;}
+    endpoint+='steal';body={target_user_id:tid,prediction_id:pid};
   }
-
-  var btn = document.getElementById('confirmBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spinner" style="width:16px;height:16px"></div>';
-
-  fetch(endpoint, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) })
-    .then(function(r){ return r.json(); })
+  var btn=document.getElementById('confirmBtn');
+  btn.disabled=true;
+  btn.innerHTML='<div class="spinner" style="width:15px;height:15px;border-width:2px"></div>';
+  fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(function(r){return r.json();})
     .then(function(data){
-      btn.disabled = false;
-      btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> تفعيل';
-      if (!data.success) { showToast('❌ ' + data.message); return; }
-      showToast('✅ ' + data.message);
-      closeOverlay();
-      loadAll();
-    })
-    .catch(function(){
-      btn.disabled = false;
-      btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> تفعيل';
+      btn.disabled=false;btn.innerHTML='<i class="bi bi-check-circle-fill"></i> تفعيل';
+      if(!data.success){showToast('❌ '+data.message);return;}
+      showToast('✅ '+data.message);closeOverlay();loadAll();
+    }).catch(function(){
+      btn.disabled=false;btn.innerHTML='<i class="bi bi-check-circle-fill"></i> تفعيل';
       showToast('❌ حدث خطأ');
     });
 }
 
-// ── Helpers ───────────────────────────────────
-function closeOverlay() {
-  document.getElementById('useCardOverlay').classList.remove('open');
-  document.body.style.overflow = '';
-  activeCard = null;
-}
-function handleOverlay(e) { if (e.target.id === 'useCardOverlay') closeOverlay(); }
-function copyCode() {
-  navigator.clipboard.writeText(document.getElementById('heroCode').textContent)
-    .then(function(){ showToast('تم نسخ الرمز ✓'); });
-}
-function showError() {
-  document.getElementById('pageLoading').style.display = 'none';
-  document.getElementById('pageError').style.display = 'block';
-}
-function showToast(msg) {
-  var t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(function(){ t.classList.remove('show'); }, 2600);
-}
+function closeOverlay(){document.getElementById('useCardOverlay').classList.remove('open');document.body.style.overflow='';activeCard=null;}
+function handleOverlay(e){if(e.target.id==='useCardOverlay')closeOverlay();}
+function copyCode(){navigator.clipboard.writeText(document.getElementById('heroCode').textContent).then(function(){showToast('تم نسخ الرمز ✓');});}
+function showError(){document.getElementById('pageLoading').style.display='none';document.getElementById('pageError').style.display='block';}
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2600);}
 </script>
 </body>
 </html>
