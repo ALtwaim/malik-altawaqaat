@@ -1041,7 +1041,6 @@ app.post('/api/predictions', (req, res) => {
         return res.status(401).json({ error: 'لازم تسجل دخول' });
     }
 
-    const userId = getUserId(req);
 
     const {
         match_id,
