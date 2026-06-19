@@ -3246,7 +3246,12 @@ app.get('/api/private-leagues/:id/my-usage', requireLogin, (req, res) => {
          GROUP BY card_type`,
         [leagueId, userId],
         (err, usage) => {
-            if (err) return res.status(500).json(err);
+            if (err) {
+    return res.status(500).json({
+        success: false,
+        message: err.message
+    });
+}
             res.json({ usage });
         }
     );
@@ -3377,7 +3382,7 @@ app.post('/api/private-leagues/:id/black-horse', requireLogin, (req, res) => {
  
                     // تحقق إن عنده توقع على المباراة
                     db.query(
-                        `SELECT id FROM predictions
+                        `SELECT Pid FROM predictions
                          WHERE user_id = ? AND match_id = ?`,
                         [userId, match_id],
                         (err4, predRows) => {
@@ -3430,7 +3435,12 @@ app.get('/api/private-leagues/:id/golden-match', requireLogin, (req, res) => {
          WHERE plg.league_id = ? AND plg.round_id = ?`,
         [leagueId, round_id],
         (err, rows) => {
-            if (err) return res.status(500).json(err);
+            if (err) {
+    return res.status(500).json({
+        success: false,
+        message: err.message
+    });
+}
             res.json(rows[0] || null);
         }
     );
@@ -3515,7 +3525,12 @@ app.get('/api/private-leagues/:id/stealable', requireLogin, (req, res) => {
            )`,
         [leagueId, target_user_id, leagueId, target_user_id],
         (err, rows) => {
-            if (err) return res.status(500).json(err);
+            if (err) {
+    return res.status(500).json({
+        success: false,
+        message: err.message
+    });
+}
             res.json(rows);
         }
     );
@@ -3544,7 +3559,7 @@ app.post('/api/private-leagues/:id/steal', requireLogin, (req, res) => {
                 `SELECT pr.match_id, m.round_id, m.match_date
                  FROM predictions pr
                  JOIN matches m ON pr.match_id = m.Mid
-                 WHERE pr.id = ? AND pr.user_id = ?
+                 WHERE pr.Pid = ? AND pr.user_id = ?
                    AND m.match_date > NOW()`,
                 [prediction_id, target_user_id],
                 (err3, predRows) => {
@@ -3635,7 +3650,7 @@ app.post('/api/private-leagues/:id/rescue', requireLogin, (req, res) => {
 
             // تحقق إن عنده توقع حقيقي على هذه المباراة بـ predictions العام والمباراة لسا ما بدأت
             db.query(
-                `SELECT pr.id, m.match_date, m.round_id 
+                `SELECT pr.Pid, m.match_date, m.round_id 
                  FROM predictions pr
                  JOIN matches m ON pr.match_id = m.Mid
                  WHERE pr.user_id = ? AND pr.match_id = ?
@@ -3703,7 +3718,12 @@ app.get('/api/private-leagues/:id/upcoming-matches', requireLogin, (req, res) =>
          ORDER BY m.match_date ASC`,
         [leagueId],
         (err, rows) => {
-            if (err) return res.status(500).json(err);
+            if (err) {
+    return res.status(500).json({
+        success: false,
+        message: err.message
+    });
+}
             res.json(rows);
         }
     );
@@ -3732,7 +3752,12 @@ app.get('/api/private-leagues/:id/my-predictions', requireLogin, (req, res) => {
          ORDER BY m.match_date ASC`,
         [leagueId, userId, leagueId, userId],
         (err, rows) => {
-            if (err) return res.status(500).json(err);
+            if (err) {
+    return res.status(500).json({
+        success: false,
+        message: err.message
+    });
+}
             res.json(rows);
         }
     );
@@ -3760,7 +3785,12 @@ app.get('/api/private-leagues/:id/events', requireLogin, (req, res) => {
          LIMIT 50`,
         [leagueId],
         (err, rows) => {
-            if (err) return res.status(500).json(err);
+            if (err) {
+    return res.status(500).json({
+        success: false,
+        message: err.message
+    });
+}
             res.json(rows);
         }
     );
