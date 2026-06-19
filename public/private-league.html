@@ -78,6 +78,7 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-h
 .lb-name{flex:1;font-weight:700;font-size:15px}
 .lb-pts{font-size:18px;font-weight:900;color:var(--gold);display:flex;align-items:baseline;gap:4px}
 .lb-pts span{font-size:11px;color:var(--muted);font-weight:600}
+.lb-shield{font-size:14px;margin-right:4px}
 
 /* FEATURES CARDS */
 .feat-card{background:var(--surface2);border:1.5px solid rgba(255,255,255,.07);
@@ -109,6 +110,14 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-h
 .use-btn:hover{opacity:.9}
 .use-btn:disabled{opacity:.4;cursor:not-allowed;background:rgba(255,255,255,.1);color:var(--muted)}
 
+/* EVENTS LOG */
+.event-row{display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-radius:10px;background:var(--surface2);border:1px solid rgba(255,255,255,.05);
+  margin-bottom:8px;font-size:13px}
+.event-icon{font-size:18px;flex-shrink:0}
+.event-text{flex:1;line-height:1.5}
+.event-time{font-size:11px;color:var(--muted);white-space:nowrap}
+
 /* MODAL */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;
   display:flex;align-items:center;justify-content:center;padding:20px;
@@ -121,16 +130,16 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-h
 .modal-close{position:absolute;top:14px;left:14px;background:none;border:none;
   color:var(--muted);font-size:22px;cursor:pointer;line-height:1;transition:color .2s}
 .modal-close:hover{color:var(--text)}
-.modal h2{font-size:20px;font-weight:900;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.modal h2{font-size:20px;font-weight:900;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .modal p{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:16px}
-.modal select, .modal input[type=number]{
-  width:100%;padding:12px 14px;background:var(--surface2);
+.modal select{width:100%;padding:12px 14px;background:var(--surface2);
   border:1.5px solid rgba(255,255,255,.1);border-radius:var(--radius-sm);
   color:var(--text);font-family:'Cairo',sans-serif;font-size:15px;outline:none;
   margin-bottom:16px;transition:border-color .2s}
-.modal select:focus, .modal input:focus{border-color:var(--gold)}
+.modal select:focus{border-color:var(--gold)}
 .modal select option{background:#0c1729}
-.modal-actions{display:flex;gap:10px}
+.modal-label{font-size:13px;color:var(--muted);font-weight:700;display:block;margin-bottom:8px}
+.modal-actions{display:flex;gap:10px;margin-top:4px}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:var(--radius-sm);
   font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:.2s}
 .btn-gold{background:linear-gradient(135deg,var(--gold),#f0a500);color:#060e1c;flex:1;justify-content:center}
@@ -138,12 +147,16 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-h
 .btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,.1);color:var(--muted);padding:12px 16px}
 .btn-outline:hover{border-color:var(--gold);color:var(--gold)}
 
+/* tip box inside modal */
+.tip-box{background:rgba(255,212,59,.07);border:1px solid var(--gold-border);border-radius:10px;
+  padding:10px 14px;font-size:12px;color:var(--gold);margin-bottom:16px;line-height:1.6}
+
 /* LOADING / EMPTY */
 .loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:40px;color:var(--muted);font-size:14px}
 .spinner{width:20px;height:20px;border:2px solid rgba(255,212,59,.2);
   border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.empty-box{text-align:center;padding:30px;color:var(--muted);font-size:14px}
+.empty-box{text-align:center;padding:24px;color:var(--muted);font-size:14px}
 
 /* TOAST */
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
@@ -156,9 +169,6 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-h
   .grid{grid-template-columns:1fr}
   .nav{padding:0 16px}
   .hero-bar{flex-direction:column;align-items:flex-start}
-}
-@media(max-width:600px){
-  .container{width:96%;padding:20px 0 60px}
 }
 </style>
 </head>
@@ -174,19 +184,13 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-h
 </nav>
 
 <div class="container">
-
-  <!-- Loading -->
   <div id="pageLoading" class="loading"><div class="spinner"></div> جاري التحميل...</div>
-
-  <!-- Error -->
   <div id="pageError" style="display:none" class="empty-box">
     <i class="bi bi-exclamation-triangle" style="font-size:36px;color:var(--red);display:block;margin-bottom:12px"></i>
     تعذر تحميل الدوري — تأكد من رابطك أو سجل دخولك.
   </div>
 
-  <!-- Content -->
   <div id="pageContent" style="display:none">
-
     <!-- Hero -->
     <div class="hero-bar">
       <div class="hero-left">
@@ -204,66 +208,66 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-h
           <div class="code-label">رمز الدعوة</div>
           <div class="code-val" id="heroCode">——</div>
         </div>
-        <button class="copy-btn" onclick="copyCode()">
-          <i class="bi bi-copy"></i> نسخ
-        </button>
+        <button class="copy-btn" onclick="copyCode()"><i class="bi bi-copy"></i> نسخ</button>
       </div>
     </div>
 
-    <!-- Grid -->
     <div class="grid">
-
       <!-- Leaderboard -->
-      <div class="card">
-        <div class="card-title"><i class="bi bi-trophy-fill"></i> ترتيب الأعضاء</div>
-        <div id="leaderboardBox"><div class="loading"><div class="spinner"></div></div></div>
-      </div>
-
-      <!-- Sidebar -->
       <div>
-        <!-- Features -->
+        <div class="card" style="margin-bottom:22px">
+          <div class="card-title"><i class="bi bi-trophy-fill"></i> ترتيب الأعضاء</div>
+          <div id="leaderboardBox"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+        <!-- Events Log -->
         <div class="card">
-          <div class="card-title"><i class="bi bi-lightning-charge-fill"></i> الخصائص المتاحة</div>
-          <div id="featuresBox"><div class="loading"><div class="spinner"></div></div></div>
+          <div class="card-title"><i class="bi bi-activity"></i> سجل الأحداث</div>
+          <div id="eventsBox"><div class="loading"><div class="spinner"></div></div></div>
         </div>
       </div>
 
+      <!-- Sidebar: Features -->
+      <div class="card">
+        <div class="card-title"><i class="bi bi-lightning-charge-fill"></i> الخصائص المتاحة</div>
+        <div id="featuresBox"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Modal: تفعيل خاصية -->
+<!-- MODAL -->
 <div class="overlay" id="useCardOverlay" onclick="handleOverlay(event)">
   <div class="modal">
     <button class="modal-close" onclick="closeOverlay()">×</button>
-    <h2 id="cardModalTitle">تفعيل الخاصية</h2>
+    <h2 id="cardModalTitle"></h2>
     <p id="cardModalDesc"></p>
+    <div class="tip-box" id="cardTip" style="display:none"></div>
 
-    <!-- اختيار الجولة (للدرع) -->
+    <!-- الدرع: اختيار جولة -->
     <div id="shieldRoundWrap" style="display:none">
-      <label style="font-size:13px;color:var(--muted);font-weight:700;display:block;margin-bottom:8px">اختر الجولة للحماية:</label>
+      <label class="modal-label">اختر الجولة للحماية:</label>
       <select id="shieldRoundSelect"></select>
     </div>
 
-    <!-- اختيار المباراة (للسرقة والإنقاذ والذهبية) -->
+    <!-- الحصان الأسود / المباراة الذهبية / الإنقاذ: اختيار مباراة -->
     <div id="matchSelectWrap" style="display:none">
-      <label style="font-size:13px;color:var(--muted);font-weight:700;display:block;margin-bottom:8px" id="matchSelectLabel">اختر المباراة:</label>
+      <label class="modal-label" id="matchSelectLabel">اختر المباراة:</label>
       <select id="matchSelect"></select>
     </div>
 
-    <!-- اختيار اللاعب المستهدف (للسرقة) -->
+    <!-- السرقة: اختيار لاعب ثم توقع -->
     <div id="targetPlayerWrap" style="display:none">
-      <label style="font-size:13px;color:var(--muted);font-weight:700;display:block;margin-bottom:8px">اختر اللاعب:</label>
+      <label class="modal-label">اختر اللاعب:</label>
       <select id="targetPlayerSelect" onchange="loadStealableMatches()"></select>
-      <div id="stealMatchWrap" style="display:none;margin-top:14px">
-        <label style="font-size:13px;color:var(--muted);font-weight:700;display:block;margin-bottom:8px">اختر التوقع للسرقة:</label>
+      <div id="stealMatchWrap" style="display:none;margin-top:4px">
+        <label class="modal-label">اختر التوقع للسرقة:</label>
         <select id="stealMatchSelect"></select>
       </div>
     </div>
 
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeOverlay()">إلغاء</button>
-      <button class="btn btn-gold" onclick="confirmUseCard()">
+      <button class="btn btn-gold" id="confirmBtn" onclick="confirmUseCard()">
         <i class="bi bi-check-circle-fill"></i> تفعيل
       </button>
     </div>
@@ -278,306 +282,328 @@ var myUid      = null;
 var myRole     = null;
 var leagueData = null;
 var activeCard = null;
-var allRounds  = [];
-var allMatches = [];
 
 var FEATURES_META = {
-    black_horse:  { name:'الحصان الأسود',   icon:'🐎', desc:'توقع الفريق الأضعف ونقاطك تتضاعف إذا فاز.' },
-    golden_match: { name:'المباراة الذهبية', icon:'⭐', desc:'حدد مباراة تكون نقاطها مضاعفة.' },
-    steal:        { name:'بطاقة السرقة',     icon:'🕵️', desc:'اسرق توقع من لاعب آخر قبل بدء المباراة.' },
-    shield:       { name:'بطاقة الدرع',      icon:'🛡️', desc:'احمِ نفسك من السرقة لجولة كاملة.' },
-    rescue:       { name:'بطاقة الإنقاذ',   icon:'🆘', desc:'احصل على نقطة إضافية إذا صح فارق الأهداف.' },
+  black_horse:  { name:'الحصان الأسود',   icon:'🐎', desc:'توقع الفريق الأضعف — إذا فاز تحصل على 3 نقاط بدل 1، وإذا جبت النتيجة الصحيحة تحصل على 7 بدل 3.' },
+  golden_match: { name:'المباراة الذهبية', icon:'⭐', desc:'المشرف يحدد مباراة تتضاعف فيها نقاط جميع الأعضاء.' },
+  steal:        { name:'بطاقة السرقة',     icon:'🕵️', desc:'اسرق توقع من لاعب آخر قبل بدء المباراة، وتُحذف من توقعاته.' },
+  shield:       { name:'بطاقة الدرع',      icon:'🛡️', desc:'احمِ نفسك من السرقة لجولة كاملة.' },
+  rescue:       { name:'بطاقة الإنقاذ',   icon:'🆘', desc:'إذا جبت نفس فارق الأهداف ونفس الفايز تحصل على نقطتين بدل نقطة.' },
 };
 
-// ── Boot ───────────────────────────────────────────────────────────────────
-if (!LEAGUE_ID) { showError(); }
-else { loadAll(); }
+var EVENT_META = {
+  steal:        { icon:'🕵️', label: function(e){ return (e.actor_name||'لاعب') + ' سرق توقع من ' + (e.target_name||'لاعب آخر'); } },
+  shield:       { icon:'🛡️', label: function(e){ return (e.actor_name||'لاعب') + ' فعّل الدرع هذه الجولة'; } },
+  golden_match: { icon:'⭐', label: function(e){ return (e.actor_name||'المشرف') + ' حدد المباراة الذهبية'; } },
+  rescue:       { icon:'🆘', label: function(e){ return (e.actor_name||'لاعب') + ' فعّل بطاقة الإنقاذ'; } },
+  black_horse:  { icon:'🐎', label: function(e){ return (e.actor_name||'لاعب') + ' فعّل الحصان الأسود'; } },
+};
 
+if (!LEAGUE_ID) { showError(); } else { loadAll(); }
+
+// ── Boot ──────────────────────────────────────
 async function loadAll() {
-    try {
-        const [dataRes, usageRes] = await Promise.all([
-            fetch('/api/private-leagues/' + LEAGUE_ID),
-            fetch('/api/private-leagues/' + LEAGUE_ID + '/my-usage')
-        ]);
-        const data  = await dataRes.json();
-        const usage = await usageRes.json();
+  try {
+    const [dataRes, usageRes, eventsRes] = await Promise.all([
+      fetch('/api/private-leagues/' + LEAGUE_ID),
+      fetch('/api/private-leagues/' + LEAGUE_ID + '/my-usage'),
+      fetch('/api/private-leagues/' + LEAGUE_ID + '/events')
+    ]);
+    const data   = await dataRes.json();
+    const usage  = await usageRes.json();
+    const events = await eventsRes.json();
 
-        if (!data || !data.league) { showError(); return; }
+    if (!data || !data.league) { showError(); return; }
 
-        leagueData = data;
-        myRole = data.league.my_role;
-        myUid  = data.league.my_uid;
+    leagueData = data;
+    myRole = data.league.my_role;
+    myUid  = data.league.my_uid;
 
-        renderHero(data.league, data.leaderboard);
-        renderLeaderboard(data.leaderboard);
-        renderFeatures(data.features, usage?.usage || []);
+    renderHero(data.league, data.leaderboard);
+    renderLeaderboard(data.leaderboard, data.shields || []);
+    renderFeatures(data.features, usage?.usage || []);
+    renderEvents(events || []);
 
-        document.getElementById('pageLoading').style.display = 'none';
-        document.getElementById('pageContent').style.display = 'block';
-
-        loadRoundsAndMatches();
-    } catch(e) { showError(); }
+    document.getElementById('pageLoading').style.display = 'none';
+    document.getElementById('pageContent').style.display = 'block';
+  } catch(e) { showError(); }
 }
 
-// ── Hero ───────────────────────────────────────────────────────────────────
+// ── Hero ──────────────────────────────────────
 function renderHero(league, leaderboard) {
-    document.title = league.name + ' — ملك التوقعات';
-    document.getElementById('heroIcon').textContent   = league.icon || '🏆';
-    document.getElementById('heroName').textContent   = league.name;
-    document.getElementById('heroCode').textContent   = league.code;
-    document.getElementById('heroPillMembers').innerHTML =
-        '<i class="bi bi-people-fill"></i> ' + (leaderboard?.length || 0) + ' / ' + league.max_members + ' عضو';
-    document.getElementById('heroPillRole').textContent =
-        myRole === 'owner' ? '👑 مدير' : '🎮 لاعب';
+  document.title = league.name + ' — ملك التوقعات';
+  document.getElementById('heroIcon').textContent = league.icon || '🏆';
+  document.getElementById('heroName').textContent = league.name;
+  document.getElementById('heroCode').textContent = league.code;
+  document.getElementById('heroPillMembers').innerHTML =
+    '<i class="bi bi-people-fill"></i> ' + (leaderboard?.length||0) + ' / ' + league.max_members + ' عضو';
+  document.getElementById('heroPillRole').textContent = myRole === 'owner' ? '👑 مدير' : '🎮 لاعب';
 }
 
-// ── Leaderboard ────────────────────────────────────────────────────────────
-function renderLeaderboard(leaderboard) {
-    var box = document.getElementById('leaderboardBox');
-    if (!leaderboard || leaderboard.length === 0) {
-        box.innerHTML = '<div class="empty-box">لا يوجد أعضاء بعد.</div>';
-        return;
-    }
-    box.innerHTML = leaderboard.map(function(p, i) {
-        var r = i + 1;
-        var rc = r === 1 ? 'r1' : r === 2 ? 'r2' : r === 3 ? 'r3' : '';
-        var medal = r <= 3 ? ['🥇','🥈','🥉'][r-1] : r;
-        var isMe = String(p.Uid) === String(myUid);
-        return '<div class="lb-row ' + (isMe ? 'me' : '') + '">' +
-            '<div class="rank ' + rc + '">' + medal + '</div>' +
-            '<div class="lb-name">' + p.Username + (isMe ? ' <span style="font-size:11px;color:var(--gold)">(أنت)</span>' : '') + '</div>' +
-            '<div class="lb-pts">' + p.total_points + '<span>نقطة</span></div>' +
-        '</div>';
-    }).join('');
+// ── Leaderboard ───────────────────────────────
+function renderLeaderboard(leaderboard, shields) {
+  var box = document.getElementById('leaderboardBox');
+  if (!leaderboard || !leaderboard.length) {
+    box.innerHTML = '<div class="empty-box">لا يوجد أعضاء بعد.</div>'; return;
+  }
+  var shieldedIds = (shields||[]).map(function(s){ return String(s.user_id); });
+  box.innerHTML = leaderboard.map(function(p, i) {
+    var r = i+1;
+    var rc = r===1?'r1':r===2?'r2':r===3?'r3':'';
+    var medal = r<=3?['🥇','🥈','🥉'][r-1]:r;
+    var isMe  = String(p.Uid) === String(myUid);
+    var hasShield = shieldedIds.indexOf(String(p.Uid)) > -1;
+    return '<div class="lb-row '+(isMe?'me':'')+'">' +
+      '<div class="rank '+rc+'">'+medal+'</div>' +
+      '<div class="lb-name">'+(hasShield?'<span class="lb-shield">🛡️</span>':'')+p.Username+(isMe?' <span style="font-size:11px;color:var(--gold)">(أنت)</span>':'')+' </div>' +
+      '<div class="lb-pts">'+p.total_points+'<span>نقطة</span></div>' +
+    '</div>';
+  }).join('');
 }
 
-// ── Features ───────────────────────────────────────────────────────────────
+// ── Features ──────────────────────────────────
 function renderFeatures(features, usageArr) {
-    var box = document.getElementById('featuresBox');
-    if (!features) { box.innerHTML = '<div class="empty-box">لا توجد خصائص.</div>'; return; }
+  var box = document.getElementById('featuresBox');
+  if (!features) { box.innerHTML = '<div class="empty-box">لا توجد خصائص.</div>'; return; }
 
-    var usageMap = {};
-    usageArr.forEach(function(u) { usageMap[u.card_type] = u.used_count; });
+  var usageMap = {};
+  usageArr.forEach(function(u){ usageMap[u.card_type] = u.used_count; });
 
-    var keys = ['black_horse','golden_match','steal','shield','rescue'];
-    box.innerHTML = keys.map(function(key) {
-        var meta    = FEATURES_META[key];
-        var enabled = !!features[key + '_enabled'];
-        var limit   = features[key + '_limit'] || 0;
-        var used    = usageMap[key] || 0;
-        var rem     = Math.max(0, limit - used);
-        var pct     = limit > 0 ? Math.min(100, used / limit * 100) : 0;
-        var full    = rem === 0 && enabled;
+  var keys = ['black_horse','golden_match','steal','shield','rescue'];
+  // للمشرف فقط المباراة الذهبية، للاعبين الباقي
+  box.innerHTML = keys.map(function(key) {
+    if (key === 'golden_match' && myRole !== 'owner') return '';
+    var meta    = FEATURES_META[key];
+    var enabled = !!features[key+'_enabled'];
+    var limit   = features[key+'_limit'] || 0;
+    var used    = usageMap[key] || 0;
+    var rem     = Math.max(0, limit - used);
+    var pct     = limit > 0 ? Math.min(100, used/limit*100) : 0;
+    var full    = rem === 0 && enabled;
 
-        return '<div class="feat-card ' + (enabled ? 'enabled' : 'disabled') + '">' +
-            '<div class="feat-top">' +
-                '<div class="feat-icon">' + meta.icon + '</div>' +
-                '<div class="feat-info">' +
-                    '<div class="feat-name">' + meta.name + '</div>' +
-                    '<div class="feat-desc">' + meta.desc + '</div>' +
-                '</div>' +
-                '<span class="feat-status ' + (enabled ? 'on' : 'off') + '">' + (enabled ? 'متاحة' : 'مغلقة') + '</span>' +
-            '</div>' +
-            (enabled ? `
-            <div class="usage-bar-wrap">
-                <div class="usage-label">
-                    <span>الاستخدامات</span>
-                    <strong>${rem} / ${limit} باقي</strong>
-                </div>
-                <div class="bar-bg"><div class="bar-fill ${full ? 'full' : ''}" style="width:${pct}%"></div></div>
-            </div>
-            <button class="use-btn" onclick="openUseCard('${key}')" ${full ? 'disabled' : ''}>
-                ${full ? '✕ نفذت الاستخدامات' : meta.icon + ' استخدم ' + meta.name}
-            </button>` : '') +
-        '</div>';
-    }).join('');
+    return '<div class="feat-card '+(enabled?'enabled':'disabled')+'">' +
+      '<div class="feat-top">' +
+        '<div class="feat-icon">'+meta.icon+'</div>' +
+        '<div class="feat-info"><div class="feat-name">'+meta.name+'</div><div class="feat-desc">'+meta.desc+'</div></div>' +
+        '<span class="feat-status '+(enabled?'on':'off')+'">'+(enabled?'متاحة':'مغلقة')+'</span>' +
+      '</div>' +
+      (enabled ? '<div class="usage-bar-wrap">' +
+        '<div class="usage-label"><span>الاستخدامات</span><strong>'+rem+' / '+limit+' باقي</strong></div>' +
+        '<div class="bar-bg"><div class="bar-fill '+(full?'full':'')+'" style="width:'+pct+'%"></div></div>' +
+      '</div>' +
+      '<button class="use-btn" onclick="openUseCard(\''+key+'\')" '+(full?'disabled':'')+'>'+
+        (full ? '✕ نفذت الاستخدامات' : meta.icon+' استخدم '+meta.name) +
+      '</button>' : '') +
+    '</div>';
+  }).join('');
 }
 
-// ── Load rounds & matches ──────────────────────────────────────────────────
-function loadRoundsAndMatches() {
-    fetch('/api/current-round')
-        .then(function(r) { return r.json(); })
-        .then(function(round) { if (round) allRounds = [round]; });
+// ── Events ────────────────────────────────────
+function renderEvents(events) {
+  var box = document.getElementById('eventsBox');
+  if (!events.length) { box.innerHTML = '<div class="empty-box">لا توجد أحداث بعد.</div>'; return; }
+  box.innerHTML = events.map(function(e) {
+    var m = EVENT_META[e.card_type];
+    if (!m) return '';
+    var d = new Date(e.created_at);
+    var timeStr = d.toLocaleDateString('ar-SA',{month:'short',day:'numeric'}) + ' ' +
+                  d.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+    return '<div class="event-row">' +
+      '<div class="event-icon">'+m.icon+'</div>' +
+      '<div class="event-text">'+m.label(e)+'</div>' +
+      '<div class="event-time">'+timeStr+'</div>' +
+    '</div>';
+  }).join('');
 }
 
-// ── Open card modal ────────────────────────────────────────────────────────
+// ── Open modal ────────────────────────────────
 function openUseCard(cardKey) {
-    activeCard = cardKey;
-    var meta = FEATURES_META[cardKey];
+  activeCard = cardKey;
+  var meta = FEATURES_META[cardKey];
+  document.getElementById('cardModalTitle').textContent = meta.icon + ' ' + meta.name;
+  document.getElementById('cardModalDesc').textContent  = meta.desc;
+  document.getElementById('cardTip').style.display = 'none';
 
-    document.getElementById('cardModalTitle').textContent = meta.icon + ' ' + meta.name;
-    document.getElementById('cardModalDesc').textContent  = meta.desc;
+  ['shieldRoundWrap','matchSelectWrap','targetPlayerWrap','stealMatchWrap'].forEach(function(id){
+    document.getElementById(id).style.display = 'none';
+  });
 
-    // إخفاء كل الأقسام
-    ['shieldRoundWrap','matchSelectWrap','targetPlayerWrap','stealMatchWrap'].forEach(function(id) {
-        document.getElementById(id).style.display = 'none';
+  if (cardKey === 'shield') {
+    var sel = document.getElementById('shieldRoundSelect');
+    sel.innerHTML = '<option>جاري التحميل...</option>';
+    fetch('/api/current-round').then(function(r){return r.json();}).then(function(round){
+      if (round && round.Rid) sel.innerHTML = '<option value="'+round.Rid+'">'+round.round_name+'</option>';
+      else sel.innerHTML = '<option value="">لا توجد جولة حالية</option>';
     });
+    document.getElementById('shieldRoundWrap').style.display = 'block';
 
-    if (cardKey === 'shield') {
-        // جيب الجولات
-        var sel = document.getElementById('shieldRoundSelect');
-        sel.innerHTML = '<option value="">جاري التحميل...</option>';
-        fetch('/api/current-round')
-            .then(function(r) { return r.json(); })
-            .then(function(round) {
-                if (round) sel.innerHTML = '<option value="' + round.Rid + '">' + round.round_name + '</option>';
-                else sel.innerHTML = '<option value="">لا توجد جولة حالية</option>';
-            });
-        document.getElementById('shieldRoundWrap').style.display = 'block';
+  } else if (cardKey === 'golden_match') {
+    document.getElementById('matchSelectLabel').textContent = 'اختر المباراة الذهبية:';
+    loadLeagueMatches(document.getElementById('matchSelect'), false);
+    document.getElementById('matchSelectWrap').style.display = 'block';
 
-    } else if (cardKey === 'golden_match' || cardKey === 'rescue') {
-        // جيب المباريات القادمة
-        var label = cardKey === 'golden_match' ? 'اختر المباراة الذهبية:' : 'اختر المباراة:';
-        document.getElementById('matchSelectLabel').textContent = label;
-        loadUpcomingMatches(document.getElementById('matchSelect'));
-        document.getElementById('matchSelectWrap').style.display = 'block';
+  } else if (cardKey === 'black_horse') {
+    // جيب مباريات فيها underdog
+    document.getElementById('matchSelectLabel').textContent = 'اختر المباراة (يجب أن تكون فيها فريق أضعف):';
+    loadLeagueMatches(document.getElementById('matchSelect'), true);
+    document.getElementById('matchSelectWrap').style.display = 'block';
+    var tip = document.getElementById('cardTip');
+    tip.textContent = '💡 بعد اختيار المباراة، توقعك فيها سيُحسب تلقائياً كحصان أسود عند التوقع من صفحة التوقعات.';
+    tip.style.display = 'block';
 
-    } else if (cardKey === 'steal') {
-        // جيب الأعضاء الآخرين
-        var playerSel = document.getElementById('targetPlayerSelect');
-        playerSel.innerHTML = '<option value="">جاري التحميل...</option>';
-        var leaderboard = leagueData?.leaderboard || [];
-        playerSel.innerHTML = leaderboard
-            .filter(function(p) { return String(p.Uid) !== String(myUid); })
-            .map(function(p) { return '<option value="' + p.Uid + '">' + p.Username + '</option>'; })
-            .join('');
-        if (!playerSel.innerHTML) playerSel.innerHTML = '<option value="">لا يوجد أعضاء آخرون</option>';
-        document.getElementById('targetPlayerWrap').style.display = 'block';
+  } else if (cardKey === 'rescue') {
+    document.getElementById('matchSelectLabel').textContent = 'اختر المباراة التي توقعتها:';
+    loadMyPredictedMatches(document.getElementById('matchSelect'));
+    document.getElementById('matchSelectWrap').style.display = 'block';
 
-    } else if (cardKey === 'black_horse') {
-        // الحصان الأسود: لا يحتاج اختيار — يُفعّل على التوقع مباشرة
-        document.getElementById('cardModalDesc').textContent =
-            'بطاقة الحصان الأسود تُفعَّل تلقائياً عند توقع مباراة فيها فريق أضعف. استخدمها من صفحة التوقعات مباشرة.';
+  } else if (cardKey === 'steal') {
+    var playerSel = document.getElementById('targetPlayerSelect');
+    var members = (leagueData?.leaderboard || []).filter(function(p){ return String(p.Uid) !== String(myUid); });
+    if (!members.length) {
+      playerSel.innerHTML = '<option value="">لا يوجد أعضاء آخرون</option>';
+    } else {
+      playerSel.innerHTML = members.map(function(p){
+        return '<option value="'+p.Uid+'">'+p.Username+'</option>';
+      }).join('');
     }
+    document.getElementById('targetPlayerWrap').style.display = 'block';
+    // جيب توقعات أول لاعب تلقائياً
+    loadStealableMatches();
+  }
 
-    document.getElementById('useCardOverlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
+  document.getElementById('useCardOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
-function loadUpcomingMatches(sel) {
-    sel.innerHTML = '<option>جاري التحميل...</option>';
-    // جيب المباريات عبر الـ tournaments في الدوري
-    fetch('/api/private-leagues/' + LEAGUE_ID)
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            var tournaments = [];
-            // نستخدم أي بطولة مرتبطة
-            if (data.league) {
-                fetch('/api/matches/' + (data.league.tournament_id || 1))
-                    .then(function(r) { return r.json(); })
-                    .then(function(matches) {
-                        var upcoming = matches.filter(function(m) {
-                            return m.home_score === null && new Date(m.match_date) > new Date();
-                        });
-                        if (!upcoming.length) {
-                            sel.innerHTML = '<option value="">لا توجد مباريات قادمة</option>';
-                            return;
-                        }
-                        sel.innerHTML = upcoming.map(function(m) {
-                            return '<option value="' + m.Mid + '">' + m.home_team + ' ضد ' + m.away_team + '</option>';
-                        }).join('');
-                    });
-            }
-        });
+// جيب مباريات الدوري القادمة
+function loadLeagueMatches(sel, underdogOnly) {
+  sel.innerHTML = '<option>جاري التحميل...</option>';
+  fetch('/api/private-leagues/' + LEAGUE_ID + '/upcoming-matches')
+    .then(function(r){ return r.json(); })
+    .then(function(matches){
+      var list = matches || [];
+      if (underdogOnly) list = list.filter(function(m){ return m.underdog_team; });
+      if (!list.length) { sel.innerHTML = '<option value="">لا توجد مباريات متاحة</option>'; return; }
+      sel.innerHTML = list.map(function(m){
+        var label = m.home_team + ' ضد ' + m.away_team;
+        if (underdogOnly && m.underdog_team) label += ' (الأضعف: ' + m.underdog_team + ')';
+        return '<option value="'+m.Mid+'">'+label+'</option>';
+      }).join('');
+    }).catch(function(){ sel.innerHTML = '<option value="">تعذر التحميل</option>'; });
 }
 
+// جيب توقعاتي في الدوري الخاص للإنقاذ
+function loadMyPredictedMatches(sel) {
+  sel.innerHTML = '<option>جاري التحميل...</option>';
+  fetch('/api/private-leagues/' + LEAGUE_ID + '/my-predictions')
+    .then(function(r){ return r.json(); })
+    .then(function(preds){
+      var list = preds || [];
+      if (!list.length) { sel.innerHTML = '<option value="">ما عندك توقعات على مباريات لم تبدأ</option>'; return; }
+      sel.innerHTML = list.map(function(p){
+        return '<option value="'+p.match_id+'">'+p.home_team+' ضد '+p.away_team+
+          ' (توقعك: '+p.predicted_home_score+'-'+p.predicted_away_score+')</option>';
+      }).join('');
+    }).catch(function(){ sel.innerHTML = '<option value="">تعذر التحميل</option>'; });
+}
+
+// جيب توقعات اللاعب المستهدف للسرقة
 function loadStealableMatches() {
-    var targetId = document.getElementById('targetPlayerSelect').value;
-    if (!targetId) return;
-    var wrap = document.getElementById('stealMatchWrap');
-    var sel  = document.getElementById('stealMatchSelect');
-    wrap.style.display = 'none';
-    sel.innerHTML = '<option>جاري التحميل...</option>';
+  var targetId = document.getElementById('targetPlayerSelect').value;
+  if (!targetId) return;
+  var wrap = document.getElementById('stealMatchWrap');
+  var sel  = document.getElementById('stealMatchSelect');
+  wrap.style.display = 'none';
+  sel.innerHTML = '<option>جاري التحميل...</option>';
 
-    fetch('/api/private-leagues/' + LEAGUE_ID + '/stealable?target_user_id=' + targetId)
-        .then(function(r) { return r.json(); })
-        .then(function(rows) {
-            if (!rows || rows.length === 0) {
-                sel.innerHTML = '<option value="">لا توجد توقعات قابلة للسرقة</option>';
-            } else {
-                sel.innerHTML = rows.map(function(p) {
-                    return '<option value="' + p.id + '">' + p.home_team + ' ضد ' + p.away_team +
-                        ' (' + p.predicted_home_score + '-' + p.predicted_away_score + ')</option>';
-                }).join('');
-            }
-            wrap.style.display = 'block';
-        });
+  fetch('/api/private-leagues/' + LEAGUE_ID + '/stealable?target_user_id=' + targetId)
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      if (!rows || !rows.length) {
+        sel.innerHTML = '<option value="">لا توجد توقعات قابلة للسرقة</option>';
+      } else {
+        sel.innerHTML = rows.map(function(p){
+          return '<option value="'+p.id+'">'+p.home_team+' ضد '+p.away_team+
+            ' ('+p.predicted_home_score+'-'+p.predicted_away_score+')</option>';
+        }).join('');
+      }
+      wrap.style.display = 'block';
+    });
 }
 
-// ── Confirm use card ───────────────────────────────────────────────────────
+// ── Confirm ───────────────────────────────────
 function confirmUseCard() {
-    if (activeCard === 'black_horse') {
-        closeOverlay();
-        showToast('🐎 افعّل الحصان الأسود من صفحة التوقعات');
-        return;
-    }
+  var endpoint = '/api/private-leagues/' + LEAGUE_ID + '/';
+  var body = {};
 
-    var endpoint = '/api/private-leagues/' + LEAGUE_ID + '/';
-    var body = {};
+  if (activeCard === 'shield') {
+    var round_id = document.getElementById('shieldRoundSelect').value;
+    if (!round_id) { showToast('⚠️ اختر الجولة'); return; }
+    endpoint += 'shield'; body = { round_id: round_id };
 
-    if (activeCard === 'shield') {
-        var round_id = document.getElementById('shieldRoundSelect').value;
-        if (!round_id) { showToast('⚠️ اختر الجولة'); return; }
-        endpoint += 'shield';
-        body = { round_id };
+  } else if (activeCard === 'golden_match') {
+    var match_id = document.getElementById('matchSelect').value;
+    if (!match_id) { showToast('⚠️ اختر المباراة'); return; }
+    endpoint += 'golden-match'; body = { match_id: match_id };
 
-    } else if (activeCard === 'golden_match') {
-        var match_id = document.getElementById('matchSelect').value;
-        if (!match_id) { showToast('⚠️ اختر المباراة'); return; }
-        endpoint += 'golden-match';
-        body = { match_id };
+  } else if (activeCard === 'black_horse') {
+    // الحصان الأسود لا يحتاج API هنا، يُفعّل في صفحة التوقعات تلقائياً
+    closeOverlay();
+    showToast('🐎 عند توقع هذه المباراة اختر الفريق الأضعف وسيُفعّل تلقائياً');
+    return;
 
-    } else if (activeCard === 'rescue') {
-        var match_id = document.getElementById('matchSelect').value;
-        if (!match_id) { showToast('⚠️ اختر المباراة'); return; }
-        endpoint += 'rescue';
-        body = { match_id };
+  } else if (activeCard === 'rescue') {
+    var match_id = document.getElementById('matchSelect').value;
+    if (!match_id) { showToast('⚠️ اختر المباراة'); return; }
+    endpoint += 'rescue'; body = { match_id: match_id };
 
-    } else if (activeCard === 'steal') {
-        var target_user_id  = document.getElementById('targetPlayerSelect').value;
-        var prediction_id   = document.getElementById('stealMatchSelect').value;
-        if (!target_user_id || !prediction_id) { showToast('⚠️ اختر اللاعب والتوقع'); return; }
-        endpoint += 'steal';
-        body = { target_user_id, prediction_id };
-    }
+  } else if (activeCard === 'steal') {
+    var target_user_id = document.getElementById('targetPlayerSelect').value;
+    var prediction_id  = document.getElementById('stealMatchSelect').value;
+    if (!target_user_id || !prediction_id) { showToast('⚠️ اختر اللاعب والتوقع'); return; }
+    endpoint += 'steal'; body = { target_user_id: target_user_id, prediction_id: prediction_id };
+  }
 
-    fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+  var btn = document.getElementById('confirmBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:16px;height:16px"></div>';
+
+  fetch(endpoint, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> تفعيل';
+      if (!data.success) { showToast('❌ ' + data.message); return; }
+      showToast('✅ ' + data.message);
+      closeOverlay();
+      loadAll();
     })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        if (!data.success) { showToast('❌ ' + data.message); return; }
-        showToast('✅ ' + data.message);
-        closeOverlay();
-        loadAll();
-    })
-    .catch(function() { showToast('❌ حدث خطأ'); });
+    .catch(function(){
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> تفعيل';
+      showToast('❌ حدث خطأ');
+    });
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────
 function closeOverlay() {
-    document.getElementById('useCardOverlay').classList.remove('open');
-    document.body.style.overflow = '';
-    activeCard = null;
+  document.getElementById('useCardOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  activeCard = null;
 }
-function handleOverlay(e) {
-    if (e.target.id === 'useCardOverlay') closeOverlay();
-}
+function handleOverlay(e) { if (e.target.id === 'useCardOverlay') closeOverlay(); }
 function copyCode() {
-    var code = document.getElementById('heroCode').textContent;
-    navigator.clipboard.writeText(code).then(function() { showToast('تم نسخ الرمز ✓'); });
+  navigator.clipboard.writeText(document.getElementById('heroCode').textContent)
+    .then(function(){ showToast('تم نسخ الرمز ✓'); });
 }
 function showError() {
-    document.getElementById('pageLoading').style.display = 'none';
-    document.getElementById('pageError').style.display = 'block';
+  document.getElementById('pageLoading').style.display = 'none';
+  document.getElementById('pageError').style.display = 'block';
 }
 function showToast(msg) {
-    var t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(function() { t.classList.remove('show'); }, 2500);
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2600);
 }
 </script>
 </body>

@@ -3576,6 +3576,90 @@ function calcPrivateLeaguePoints(matchId, db) {
     );
 }
 
+// ── مباريات الدوري القادمة ──
+app.get('/api/private-leagues/:id/upcoming-matches', requireLogin, (req, res) => {
+    const leagueId = req.params.id;
+
+    db.query(
+        `SELECT DISTINCT m.Mid, m.home_team, m.away_team, m.match_date, m.underdog_team, m.round_id
+         FROM matches m
+         JOIN private_league_tournaments plt ON plt.tournament_id = m.tournament_id
+         WHERE plt.league_id = ?
+           AND m.match_date > NOW()
+           AND (m.home_score IS NULL OR m.home_score = -1)
+         ORDER BY m.match_date ASC`,
+        [leagueId],
+        (err, rows) => {
+            if (err) return res.status(500).json(err);
+            res.json(rows);
+        }
+    );
+});
+
+// ── توقعاتي في الدوري الخاص (للإنقاذ) ──
+app.get('/api/private-leagues/:id/my-predictions', requireLogin, (req, res) => {
+    const leagueId = req.params.id;
+    const userId   = req.session.userId || req.session.Uid || req.session.user?.id;
+
+    db.query(
+        `SELECT plp.match_id, plp.predicted_home_score, plp.predicted_away_score,
+                m.home_team, m.away_team, m.match_date
+         FROM private_league_predictions plp
+         JOIN matches m ON plp.match_id = m.Mid
+         WHERE plp.league_id = ? AND plp.user_id = ?
+           AND m.match_date > NOW()
+           AND (m.home_score IS NULL OR m.home_score = -1)
+           AND plp.used_rescue = 0
+         ORDER BY m.match_date ASC`,
+        [leagueId, userId],
+        (err, rows) => {
+            if (err) return res.status(500).json(err);
+            res.json(rows);
+        }
+    );
+});
+
+// ── سجل الأحداث ──
+app.get('/api/private-leagues/:id/events', requireLogin, (req, res) => {
+    const leagueId = req.params.id;
+
+    db.query(
+        `SELECT 
+            cu.card_type,
+            cu.created_at,
+            actor.Username AS actor_name,
+            target.Username AS target_name,
+            m.home_team,
+            m.away_team
+         FROM private_league_card_usage cu
+         JOIN person actor ON cu.user_id = actor.Uid
+         LEFT JOIN person target ON cu.target_user_id = target.Uid
+         LEFT JOIN matches m ON cu.match_id = m.Mid
+         WHERE cu.league_id = ?
+         ORDER BY cu.created_at DESC
+         LIMIT 50`,
+        [leagueId],
+        (err, rows) => {
+            if (err) return res.status(500).json(err);
+            res.json(rows);
+        }
+    );
+});
+
+// ── الدروع النشطة في الجولة الحالية (لعرضها في الليدربورد) ──
+// أضف هذا في route /api/private-leagues/:id الموجود — أضف shields للـ response
+// في الـ query الأخير بعد leaderboard أضف:
+/*
+db.query(
+    `SELECT user_id FROM private_league_shields
+     WHERE league_id = ? AND round_id = (SELECT Rid FROM rounds ORDER BY Rid DESC LIMIT 1)`,
+    [leagueId],
+    (err5, shields) => {
+        res.json({ league, features: featuresResult[0], leaderboard, shields: shields || [] });
+    }
+);
+*/
+
 
 app.listen(3000, () => {
     console.log('Server Running');
