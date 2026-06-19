@@ -987,12 +987,13 @@ function getUserId(req) {
 
 app.get('/api/matches/:tournamentId', (req, res) => {
 
-    if (!req.session.user) {
+    const userId = getUserId(req);
+
+    if (!userId) {
         return res.status(401).json({ error: 'لازم تسجل دخول' });
     }
 
     const tournamentId = req.params.tournamentId;
-    const userId = getUserId(req);
 
     db.query(
         `SELECT 
@@ -1034,7 +1035,9 @@ app.get('/api/matches/:tournamentId', (req, res) => {
 
 app.post('/api/predictions', (req, res) => {
 
-    if (!req.session.user) {
+    const userId = getUserId(req);
+
+    if (!userId) {
         return res.status(401).json({ error: 'لازم تسجل دخول' });
     }
 
@@ -2836,14 +2839,28 @@ app.get('/api/latest-round-winner', (req, res) => {
 });
 
 //--------------------------الدوريات الخاصة-------------
+function getUserId(req) {
+    if (req.session.userId) return req.session.userId;
+    if (req.session.Uid) return req.session.Uid;
+    if (req.session.user && req.session.user.Uid) return req.session.user.Uid;
+    if (req.session.user && req.session.user.id) return req.session.user.id;
+    return null;
+}
 
 function requireLogin(req, res, next) {
-    if (req.session && (req.session.userId || req.session.Uid || req.session.user)) {
+    const userId = getUserId(req);
+
+    if (userId) {
         return next();
     }
+
     if (req.path.startsWith('/api/')) {
-        return res.status(401).json({ success: false, message: 'يجب تسجيل الدخول' });
+        return res.status(401).json({
+            success: false,
+            message: 'يجب تسجيل الدخول'
+        });
     }
+
     return res.redirect('/login');
 }
 
@@ -2864,7 +2881,7 @@ app.post('/api/private-leagues/create', requireLogin, (req, res) => {
     console.log('BODY:', JSON.stringify(req.body));
     const { name, icon, max_members, tournaments, features = {} } = req.body;
     const code = generateLeagueCode();
-    const userId = req.session.userId || req.session.Uid || req.session.user?.id;
+    const userId = getUserId(req);
 
     if (!name) {
         return res.json({ success: false, message: 'اكتب اسم الدوري' });
@@ -2950,7 +2967,7 @@ app.post('/api/private-leagues/create', requireLogin, (req, res) => {
 
 app.post('/api/private-leagues/join', requireLogin, (req, res) => {
     const code = req.body.code?.trim().toUpperCase();
-    const userId = req.session.userId || req.session.Uid || req.session.user?.id;
+    const userId = getUserId(req);
 
     if (!code) {
         return res.json({ success: false, message: 'اكتب رمز الدوري' });
@@ -3004,7 +3021,7 @@ app.post('/api/private-leagues/join', requireLogin, (req, res) => {
 });
 
 app.get('/api/private-leagues/my', requireLogin, (req, res) => {
-    const userId = req.session.userId || req.session.Uid || req.session.user?.id;
+    const userId = getUserId(req);
 
     db.query(
         `SELECT 
@@ -3041,7 +3058,7 @@ app.get('/private-league.html', (req, res) => {
 // ── API: تفاصيل الدوري مع my_role و my_uid ──
 app.get('/api/private-leagues/:id', requireLogin, (req, res) => {
     const leagueId = req.params.id;
-    const userId = req.session.userId || req.session.Uid || req.session.user?.id;
+    const userId = getUserId(req);
 
     // تحقق إن المستخدم عضو
     db.query(
@@ -3102,7 +3119,7 @@ app.get('/api/private-leagues/:id', requireLogin, (req, res) => {
 // ── API: استخدامات اللاعب الحالي للخصائص ──
 app.get('/api/private-leagues/:id/my-usage', requireLogin, (req, res) => {
     const leagueId = req.params.id;
-    const userId = req.session.userId || req.session.Uid || req.session.user?.id;
+    const userId = getUserId(req);
 
     db.query(
         `SELECT card_type, COUNT(*) AS used_count
