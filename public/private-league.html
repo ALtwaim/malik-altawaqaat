@@ -304,14 +304,13 @@ if (!LEAGUE_ID) { showError(); } else { loadAll(); }
 // ── Boot ──────────────────────────────────────
 async function loadAll() {
   try {
-    const [dataRes, usageRes, eventsRes] = await Promise.all([
-      fetch('/api/private-leagues/' + LEAGUE_ID),
-      fetch('/api/private-leagues/' + LEAGUE_ID + '/my-usage'),
-      fetch('/api/private-leagues/' + LEAGUE_ID + '/events')
-    ]);
-    const data   = await dataRes.json();
-    const usage  = await usageRes.json();
-    const events = await eventsRes.json();
+    const [dataRes, usageRes] = await Promise.all([
+    fetch('/api/private-leagues/' + LEAGUE_ID),
+    fetch('/api/private-leagues/' + LEAGUE_ID + '/my-usage')
+]);
+const data  = await dataRes.json();
+const usage = await usageRes.json();
+const events = data.events || [];
 
     if (!data || !data.league) { showError(); return; }
 
@@ -321,6 +320,7 @@ async function loadAll() {
 
     renderHero(data.league, data.leaderboard);
     renderLeaderboard(data.leaderboard, data.shields || []);
+    renderEvents(events);
     renderFeatures(data.features, usage?.usage || []);
     renderEvents(events || []);
 
