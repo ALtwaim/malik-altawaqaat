@@ -3365,7 +3365,7 @@ app.post('/api/private-leagues/:id/black-horse', requireLogin, (req, res) => {
                  FROM matches m
                  JOIN private_league_tournaments plt ON plt.tournament_id = m.tournament_id
                  WHERE m.Mid = ? AND plt.league_id = ?
-                   AND m.match_date > NOW()`,
+                   AND m.match_date > CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+03:00')`,
                 [match_id, leagueId],
                 (err3, matchRows) => {
                     if (err3) return res.status(500).json(err3);
@@ -3517,7 +3517,7 @@ app.get('/api/private-leagues/:id/stealable', requireLogin, (req, res) => {
          JOIN private_league_tournaments plt 
              ON plt.tournament_id = m.tournament_id AND plt.league_id = ?
          WHERE pr.user_id = ?
-           AND m.match_date > NOW()
+           AND m.match_date > CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+03:00')
            AND NOT EXISTS (
                SELECT 1 FROM private_league_card_usage cu
                WHERE cu.league_id = ? AND cu.card_type = 'steal'
@@ -3560,7 +3560,7 @@ app.post('/api/private-leagues/:id/steal', requireLogin, (req, res) => {
                  FROM predictions pr
                  JOIN matches m ON pr.match_id = m.Mid
                  WHERE pr.Pid = ? AND pr.user_id = ?
-                   AND m.match_date > NOW()`,
+                   AND m.match_date > CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+03:00')`,
                 [prediction_id, target_user_id],
                 (err3, predRows) => {
                     if (err3) return res.status(500).json(err3);
@@ -3654,7 +3654,7 @@ app.post('/api/private-leagues/:id/rescue', requireLogin, (req, res) => {
                  FROM predictions pr
                  JOIN matches m ON pr.match_id = m.Mid
                  WHERE pr.user_id = ? AND pr.match_id = ?
-                   AND m.match_date > NOW()`,
+                   AND m.match_date > CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+03:00')`,
                 [userId, match_id],
                 (err3, predRows) => {
                     if (err3) return res.status(500).json(err3);
@@ -3713,7 +3713,7 @@ app.get('/api/private-leagues/:id/upcoming-matches', requireLogin, (req, res) =>
          FROM matches m
          JOIN private_league_tournaments plt ON plt.tournament_id = m.tournament_id
          WHERE plt.league_id = ?
-           AND m.match_date > NOW()
+           AND m.match_date > CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+03:00')
            AND (m.home_score IS NULL OR m.home_score = -1)
          ORDER BY m.match_date ASC`,
         [leagueId],
@@ -3743,7 +3743,7 @@ app.get('/api/private-leagues/:id/my-predictions', requireLogin, (req, res) => {
          JOIN private_league_tournaments plt 
              ON plt.tournament_id = m.tournament_id AND plt.league_id = ?
          WHERE pr.user_id = ?
-           AND m.match_date > NOW()
+           AND m.match_date > CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+03:00')
            AND NOT EXISTS (
                SELECT 1 FROM private_league_card_usage cu
                WHERE cu.league_id = ? AND cu.user_id = ? 
