@@ -2,29 +2,69 @@
 <html dir="rtl" lang="ar">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>لوحة الأدمن</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       font-family: 'Cairo', sans-serif;
       background: #0f1117;
       color: #e8e8e8;
       min-height: 100vh;
       margin: 0;
+      padding-bottom: 80px;
     }
 
-    .layout {
+    /* ─── Top Header (mobile) ─── */
+    .top-header {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #171b24;
+      border-bottom: 1px solid #2a2f3d;
+      padding: 0 1rem;
+      height: 52px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .top-header-logo {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f0b429;
       display: flex;
-      min-height: 100vh;
+      align-items: center;
+      gap: 7px;
     }
 
-    /* ─── Sidebar ─── */
+    .menu-toggle {
+      background: none;
+      border: none;
+      color: #8b92a9;
+      font-size: 22px;
+      cursor: pointer;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* ─── Drawer overlay ─── */
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 200;
+    }
+    .drawer-overlay.open { display: block; }
+
+    /* ─── Sidebar / Drawer ─── */
     .sidebar {
-      width: 220px;
+      width: 230px;
       flex-shrink: 0;
       background: #171b24;
       border-left: 1px solid #2a2f3d;
@@ -36,6 +76,8 @@
       right: 0;
       bottom: 0;
       overflow-y: auto;
+      z-index: 300;
+      transition: transform 0.25s ease;
     }
 
     .sidebar-logo {
@@ -47,6 +89,17 @@
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+
+    .sidebar-close {
+      display: none;
+      margin-right: auto;
+      background: none;
+      border: none;
+      color: #8b92a9;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px;
     }
 
     .sidebar-section {
@@ -62,7 +115,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 10px 1rem;
+      padding: 12px 1rem;
       font-size: 14px;
       color: #8b92a9;
       background: none;
@@ -73,20 +126,16 @@
       font-family: 'Cairo', sans-serif;
       transition: all 0.15s;
       border-right: 3px solid transparent;
+      min-height: 44px;
     }
 
-    .nav-btn:hover {
-      background: #1e2330;
-      color: #e8e8e8;
-    }
-
+    .nav-btn:hover { background: #1e2330; color: #e8e8e8; }
     .nav-btn.active {
       background: #1e2330;
       color: #f0b429;
       border-right-color: #f0b429;
       font-weight: 500;
     }
-
     .nav-btn i { font-size: 17px; }
 
     .back-btn {
@@ -94,7 +143,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 9px 1rem;
+      padding: 10px 1rem;
       background: #1e2330;
       border: 1px solid #2a2f3d;
       border-radius: 8px;
@@ -104,12 +153,15 @@
       cursor: pointer;
       text-decoration: none;
       transition: color 0.15s;
+      min-height: 44px;
     }
     .back-btn:hover { color: #e8e8e8; }
 
     /* ─── Main Content ─── */
+    .layout { display: flex; min-height: 100vh; }
+
     .main {
-      margin-right: 220px;
+      margin-right: 230px;
       flex: 1;
       padding: 2rem;
       max-width: 860px;
@@ -127,7 +179,6 @@
       align-items: center;
       gap: 10px;
     }
-
     .panel-title i { color: #f0b429; font-size: 20px; }
 
     /* ─── Cards ─── */
@@ -171,17 +222,15 @@
       border: 1px solid #2a2f3d;
       border-radius: 8px;
       color: #e8e8e8;
-      font-size: 13px;
+      font-size: 14px;
       font-family: 'Cairo', sans-serif;
-      padding: 9px 12px;
+      padding: 11px 12px;
       transition: border-color 0.15s;
       outline: none;
+      min-height: 44px;
     }
 
-    input:focus, select:focus {
-      border-color: #f0b429;
-    }
-
+    input:focus, select:focus { border-color: #f0b429; }
     input::placeholder { color: #5a607a; }
 
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -191,9 +240,9 @@
       background: #f0b429;
       border: none;
       color: #1a1000;
-      padding: 10px 1.25rem;
+      padding: 12px 1.25rem;
       border-radius: 8px;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 700;
       cursor: pointer;
       width: 100%;
@@ -204,38 +253,39 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
+      min-height: 48px;
     }
-
     .btn-main:hover { opacity: 0.85; }
+    .btn-main:active { opacity: 0.7; transform: scale(0.98); }
 
     .btn-danger {
       background: #2d1212;
       border: 1px solid #5a2020;
       color: #f08080;
-      padding: 9px 1rem;
+      padding: 12px 1rem;
       border-radius: 8px;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 500;
       cursor: pointer;
       width: 100%;
       font-family: 'Cairo', sans-serif;
       margin-top: 0.4rem;
-      transition: opacity 0.15s;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
+      min-height: 48px;
     }
-
     .btn-danger:hover { opacity: 0.75; }
+    .btn-danger:active { transform: scale(0.98); }
 
     .btn-warn {
       background: #2d2410;
       border: 1px solid #5a4510;
       color: #f0b429;
-      padding: 9px 1rem;
+      padding: 12px 1rem;
       border-radius: 8px;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 500;
       cursor: pointer;
       width: 100%;
@@ -245,7 +295,9 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
+      min-height: 48px;
     }
+    .btn-warn:active { transform: scale(0.98); }
 
     /* ─── Auto badge ─── */
     .auto-badge {
@@ -273,7 +325,6 @@
       display: flex;
       align-items: center;
     }
-
     .match-preview strong { color: #f0b429; }
 
     /* ─── Separator ─── */
@@ -291,17 +342,19 @@
     .check-row {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       margin: 0.5rem 0 0.75rem;
+      padding: 4px 0;
     }
     .check-row input[type=checkbox] {
-      width: 16px;
-      height: 16px;
+      width: 20px;
+      height: 20px;
       accent-color: #f0b429;
       cursor: pointer;
+      flex-shrink: 0;
     }
     .check-row label {
-      font-size: 13px;
+      font-size: 14px;
       color: #c8c8c8;
       cursor: pointer;
       margin: 0;
@@ -310,30 +363,99 @@
     .hint { font-size: 11px; color: #5a607a; margin-top: 3px; }
 
     .search-item {
-      padding: 10px 14px;
+      padding: 12px 14px;
       cursor: pointer;
       border-bottom: 1px solid #2a2f3d;
       transition: background 0.1s;
+      min-height: 48px;
     }
     .search-item:last-child { border-bottom: none; }
-    .search-item:hover { background: #1e2330; }
+    .search-item:hover, .search-item:active { background: #1e2330; }
 
+    /* ─── Bottom nav bar (mobile) ─── */
+    .bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #171b24;
+      border-top: 1px solid #2a2f3d;
+      z-index: 100;
+      padding: 0 4px;
+    }
+
+    .bottom-nav-inner {
+      display: flex;
+      justify-content: space-around;
+      align-items: stretch;
+      height: 60px;
+    }
+
+    .bnav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      background: none;
+      border: none;
+      color: #5a607a;
+      font-family: 'Cairo', sans-serif;
+      font-size: 10px;
+      cursor: pointer;
+      padding: 6px 2px;
+      border-top: 2px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .bnav-btn i { font-size: 20px; }
+    .bnav-btn.active { color: #f0b429; border-top-color: #f0b429; }
+    .bnav-btn:active { opacity: 0.7; }
+
+    /* ─── Responsive ─── */
     @media (max-width: 700px) {
-      .sidebar { display: none; }
-      .main { margin-right: 0; padding: 1rem; }
+      body { padding-bottom: 70px; }
+
+      .top-header { display: flex; }
+      .sidebar { transform: translateX(100%); }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-close { display: flex; align-items: center; }
+
+      .main { margin-right: 0; padding: 1rem; padding-bottom: 1rem; }
       .grid2 { grid-template-columns: 1fr; }
+      .bottom-nav { display: block; }
+
+      .card-section { padding: 1rem; }
+      .panel-title { font-size: 16px; margin-bottom: 1rem; }
     }
   </style>
 </head>
 <body>
 
+<!-- Top Header (mobile only) -->
+<div class="top-header">
+  <div class="top-header-logo">
+    <i class="ti ti-shield-check"></i>
+    لوحة الأدمن
+  </div>
+  <button class="menu-toggle" onclick="openDrawer()" aria-label="القائمة">
+    <i class="ti ti-menu-2"></i>
+  </button>
+</div>
+
+<!-- Drawer Overlay -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
 <div class="layout">
 
-  <!-- Sidebar -->
-  <nav class="sidebar">
+  <!-- Sidebar / Drawer -->
+  <nav class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <i class="ti ti-shield-check"></i>
       لوحة الأدمن
+      <button class="sidebar-close" onclick="closeDrawer()" aria-label="إغلاق"><i class="ti ti-x"></i></button>
     </div>
 
     <div class="sidebar-section">البطولات</div>
@@ -454,19 +576,17 @@
       <div class="card-section">
         <div class="card-label"><i class="ti ti-plus"></i> إضافة مباراة</div>
         <form action="/admin/add-match" method="POST">
-          <div class="grid2">
-            <div class="field-group">
-              <div class="field-label">البطولة</div>
-              <select name="tournament_id" id="matchTournamentSelect" required>
-                <option value="">اختر البطولة</option>
-              </select>
-            </div>
-            <div class="field-group">
-              <div class="field-label">الجولة</div>
-              <select name="round_id" id="matchRoundSelect" required>
-                <option value="">اختر الجولة أولاً</option>
-              </select>
-            </div>
+          <div class="field-group">
+            <div class="field-label">البطولة</div>
+            <select name="tournament_id" id="matchTournamentSelect" required>
+              <option value="">اختر البطولة</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <div class="field-label">الجولة</div>
+            <select name="round_id" id="matchRoundSelect" required>
+              <option value="">اختر الجولة أولاً</option>
+            </select>
           </div>
           <div class="grid2">
             <div class="field-group">
@@ -484,11 +604,11 @@
           </div>
           <div class="grid2">
             <div class="field-group">
-              <div class="field-label">نسبة فوز الفريق الأول (%)</div>
+              <div class="field-label">نسبة فوز الأول (%)</div>
               <input type="number" name="home_win_percent" min="0" max="100" placeholder="مثال: 60" required>
             </div>
             <div class="field-group">
-              <div class="field-label">نسبة فوز الفريق الثاني (%)</div>
+              <div class="field-label">نسبة فوز الثاني (%)</div>
               <input type="number" name="away_win_percent" min="0" max="100" placeholder="مثال: 40" required>
             </div>
           </div>
@@ -511,8 +631,8 @@
           </div>
           <div class="grid2">
             <div class="field-group">
-              <div class="field-label">رقم الجولة الجديد (اختياري)</div>
-              <input type="number" name="round_id" placeholder="اتركه فارغاً لعدم التغيير">
+              <div class="field-label">رقم الجولة (اختياري)</div>
+              <input type="number" name="round_id" placeholder="اتركه فارغاً">
             </div>
             <div class="field-group">
               <div class="field-label">الموعد الجديد (اختياري)</div>
@@ -522,20 +642,20 @@
           <div class="grid2">
             <div class="field-group">
               <div class="field-label">اسم الفريق الأول (اختياري)</div>
-              <input type="text" name="home_team" placeholder="اتركه فارغاً لعدم التغيير">
+              <input type="text" name="home_team" placeholder="اتركه فارغاً">
             </div>
             <div class="field-group">
               <div class="field-label">اسم الفريق الثاني (اختياري)</div>
-              <input type="text" name="away_team" placeholder="اتركه فارغاً لعدم التغيير">
+              <input type="text" name="away_team" placeholder="اتركه فارغاً">
             </div>
           </div>
           <div class="grid2">
             <div class="field-group">
-              <div class="field-label">نسبة الفريق الأول % (اختياري)</div>
+              <div class="field-label">نسبة الأول % (اختياري)</div>
               <input type="number" name="home_win_percent" min="0" max="100" placeholder="اتركه فارغاً">
             </div>
             <div class="field-group">
-              <div class="field-label">نسبة الفريق الثاني % (اختياري)</div>
+              <div class="field-label">نسبة الثاني % (اختياري)</div>
               <input type="number" name="away_win_percent" min="0" max="100" placeholder="اتركه فارغاً">
             </div>
           </div>
@@ -556,21 +676,19 @@
           </span>
         </div>
 
-        <!-- خانة البحث -->
         <div class="field-group" id="searchSection">
           <div class="field-label"><i class="ti ti-search"></i> ابحث باسم الفريق</div>
           <input type="text" id="matchSearchInput" placeholder="مثال: الهلال، ريال مدريد..." autocomplete="off">
           <div id="searchResults" style="margin-top:6px;display:none;border:1px solid #2a2f3d;border-radius:8px;overflow:hidden;"></div>
         </div>
 
-        <!-- المباراة المختارة -->
         <div id="selectedMatchCard" style="display:none;background:#0f1117;border:1px solid #f0b429;border-radius:8px;padding:12px 14px;margin-bottom:0.85rem;">
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div>
-              <div style="font-size:13px;font-weight:700;color:#e8e8e8" id="selectedMatchName"></div>
-              <div style="font-size:11px;color:#8b92a9;margin-top:2px" id="selectedMatchMeta"></div>
+              <div style="font-size:14px;font-weight:700;color:#e8e8e8" id="selectedMatchName"></div>
+              <div style="font-size:12px;color:#8b92a9;margin-top:2px" id="selectedMatchMeta"></div>
             </div>
-            <button type="button" onclick="clearResultForm()" style="background:none;border:none;color:#8b92a9;cursor:pointer;font-size:18px;"><i class="ti ti-x"></i></button>
+            <button type="button" onclick="clearResultForm()" style="background:none;border:none;color:#8b92a9;cursor:pointer;font-size:22px;padding:4px;"><i class="ti ti-x"></i></button>
           </div>
         </div>
 
@@ -635,7 +753,7 @@
 
         <form action="/admin/delete-match" method="POST">
           <div class="field-group">
-            <div class="field-label">رقم المباراة (Mid) للحذف</div>
+            <div class="field-label">رقم المباراة (Mid)</div>
             <input type="number" name="match_id" placeholder="أدخل رقم المباراة">
           </div>
           <button class="btn-danger" type="submit"><i class="ti ti-trash"></i> حذف المباراة وتوقعاتها</button>
@@ -666,13 +784,67 @@
   </div>
 </div>
 
+<!-- Bottom Navigation (mobile only) -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="bnav-btn active" onclick="show('tournaments')" id="bnb-tournaments">
+      <i class="ti ti-trophy"></i>
+      البطولات
+    </button>
+    <button class="bnav-btn" onclick="show('rounds')" id="bnb-rounds">
+      <i class="ti ti-rotate-clockwise"></i>
+      الجولات
+    </button>
+    <button class="bnav-btn" onclick="show('matches')" id="bnb-matches">
+      <i class="ti ti-ball-football"></i>
+      المباريات
+    </button>
+    <button class="bnav-btn" onclick="show('results')" id="bnb-results">
+      <i class="ti ti-checklist"></i>
+      النتائج
+    </button>
+    <button class="bnav-btn" onclick="show('roundwinner')" id="bnb-roundwinner">
+      <i class="ti ti-award"></i>
+      الفائز
+    </button>
+    <button class="bnav-btn" onclick="show('delete')" id="bnb-delete">
+      <i class="ti ti-trash"></i>
+      الحذف
+    </button>
+  </div>
+</nav>
+
 <script>
+// ─── Drawer ───
+function openDrawer() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
 // ─── Navigation ───
+const PANELS = ['tournaments','rounds','matches','results','roundwinner','delete'];
+
 function show(id) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  PANELS.forEach(p => {
+    document.getElementById('panel-' + p).classList.remove('active');
+    const nb = document.getElementById('nb-' + p);
+    if (nb) nb.classList.remove('active');
+    const bnb = document.getElementById('bnb-' + p);
+    if (bnb) bnb.classList.remove('active');
+  });
   document.getElementById('panel-' + id).classList.add('active');
-  document.getElementById('nb-' + id).classList.add('active');
+  const nb = document.getElementById('nb-' + id);
+  if (nb) nb.classList.add('active');
+  const bnb = document.getElementById('bnb-' + id);
+  if (bnb) bnb.classList.add('active');
+  closeDrawer();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ─── Load tournaments ───
@@ -687,7 +859,7 @@ fetch('/api/admin/tournaments')
         sel.appendChild(o);
       });
     });
-  });
+  }).catch(() => {});
 
 document.getElementById('matchTournamentSelect').addEventListener('change', function () {
   const id = this.value;
@@ -703,7 +875,7 @@ document.getElementById('matchTournamentSelect').addEventListener('change', func
         o.textContent = round.round_name;
         rs.appendChild(o);
       });
-    });
+    }).catch(() => {});
 });
 
 // ─── Load matches ───
@@ -720,11 +892,9 @@ fetch('/api/admin/matches')
         sel.appendChild(o);
       });
     });
-
-    // Store matches in window for preview
     window._matches = {};
     matches.forEach(m => { window._matches[m.Mid] = m; });
-  });
+  }).catch(() => {});
 
 // ─── Load rounds for winner selector ───
 fetch('/api/admin/all-rounds')
@@ -737,7 +907,7 @@ fetch('/api/admin/all-rounds')
       o.textContent = r.round_name + ' | ' + r.Tname;
       sel.appendChild(o);
     });
-  });
+  }).catch(() => {});
 
 // ─── Search & Select Match for Results ───
 const STORAGE_KEY = 'admin_savedMatchId';
@@ -764,13 +934,13 @@ function selectMatch(m) {
 
 function renderResults(list) {
   if (list.length === 0) {
-    searchResults.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:#8b92a9">لا توجد نتائج</div>';
+    searchResults.innerHTML = '<div style="padding:12px 14px;font-size:14px;color:#8b92a9">لا توجد نتائج</div>';
   } else {
     searchResults.innerHTML = list.slice(0, 8).map(m =>
       '<div class="search-item" onclick=\'selectMatch(' + JSON.stringify(m).replace(/'/g,"&#39;") + ')\'>' +
-      '<span style="font-size:13px;font-weight:500;color:#e8e8e8">' + m.home_team + ' ضد ' + m.away_team + '</span>' +
-      '<span style="font-size:11px;color:#8b92a9;margin-right:8px">' + (m.round_name || '') + (m.Tname ? ' | ' + m.Tname : '') + '</span>' +
-      '<span style="font-size:11px;color:#5a607a;float:left">#' + m.Mid + '</span>' +
+      '<div style="font-size:14px;font-weight:500;color:#e8e8e8">' + m.home_team + ' ضد ' + m.away_team + '</div>' +
+      '<div style="font-size:12px;color:#8b92a9;margin-top:2px">' + (m.round_name || '') + (m.Tname ? ' | ' + m.Tname : '') +
+      '<span style="color:#5a607a;margin-right:8px">#' + m.Mid + '</span></div>' +
       '</div>'
     ).join('');
   }
