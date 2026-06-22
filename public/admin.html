@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة الأدمن</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #0f1117;
+      color: #e8e8e8;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ─── Sidebar ─── */
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: #171b24;
+      border-left: 1px solid #2a2f3d;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      overflow-y: auto;
+    }
+
+    .sidebar-logo {
+      padding: 1.25rem 1rem;
+      border-bottom: 1px solid #2a2f3d;
+      font-size: 15px;
+      font-weight: 700;
+      color: #f0b429;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-section {
+      padding: 0.75rem 1rem 0.25rem;
+      font-size: 11px;
+      font-weight: 500;
+      color: #5a607a;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 1rem;
+      font-size: 14px;
+      color: #8b92a9;
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      text-align: right;
+      font-family: 'Cairo', sans-serif;
+      transition: all 0.15s;
+      border-right: 3px solid transparent;
+    }
+
+    .nav-btn:hover {
+      background: #1e2330;
+      color: #e8e8e8;
+    }
+
+    .nav-btn.active {
+      background: #1e2330;
+      color: #f0b429;
+      border-right-color: #f0b429;
+      font-weight: 500;
+    }
+
+    .nav-btn i { font-size: 17px; }
+
+    .back-btn {
+      margin: auto 1rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 1rem;
+      background: #1e2330;
+      border: 1px solid #2a2f3d;
+      border-radius: 8px;
+      color: #8b92a9;
+      font-size: 13px;
+      font-family: 'Cairo', sans-serif;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .back-btn:hover { color: #e8e8e8; }
+
+    /* ─── Main Content ─── */
+    .main {
+      margin-right: 220px;
+      flex: 1;
+      padding: 2rem;
+      max-width: 860px;
+    }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .panel-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #e8e8e8;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel-title i { color: #f0b429; font-size: 20px; }
+
+    /* ─── Cards ─── */
+    .card-section {
+      background: #171b24;
+      border: 1px solid #2a2f3d;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #8b92a9;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ─── Form Elements ─── */
+    .field-group { margin-bottom: 0.85rem; }
+
+    .field-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #8b92a9;
+      margin-bottom: 5px;
+    }
+
+    input[type=text],
+    input[type=number],
+    input[type=date],
+    input[type=datetime-local],
+    select {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid #2a2f3d;
+      border-radius: 8px;
+      color: #e8e8e8;
+      font-size: 13px;
+      font-family: 'Cairo', sans-serif;
+      padding: 9px 12px;
+      transition: border-color 0.15s;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: #f0b429;
+    }
+
+    input::placeholder { color: #5a607a; }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* ─── Buttons ─── */
+    .btn-main {
+      background: #f0b429;
+      border: none;
+      color: #1a1000;
+      padding: 10px 1.25rem;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      font-family: 'Cairo', sans-serif;
+      margin-top: 0.5rem;
+      transition: opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-main:hover { opacity: 0.85; }
+
+    .btn-danger {
+      background: #2d1212;
+      border: 1px solid #5a2020;
+      color: #f08080;
+      padding: 9px 1rem;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      font-family: 'Cairo', sans-serif;
+      margin-top: 0.4rem;
+      transition: opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-danger:hover { opacity: 0.75; }
+
+    .btn-warn {
+      background: #2d2410;
+      border: 1px solid #5a4510;
+      color: #f0b429;
+      padding: 9px 1rem;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      font-family: 'Cairo', sans-serif;
+      margin-top: 0.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* ─── Auto badge ─── */
+    .auto-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      background: #0f2a1a;
+      color: #4acd8d;
+      border: 1px solid #1a5a35;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+
+    /* ─── Match preview ─── */
+    .match-preview {
+      background: #0f1117;
+      border: 1px solid #2a2f3d;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 0.75rem;
+      font-size: 13px;
+      color: #8b92a9;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+    }
+
+    .match-preview strong { color: #f0b429; }
+
+    /* ─── Separator ─── */
+    .sep {
+      font-size: 11px;
+      color: #5a607a;
+      margin: 0.85rem 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sep::before, .sep::after { content: ''; flex: 1; height: 1px; background: #2a2f3d; }
+
+    /* ─── Checkbox ─── */
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0.5rem 0 0.75rem;
+    }
+    .check-row input[type=checkbox] {
+      width: 16px;
+      height: 16px;
+      accent-color: #f0b429;
+      cursor: pointer;
+    }
+    .check-row label {
+      font-size: 13px;
+      color: #c8c8c8;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .hint { font-size: 11px; color: #5a607a; margin-top: 3px; }
+
+    @media (max-width: 700px) {
+      .sidebar { display: none; }
+      .main { margin-right: 0; padding: 1rem; }
+      .grid2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <i class="ti ti-shield-check"></i>
+      لوحة الأدمن
+    </div>
+
+    <div class="sidebar-section">البطولات</div>
+    <button class="nav-btn active" onclick="show('tournaments')" id="nb-tournaments">
+      <i class="ti ti-trophy"></i> البطولات
+    </button>
+    <button class="nav-btn" onclick="show('rounds')" id="nb-rounds">
+      <i class="ti ti-rotate-clockwise"></i> الجولات
+    </button>
+
+    <div class="sidebar-section">المباريات</div>
+    <button class="nav-btn" onclick="show('matches')" id="nb-matches">
+      <i class="ti ti-ball-football"></i> المباريات
+    </button>
+    <button class="nav-btn" onclick="show('results')" id="nb-results">
+      <i class="ti ti-checklist"></i> النتائج
+    </button>
+
+    <div class="sidebar-section">أخرى</div>
+    <button class="nav-btn" onclick="show('roundwinner')" id="nb-roundwinner">
+      <i class="ti ti-award"></i> فائز الجولة
+    </button>
+    <button class="nav-btn" onclick="show('delete')" id="nb-delete">
+      <i class="ti ti-trash"></i> الحذف
+    </button>
+
+    <a href="/dashboard" class="back-btn" style="margin-top:auto; margin-bottom:1rem">
+      <i class="ti ti-arrow-right"></i> الرئيسية
+    </a>
+  </nav>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- ─── البطولات ─── -->
+    <div class="panel active" id="panel-tournaments">
+      <div class="panel-title"><i class="ti ti-trophy"></i> إدارة البطولات</div>
+
+      <div class="card-section">
+        <div class="card-label"><i class="ti ti-plus"></i> إضافة بطولة جديدة</div>
+        <form action="/admin/add-tournament" method="POST">
+          <div class="field-group">
+            <div class="field-label">اسم البطولة</div>
+            <input type="text" name="name" placeholder="مثال: دوري أبطال أوروبا" required>
+          </div>
+          <div class="grid2">
+            <div class="field-group">
+              <div class="field-label">تاريخ البدء</div>
+              <input type="date" name="start_date" required>
+            </div>
+            <div class="field-group">
+              <div class="field-label">تاريخ الانتهاء</div>
+              <input type="date" name="end_date" required>
+            </div>
+          </div>
+          <button class="btn-main" type="submit"><i class="ti ti-plus"></i> إضافة البطولة</button>
+        </form>
+      </div>
+
+      <div class="card-section">
+        <div class="card-label"><i class="ti ti-star"></i> تحديد بطل وهداف البطولة</div>
+        <form action="/admin/finalize-tournament" method="POST">
+          <div class="field-group">
+            <div class="field-label">رقم البطولة</div>
+            <input type="number" name="tournament_id" placeholder="مثال: 1" required min="1">
+          </div>
+          <div class="grid2">
+            <div class="field-group">
+              <div class="field-label">بطل البطولة</div>
+              <input type="text" name="champion_winner" placeholder="اسم الفريق" required>
+            </div>
+            <div class="field-group">
+              <div class="field-label">هداف البطولة</div>
+              <input type="text" name="top_scorer_winner" placeholder="اسم اللاعب" required>
+            </div>
+          </div>
+          <button class="btn-main" type="submit"><i class="ti ti-check"></i> حفظ واحتساب النقاط</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ─── الجولات ─── -->
+    <div class="panel" id="panel-rounds">
+      <div class="panel-title"><i class="ti ti-rotate-clockwise"></i> إدارة الجولات</div>
+
+      <div class="card-section">
+        <div class="card-label"><i class="ti ti-plus"></i> إضافة جولة</div>
+        <form action="/admin/add-round" method="POST">
+          <div class="field-group">
+            <div class="field-label">البطولة</div>
+            <select name="tournament_id" class="admin-tournament-select" required>
+              <option value="">اختر البطولة</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <div class="field-label">اسم الجولة</div>
+            <input type="text" name="round_name" placeholder="مثال: الجولة الأولى" required>
+          </div>
+          <div class="grid2">
+            <div class="field-group">
+              <div class="field-label">تاريخ البدء</div>
+              <input type="date" name="start_date" required>
+            </div>
+            <div class="field-group">
+              <div class="field-label">تاريخ الانتهاء</div>
+              <input type="date" name="end_date" required>
+            </div>
+          </div>
+          <button class="btn-main" type="submit"><i class="ti ti-plus"></i> إضافة الجولة</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ─── المباريات ─── -->
+    <div class="panel" id="panel-matches">
+      <div class="panel-title"><i class="ti ti-ball-football"></i> إدارة المباريات</div>
+
+      <div class="card-section">
+        <div class="card-label"><i class="ti ti-plus"></i> إضافة مباراة</div>
+        <form action="/admin/add-match" method="POST">
+          <div class="grid2">
+            <div class="field-group">
+              <div class="field-label">البطولة</div>
+              <select name="tournament_id" id="matchTournamentSelect" required>
+                <option value="">اختر البطولة</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <div class="field-label">الجولة</div>
+              <select name="round_id" id="matchRoundSelect" required>
+                <option value="">اختر الجولة أولاً</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="field-group">
+              <div class="field-label">الفريق الأول (الرئيسي)</div>
+              <input type="text" name="home_team" placeholder="مثال: الهلال" required>
+            </div>
+            <div class="field-group">
+              <div class="field-label">الفريق الثاني (الضيف)</div>
+              <input type="text" name="away_team" placeholder="مثال: النصر" required>
+            </div>
+          </div>
+          <div class="field-group">
+            <div class="field-label">موعد المباراة</div>
+            <input type="datetime-local" name="match_date" required>
+          </div>
+          <div class="grid2">
+            <div class="field-group">
+              <div class="field-label">نسبة فوز الفريق الأول (%)</div>
+              <input type="number" name="home_win_percent" min="0" max="100" placeholder="مثال: 60" required>
+            </div>
+            <div class="field-group">
+              <div class="field-label">نسبة فوز الفريق الثاني (%)</div>
+              <input type="number" name="away_win_percent" min="0" max="100" placeholder="مثال: 40" required>
+            </div>
+          </div>
+          <div class="check-row">
+            <input type="checkbox" name="is_golden" value="1" id="goldenMatch">
+            <label for="goldenMatch">مباراة ذهبية ⭐ (النقاط تتضاعف)</label>
+          </div>
+          <button class="btn-main" type="submit"><i class="ti ti-plus"></i> إضافة المباراة</button>
+        </form>
+      </div>
+
+      <div class="card-section">
+        <div class="card-label"><i class="ti ti-edit"></i> تعديل مباراة</div>
+        <form action="/admin/update-match" method="POST">
+          <div class="field-group">
+            <div class="field-label">اختر المباراة</div>
+            <select name="match_id" class="admin-match-select" required>
+              <option value="">اختر المباراة</option>
+            </select>
+          </div>
+          <div class="grid2">
+            <div class="field-group">
+              <div class="field-label">رقم الجولة الجديد (اختياري)</div>
+              <input type="number" name="round_id" placeholder="اتركه فارغاً لعدم التغيير">
+            </div>
+            <div class="field-group">
+              <div class="field-label">الموعد الجديد (اختياري)</div>
+              <input type="datetime-local" name="match_date">
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="field-group">
+              <div class="field-label">اسم الفريق الأول (اختياري)</div>
+              <input type="text" name="home_team" placeholder="اتركه فارغاً لعدم التغيير">
+            </div>
+            <div class="field-group">
+              <div class="field-label">اسم الفريق الثاني (اختياري)</div>
+              <input type="text" name="away_team" placeholder="اتركه فارغاً لعدم التغيير">
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="field-group">
+              <div class="field-label">نسبة الفريق الأول % (اختياري)</div>
+              <input type="number" name="home_win_percent" min="0" max="100" placeholder="اتركه فارغاً">
+            </div>
+            <div class="field-group">
+              <div class="field-label">نسبة الفريق الثاني % (اختياري)</div>
+              <input type="number" name="away_win_percent" min="0" max="100" placeholder="اتركه فارغاً">
+            </div>
+          </div>
+          <button class="btn-main" type="submit"><i class="ti ti-check"></i> حفظ التعديل</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ─── النتائج ─── -->
+    <div class="panel" id="panel-results">
+      <div class="panel-title"><i class="ti ti-checklist"></i> إضافة النتائج</div>
+
+      <div class="card-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+          <div class="card-label" style="margin-bottom:0"><i class="ti ti-device-floppy"></i> إضافة نتيجة مباراة</div>
+          <span class="auto-badge" id="autoBadge" style="display:none">
+            <i class="ti ti-bolt"></i> رقم محفوظ
+          </span>
+        </div>
+
+        <form action="/admin/update-result" method="POST" id="resultForm">
+          <div class="field-group">
+            <div class="field-label">
+              رقم المباراة (Mid)
+            </div>
+            <input type="number" name="match_id" id="resultMatchId" placeholder="مثال: 45" required min="1">
+            <div class="hint">
+              <i class="ti ti-info-circle" style="font-size:12px"></i>
+              بعد حفظ النتيجة، يُخزَّن رقم المباراة التالية تلقائياً — حتى لو خرجت من الصفحة ورجعت.
+            </div>
+          </div>
+
+          <div class="match-preview" id="matchPreview">
+            أدخل رقم المباراة لمعاينتها
+          </div>
+
+          <div class="grid2">
+            <div class="field-group">
+              <div class="field-label"><i class="ti ti-home"></i> هدف الفريق الأول</div>
+              <input type="number" name="home_score" id="homeScore" min="0" placeholder="0" required>
+            </div>
+            <div class="field-group">
+              <div class="field-label"><i class="ti ti-plane-departure"></i> هدف الفريق الثاني</div>
+              <input type="number" name="away_score" id="awayScore" min="0" placeholder="0" required>
+            </div>
+          </div>
+
+          <button class="btn-main" type="submit"><i class="ti ti-check"></i> حفظ النتيجة</button>
+          <button type="button" class="btn-warn" onclick="clearResultForm()">
+            <i class="ti ti-x"></i> مسح وإدخال مباراة مختلفة
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ─── فائز الجولة ─── -->
+    <div class="panel" id="panel-roundwinner">
+      <div class="panel-title"><i class="ti ti-award"></i> تحديد فائز الجولة</div>
+
+      <div class="card-section">
+        <div class="card-label"><i class="ti ti-calculator"></i> احتساب الفائز</div>
+        <form action="/admin/calculate-round-winner" method="POST">
+          <div class="field-group">
+            <div class="field-label">اختر الجولة</div>
+            <select name="round_id" id="winnerRoundSelect" required>
+              <option value="">اختر الجولة</option>
+            </select>
+          </div>
+          <button class="btn-main" type="submit"><i class="ti ti-trophy"></i> احتساب فائز الجولة</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ─── الحذف ─── -->
+    <div class="panel" id="panel-delete">
+      <div class="panel-title"><i class="ti ti-trash"></i> الحذف والإزالة</div>
+
+      <div class="card-section">
+        <div class="card-label" style="color:#f08080"><i class="ti ti-alert-triangle"></i> تنبيه: هذه العمليات لا يمكن التراجع عنها</div>
+
+        <form action="/admin/delete-prediction" method="POST">
+          <div class="field-group">
+            <div class="field-label">رقم التوقع (Pid)</div>
+            <input type="number" name="prediction_id" placeholder="أدخل رقم التوقع">
+          </div>
+          <button class="btn-danger" type="submit"><i class="ti ti-trash"></i> حذف التوقع</button>
+        </form>
+
+        <div class="sep">أو</div>
+
+        <form action="/admin/delete-match" method="POST">
+          <div class="field-group">
+            <div class="field-label">رقم المباراة (Mid) للحذف</div>
+            <input type="number" name="match_id" placeholder="أدخل رقم المباراة">
+          </div>
+          <button class="btn-danger" type="submit"><i class="ti ti-trash"></i> حذف المباراة وتوقعاتها</button>
+        </form>
+
+        <div class="sep">أو</div>
+
+        <form action="/admin/delete-tournament" method="POST">
+          <div class="field-group">
+            <div class="field-label">رقم البطولة للحذف الكامل</div>
+            <input type="number" name="tournament_id" placeholder="أدخل رقم البطولة">
+          </div>
+          <button class="btn-danger" type="submit"><i class="ti ti-trash"></i> حذف البطولة بالكامل</button>
+        </form>
+
+        <div class="sep">أو</div>
+
+        <form action="/admin/delete-result" method="POST">
+          <div class="field-group">
+            <div class="field-label">رقم المباراة لحذف نتيجتها فقط</div>
+            <input type="number" name="match_id" placeholder="أدخل رقم المباراة">
+          </div>
+          <button class="btn-warn" type="submit"><i class="ti ti-eraser"></i> حذف النتيجة فقط</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─── Navigation ───
+function show(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  document.getElementById('nb-' + id).classList.add('active');
+}
+
+// ─── Load tournaments ───
+fetch('/api/admin/tournaments')
+  .then(r => r.json())
+  .then(list => {
+    document.querySelectorAll('.admin-tournament-select, #matchTournamentSelect').forEach(sel => {
+      list.forEach(t => {
+        const o = document.createElement('option');
+        o.value = t.id;
+        o.textContent = t.Tname;
+        sel.appendChild(o);
+      });
+    });
+  });
+
+document.getElementById('matchTournamentSelect').addEventListener('change', function () {
+  const id = this.value;
+  const rs = document.getElementById('matchRoundSelect');
+  rs.innerHTML = '<option value="">اختر الجولة</option>';
+  if (!id) return;
+  fetch('/api/admin/rounds/' + id)
+    .then(r => r.json())
+    .then(rounds => {
+      rounds.forEach(round => {
+        const o = document.createElement('option');
+        o.value = round.Rid;
+        o.textContent = round.round_name;
+        rs.appendChild(o);
+      });
+    });
+});
+
+// ─── Load matches ───
+fetch('/api/admin/matches')
+  .then(r => r.json())
+  .then(matches => {
+    document.querySelectorAll('.admin-match-select').forEach(sel => {
+      matches.forEach(m => {
+        const o = document.createElement('option');
+        o.value = m.Mid;
+        o.textContent = m.Mid + ' - ' + m.home_team + ' ضد ' + m.away_team +
+          (m.Tname ? ' | ' + m.Tname : '') +
+          (m.round_name ? ' | ' + m.round_name : '');
+        sel.appendChild(o);
+      });
+    });
+
+    // Store matches in window for preview
+    window._matches = {};
+    matches.forEach(m => { window._matches[m.Mid] = m; });
+  });
+
+// ─── Load rounds for winner selector ───
+fetch('/api/admin/all-rounds')
+  .then(r => r.json())
+  .then(rounds => {
+    const sel = document.getElementById('winnerRoundSelect');
+    rounds.forEach(r => {
+      const o = document.createElement('option');
+      o.value = r.Rid;
+      o.textContent = r.round_name + ' | ' + r.Tname;
+      sel.appendChild(o);
+    });
+  });
+
+// ─── Auto Match ID (persists in localStorage) ───
+const STORAGE_KEY = 'admin_lastMatchId';
+const matchIdInput = document.getElementById('resultMatchId');
+const autoBadge = document.getElementById('autoBadge');
+
+function updateMatchPreview(mid) {
+  const el = document.getElementById('matchPreview');
+  if (!mid) {
+    el.textContent = 'أدخل رقم المباراة لمعاينتها';
+    return;
+  }
+  const m = window._matches && window._matches[mid];
+  if (m) {
+    el.innerHTML = '<strong>' + m.home_team + '</strong> ضد <strong>' + m.away_team + '</strong>' +
+      (m.Tname ? ' &nbsp;|&nbsp; ' + m.Tname : '') +
+      (m.round_name ? ' &nbsp;|&nbsp; ' + m.round_name : '');
+  } else {
+    el.innerHTML = 'المباراة رقم <strong>' + mid + '</strong>';
+  }
+}
+
+function loadSavedMatchId() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    matchIdInput.value = saved;
+    autoBadge.style.display = 'inline-flex';
+    // Preview will update after matches load
+    setTimeout(() => updateMatchPreview(parseInt(saved)), 1000);
+  }
+}
+
+matchIdInput.addEventListener('input', function () {
+  autoBadge.style.display = 'none';
+  updateMatchPreview(parseInt(this.value) || 0);
+});
+
+document.getElementById('resultForm').addEventListener('submit', function () {
+  const mid = parseInt(matchIdInput.value);
+  if (mid && mid > 0) {
+    // Save next match ID
+    localStorage.setItem(STORAGE_KEY, mid + 1);
+  }
+});
+
+function clearResultForm() {
+  localStorage.removeItem(STORAGE_KEY);
+  matchIdInput.value = '';
+  document.getElementById('homeScore').value = '';
+  document.getElementById('awayScore').value = '';
+  autoBadge.style.display = 'none';
+  updateMatchPreview(0);
+}
+
+loadSavedMatchId();
+</script>
+</body>
+</html>
