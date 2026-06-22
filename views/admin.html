@@ -309,6 +309,15 @@
 
     .hint { font-size: 11px; color: #5a607a; margin-top: 3px; }
 
+    .search-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid #2a2f3d;
+      transition: background 0.1s;
+    }
+    .search-item:last-child { border-bottom: none; }
+    .search-item:hover { background: #1e2330; }
+
     @media (max-width: 700px) {
       .sidebar { display: none; }
       .main { margin-right: 0; padding: 1rem; }
@@ -543,25 +552,30 @@
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
           <div class="card-label" style="margin-bottom:0"><i class="ti ti-device-floppy"></i> إضافة نتيجة مباراة</div>
           <span class="auto-badge" id="autoBadge" style="display:none">
-            <i class="ti ti-bolt"></i> رقم محفوظ
+            <i class="ti ti-bolt"></i> محفوظ تلقائياً
           </span>
         </div>
 
-        <form action="/admin/update-result" method="POST" id="resultForm">
-          <div class="field-group">
-            <div class="field-label">
-              رقم المباراة (Mid)
-            </div>
-            <input type="number" name="match_id" id="resultMatchId" placeholder="مثال: 45" required min="1">
-            <div class="hint">
-              <i class="ti ti-info-circle" style="font-size:12px"></i>
-              بعد حفظ النتيجة، يُخزَّن رقم المباراة التالية تلقائياً — حتى لو خرجت من الصفحة ورجعت.
-            </div>
-          </div>
+        <!-- خانة البحث -->
+        <div class="field-group" id="searchSection">
+          <div class="field-label"><i class="ti ti-search"></i> ابحث باسم الفريق</div>
+          <input type="text" id="matchSearchInput" placeholder="مثال: الهلال، ريال مدريد..." autocomplete="off">
+          <div id="searchResults" style="margin-top:6px;display:none;border:1px solid #2a2f3d;border-radius:8px;overflow:hidden;"></div>
+        </div>
 
-          <div class="match-preview" id="matchPreview">
-            أدخل رقم المباراة لمعاينتها
+        <!-- المباراة المختارة -->
+        <div id="selectedMatchCard" style="display:none;background:#0f1117;border:1px solid #f0b429;border-radius:8px;padding:12px 14px;margin-bottom:0.85rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#e8e8e8" id="selectedMatchName"></div>
+              <div style="font-size:11px;color:#8b92a9;margin-top:2px" id="selectedMatchMeta"></div>
+            </div>
+            <button type="button" onclick="clearResultForm()" style="background:none;border:none;color:#8b92a9;cursor:pointer;font-size:18px;"><i class="ti ti-x"></i></button>
           </div>
+        </div>
+
+        <form action="/admin/update-result" method="POST" id="resultForm">
+          <input type="hidden" name="match_id" id="resultMatchId" required>
 
           <div class="grid2">
             <div class="field-group">
@@ -574,9 +588,11 @@
             </div>
           </div>
 
-          <button class="btn-main" type="submit"><i class="ti ti-check"></i> حفظ النتيجة</button>
+          <button class="btn-main" type="submit" id="submitBtn" disabled style="opacity:0.4">
+            <i class="ti ti-check"></i> حفظ النتيجة
+          </button>
           <button type="button" class="btn-warn" onclick="clearResultForm()">
-            <i class="ti ti-x"></i> مسح وإدخال مباراة مختلفة
+            <i class="ti ti-x"></i> مسح واختيار مباراة أخرى
           </button>
         </form>
       </div>
@@ -723,60 +739,93 @@ fetch('/api/admin/all-rounds')
     });
   });
 
-// ─── Auto Match ID (persists in localStorage) ───
-const STORAGE_KEY = 'admin_lastMatchId';
-const matchIdInput = document.getElementById('resultMatchId');
+// ─── Search & Select Match for Results ───
+const STORAGE_KEY = 'admin_savedMatchId';
 const autoBadge = document.getElementById('autoBadge');
+const searchInput = document.getElementById('matchSearchInput');
+const searchResults = document.getElementById('searchResults');
+const selectedCard = document.getElementById('selectedMatchCard');
+const resultMatchId = document.getElementById('resultMatchId');
+const submitBtn = document.getElementById('submitBtn');
 
-function updateMatchPreview(mid) {
-  const el = document.getElementById('matchPreview');
-  if (!mid) {
-    el.textContent = 'أدخل رقم المباراة لمعاينتها';
-    return;
-  }
-  const m = window._matches && window._matches[mid];
-  if (m) {
-    el.innerHTML = '<strong>' + m.home_team + '</strong> ضد <strong>' + m.away_team + '</strong>' +
-      (m.Tname ? ' &nbsp;|&nbsp; ' + m.Tname : '') +
-      (m.round_name ? ' &nbsp;|&nbsp; ' + m.round_name : '');
-  } else {
-    el.innerHTML = 'المباراة رقم <strong>' + mid + '</strong>';
-  }
-}
-
-function loadSavedMatchId() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) {
-    matchIdInput.value = saved;
-    autoBadge.style.display = 'inline-flex';
-    // Preview will update after matches load
-    setTimeout(() => updateMatchPreview(parseInt(saved)), 1000);
-  }
-}
-
-matchIdInput.addEventListener('input', function () {
+function selectMatch(m) {
+  resultMatchId.value = m.Mid;
+  document.getElementById('selectedMatchName').textContent = m.home_team + ' ضد ' + m.away_team;
+  document.getElementById('selectedMatchMeta').textContent =
+    'رقم المباراة: ' + m.Mid + (m.Tname ? '  |  ' + m.Tname : '') + (m.round_name ? '  |  ' + m.round_name : '');
+  selectedCard.style.display = 'block';
+  searchResults.style.display = 'none';
+  searchInput.value = '';
+  submitBtn.disabled = false;
+  submitBtn.style.opacity = '1';
+  localStorage.setItem(STORAGE_KEY, m.Mid);
   autoBadge.style.display = 'none';
-  updateMatchPreview(parseInt(this.value) || 0);
+}
+
+function renderResults(list) {
+  if (list.length === 0) {
+    searchResults.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:#8b92a9">لا توجد نتائج</div>';
+  } else {
+    searchResults.innerHTML = list.slice(0, 8).map(m =>
+      '<div class="search-item" onclick=\'selectMatch(' + JSON.stringify(m).replace(/'/g,"&#39;") + ')\'>' +
+      '<span style="font-size:13px;font-weight:500;color:#e8e8e8">' + m.home_team + ' ضد ' + m.away_team + '</span>' +
+      '<span style="font-size:11px;color:#8b92a9;margin-right:8px">' + (m.round_name || '') + (m.Tname ? ' | ' + m.Tname : '') + '</span>' +
+      '<span style="font-size:11px;color:#5a607a;float:left">#' + m.Mid + '</span>' +
+      '</div>'
+    ).join('');
+  }
+  searchResults.style.display = 'block';
+}
+
+searchInput.addEventListener('input', function () {
+  const q = this.value.trim();
+  if (!q) { searchResults.style.display = 'none'; return; }
+  const all = Object.values(window._matches || {});
+  const filtered = all.filter(m =>
+    m.home_team.includes(q) || m.away_team.includes(q)
+  );
+  renderResults(filtered);
+});
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#searchSection')) {
+    searchResults.style.display = 'none';
+  }
 });
 
 document.getElementById('resultForm').addEventListener('submit', function () {
-  const mid = parseInt(matchIdInput.value);
+  const mid = parseInt(resultMatchId.value);
   if (mid && mid > 0) {
-    // Save next match ID
     localStorage.setItem(STORAGE_KEY, mid + 1);
   }
 });
 
 function clearResultForm() {
   localStorage.removeItem(STORAGE_KEY);
-  matchIdInput.value = '';
+  resultMatchId.value = '';
   document.getElementById('homeScore').value = '';
   document.getElementById('awayScore').value = '';
+  selectedCard.style.display = 'none';
   autoBadge.style.display = 'none';
-  updateMatchPreview(0);
+  submitBtn.disabled = true;
+  submitBtn.style.opacity = '0.4';
+  searchInput.value = '';
+  searchResults.style.display = 'none';
 }
 
-loadSavedMatchId();
+function loadSavedMatch() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) return;
+  setTimeout(() => {
+    const m = window._matches && window._matches[parseInt(saved)];
+    if (m) {
+      selectMatch(m);
+      autoBadge.style.display = 'inline-flex';
+    }
+  }, 800);
+}
+
+loadSavedMatch();
 </script>
 </body>
 </html>
