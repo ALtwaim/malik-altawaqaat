@@ -282,7 +282,6 @@ var allRounds  = [];
 var allMatches = [];
 
 var FEATURES_META = {
-    black_horse:  { name:'الحصان الأسود',   icon:'🐎', desc:'توقع الفريق الأضعف ونقاطك تتضاعف إذا فاز.' },
     golden_match: { name:'المباراة الذهبية', icon:'⭐', desc:'حدد مباراة تكون نقاطها مضاعفة.' },
     steal:        { name:'بطاقة السرقة',     icon:'🕵️', desc:'اسرق توقع من لاعب آخر قبل بدء المباراة.' },
     shield:       { name:'بطاقة الدرع',      icon:'🛡️', desc:'احمِ نفسك من السرقة لجولة كاملة.' },
@@ -359,7 +358,7 @@ function renderFeatures(features, usageArr) {
     var usageMap = {};
     usageArr.forEach(function(u) { usageMap[u.card_type] = u.used_count; });
 
-    var keys = ['black_horse','golden_match','steal','shield','rescue'];
+    var keys = ['golden_match','steal','shield','rescue'];
     box.innerHTML = keys.map(function(key) {
         var meta    = FEATURES_META[key];
         var enabled = !!features[key + '_enabled'];

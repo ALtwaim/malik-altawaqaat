@@ -1086,11 +1086,29 @@ app.post('/api/predictions', (req, res) => {
 
             const match = matchResult[0];
 
-            if (new Date(match.match_date) <= new Date()) {
-                return res.status(400).json({
-                    error: '❌ انتهى وقت التوقع لهذه المباراة'
-                });
-            }
+            db.query(
+    `SELECT 
+        match_date,
+        home_team,
+        away_team,
+        underdog_team,
+        CASE 
+            WHEN match_date <= CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+03:00')
+            THEN 1 ELSE 0
+        END AS is_started
+     FROM matches
+     WHERE Mid = ?`,
+    [match_id],
+    (err, matchResult) => {
+        if (matchResult[0].is_started == 1) {
+            return res.status(400).json({
+                error: '❌ انتهى وقت التوقع لهذه المباراة'
+            });
+        }
+
+        // كمل الحفظ هنا
+    }
+);
 
             if (wantsLoserCard) {
                 const predictedHome = Number(predicted_home_score);
@@ -3139,24 +3157,6 @@ app.get('/api/private-leagues/:id', requireLogin, (req, res) => {
                                   AND steal_in.card_type = 'steal'
                             ), 0)
 
-                            -- ٣) بونص الحصان الأسود (1→3 أو 3→10)
-                            + COALESCE((
-                                SELECT SUM(
-                                    CASE WHEN base3.points = 3 THEN 7 WHEN base3.points = 1 THEN 2 ELSE 0 END
-                                )
-                                FROM private_league_card_usage bh3
-                                JOIN predictions base3 
-                                    ON base3.user_id = p.Uid AND base3.match_id = bh3.match_id
-                                JOIN matches mb3 ON mb3.Mid = bh3.match_id
-                                WHERE bh3.league_id = lm.league_id AND bh3.user_id = p.Uid
-                                  AND bh3.card_type = 'black_horse'
-                                  AND mb3.underdog_team IS NOT NULL
-                                  AND mb3.home_score IS NOT NULL AND mb3.away_score IS NOT NULL
-                                  AND (
-                                         (mb3.home_score > mb3.away_score AND mb3.underdog_team = mb3.home_team)
-                                      OR (mb3.away_score > mb3.home_score AND mb3.underdog_team = mb3.away_team)
-                                  )
-                            ), 0)
 
                             -- ٤) بونص الإنقاذ (1→2 لو نفس فارق الأهداف ونفس الفايز)
                             + COALESCE((
@@ -3310,107 +3310,108 @@ function checkCardLimit(leagueId, userId, cardType, db, cb) {
 // ══════════════════════════════════════════════
 app.post('/api/private-leagues/:id/golden-match', requireLogin, (req, res) => {
     const leagueId = req.params.id;
-    const userId   = getUserId(req);
+    const userId = getUserId(req);
     const { match_id } = req.body;
 
-    if (!match_id) return res.json({ success: false, message: 'حدد المباراة' });
+    if (!match_id) {
+        return res.json({ success: false, message: 'حدد المباراة' });
+    }
 
     checkMember(leagueId, userId, db, (err, role) => {
         if (err) return res.json({ success: false, message: err.message });
-        if (role !== 'owner') return res.json({ success: false, message: 'فقط المشرف يقدر يحدد المباراة الذهبية' });
 
-        // تحقق إن المباراة في بطولة الدوري
-        db.query(
-            `SELECT m.Mid, m.round_id FROM matches m
-             JOIN private_league_tournaments plt ON plt.tournament_id = m.tournament_id
-             WHERE m.Mid = ? AND plt.league_id = ?`,
-            [match_id, leagueId],
-            (err2, matchRows) => {
-                if (err2) return res.status(500).json(err2);
-                if (matchRows.length === 0) return res.json({ success: false, message: 'المباراة مو في بطولة الدوري' });
+        if (role !== 'owner') {
+            return res.json({
+                success: false,
+                message: 'فقط منشئ الدوري يقدر يحدد المباراة الذهبية'
+            });
+        }
 
-                const roundId = matchRows[0].round_id;
-
-                db.query(
-                    `INSERT INTO private_league_golden_match (league_id, match_id, round_id, created_by)
-                     VALUES (?, ?, ?, ?)
-                     ON DUPLICATE KEY UPDATE match_id = VALUES(match_id), created_by = VALUES(created_by)`,
-                    [leagueId, match_id, roundId, userId],
-                    (err3) => {
-                        if (err3) return res.status(500).json(err3);
-                        res.json({ success: true, message: 'تم تحديد المباراة الذهبية ⭐' });
-                    }
-                );
+        checkCardLimit(leagueId, userId, 'golden_match', db, (err2) => {
+            if (err2) {
+                return res.json({
+                    success: false,
+                    message: err2.message
+                });
             }
-        );
-    });
-});
 
-app.post('/api/private-leagues/:id/black-horse', requireLogin, (req, res) => {
-    const leagueId = req.params.id;
-    const userId   = getUserId(req);
-    const { match_id } = req.body;
- 
-    if (!match_id) return res.json({ success: false, message: 'حدد المباراة' });
- 
-    checkMember(leagueId, userId, db, (err) => {
-        if (err) return res.json({ success: false, message: err.message });
- 
-        checkCardLimit(leagueId, userId, 'black_horse', db, (err2) => {
-            if (err2) return res.json({ success: false, message: err2.message });
- 
-            // تحقق إن المباراة في بطولات هذا الدوري
             db.query(
-                `SELECT m.Mid, m.match_date, m.round_id, m.underdog_team
+                `SELECT m.Mid, m.round_id, m.match_date
                  FROM matches m
-                 JOIN private_league_tournaments plt ON plt.tournament_id = m.tournament_id
-                 WHERE m.Mid = ? AND plt.league_id = ?
-                   AND m.match_date > CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+03:00')`,
+                 JOIN private_league_tournaments plt
+                    ON plt.tournament_id = m.tournament_id
+                 WHERE m.Mid = ?
+                 AND plt.league_id = ?
+                 AND m.match_date > CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+03:00')`,
                 [match_id, leagueId],
                 (err3, matchRows) => {
-                    if (err3) return res.status(500).json(err3);
+                    if (err3) {
+                        return res.status(500).json({
+                            success: false,
+                            message: err3.message
+                        });
+                    }
+
                     if (matchRows.length === 0) {
-                        return res.json({ success: false, message: 'المباراة غير موجودة أو بدأت' });
+                        return res.json({
+                            success: false,
+                            message: 'المباراة غير موجودة في هذا الدوري أو بدأت'
+                        });
                     }
- 
+
                     const match = matchRows[0];
- 
-                    // تحقق إن المباراة فيها حصان أسود
-                    if (!match.underdog_team) {
-                        return res.json({ success: false, message: 'هذه المباراة ليس فيها فريق حصان أسود' });
-                    }
- 
-                    // تحقق إن عنده توقع على المباراة
+
                     db.query(
-                        `SELECT Pid FROM predictions
-                         WHERE user_id = ? AND match_id = ?`,
-                        [userId, match_id],
-                        (err4, predRows) => {
-                            if (err4) return res.status(500).json(err4);
-                            if (predRows.length === 0) {
-                                return res.json({ success: false, message: 'ما عندك توقع على هذه المباراة' });
+                        `SELECT id
+                         FROM private_league_golden_match
+                         WHERE league_id = ?
+                         AND round_id = ?`,
+                        [leagueId, match.round_id],
+                        (err4, existing) => {
+                            if (err4) {
+                                return res.status(500).json({
+                                    success: false,
+                                    message: err4.message
+                                });
                             }
- 
-                            // تحقق ما استخدمها على نفس المباراة من قبل
+
+                            if (existing.length > 0) {
+                                return res.json({
+                                    success: false,
+                                    message: 'تم تحديد مباراة ذهبية لهذه الجولة مسبقاً'
+                                });
+                            }
+
                             db.query(
-                                `SELECT id FROM private_league_card_usage
-                                 WHERE league_id = ? AND user_id = ? AND card_type = 'black_horse' AND match_id = ?`,
-                                [leagueId, userId, match_id],
-                                (err5, existing) => {
-                                    if (err5) return res.status(500).json(err5);
-                                    if (existing.length > 0) {
-                                        return res.json({ success: false, message: 'استخدمت الحصان الأسود على هذه المباراة مسبقاً' });
+                                `INSERT INTO private_league_golden_match
+                                 (league_id, match_id, round_id, created_by)
+                                 VALUES (?, ?, ?, ?)`,
+                                [leagueId, match_id, match.round_id, userId],
+                                (err5) => {
+                                    if (err5) {
+                                        return res.status(500).json({
+                                            success: false,
+                                            message: err5.message
+                                        });
                                     }
- 
-                                    // سجّل الاستخدام
+
                                     db.query(
                                         `INSERT INTO private_league_card_usage
                                          (league_id, user_id, card_type, match_id, round_id)
-                                         VALUES (?, ?, 'black_horse', ?, ?)`,
+                                         VALUES (?, ?, 'golden_match', ?, ?)`,
                                         [leagueId, userId, match_id, match.round_id],
                                         (err6) => {
-                                            if (err6) return res.status(500).json(err6);
-                                            res.json({ success: true, message: '🐎 تم تفعيل بطاقة الحصان الأسود!' });
+                                            if (err6) {
+                                                return res.status(500).json({
+                                                    success: false,
+                                                    message: err6.message
+                                                });
+                                            }
+
+                                            res.json({
+                                                success: true,
+                                                message: '⭐ تم تحديد المباراة الذهبية بنجاح'
+                                            });
                                         }
                                     );
                                 }
@@ -3422,6 +3423,7 @@ app.post('/api/private-leagues/:id/black-horse', requireLogin, (req, res) => {
         });
     });
 });
+
 
 // جلب المباراة الذهبية للجولة الحالية
 app.get('/api/private-leagues/:id/golden-match', requireLogin, (req, res) => {
