@@ -961,45 +961,16 @@ app.post('/admin/update-result', isAdmin, (req, res) => {
         [home_score, away_score, match_id],
         (err) => {
             if (err) return res.status(500).send(err.message);
-            res.redirect('/admin');
+            calculateMatchPoints(match_id, res);
         }
     );
 });
-
 // ─── 7. احتساب فائز الجولة ───
 app.post('/admin/calculate-round-winner', isAdmin, (req, res) => {
     const { round_id } = req.body;
 
-    db.query(
-        `SELECT user_id, SUM(points) as total
-         FROM predictions
-         WHERE match_id IN (SELECT Mid FROM matches WHERE round_id = ?)
-         GROUP BY user_id
-         ORDER BY total DESC
-         LIMIT 1`,
-        [round_id],
-        (err, result) => {
-            if (err) return res.status(500).send(err.message);
-            if (result.length === 0) return res.redirect('/admin');
-
-            const winner_user_id = result[0].user_id;
-
-            db.query(
-                `INSERT INTO round_winners (round_id, user_id, points)
-                 SELECT ?, user_id, SUM(points)
-                 FROM predictions
-                 WHERE match_id IN (SELECT Mid FROM matches WHERE round_id = ?)
-                 GROUP BY user_id
-                 ORDER BY SUM(points) DESC
-                 LIMIT 1`,
-                [round_id, round_id],
-                (err2) => {
-                    if (err2) return res.status(500).send(err2.message);
-                    res.redirect('/admin');
-                }
-            );
-        }
-    );
+    calculateRoundWinner(round_id);
+    res.redirect('/admin');
 });
 
 // ─── 8. حذف توقع ───
