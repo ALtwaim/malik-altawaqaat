@@ -391,6 +391,7 @@ app.get('/admin', isAdmin, (req, res) => {
     res.sendFile(__dirname + '/views/admin.html');
 });
 
+
 app.get('/api/tournaments', (req, res) => {
 
     db.query(
@@ -864,6 +865,218 @@ app.get('/api/dashboard-summary', (req, res) => {
         }
     );
 
+});
+
+// ─── 1. إضافة بطولة ───
+app.post('/admin/add-tournament', isAdmin, (req, res) => {
+    const { name, start_date, end_date } = req.body;
+
+    db.query(
+        `INSERT INTO tournaments (Tname, start_date, end_date) VALUES (?, ?, ?)`,
+        [name, start_date, end_date],
+        (err) => {
+            if (err) return res.status(500).send(err.message);
+            res.redirect('/admin');
+        }
+    );
+});
+
+// ─── 2. تحديد بطل وهداف البطولة ───
+app.post('/admin/finalize-tournament', isAdmin, (req, res) => {
+    const { tournament_id, champion_winner, top_scorer_winner } = req.body;
+
+    db.query(
+        `UPDATE tournaments SET champion_winner = ?, top_scorer_winner = ? WHERE id = ?`,
+        [champion_winner, top_scorer_winner, tournament_id],
+        (err) => {
+            if (err) return res.status(500).send(err.message);
+            res.redirect('/admin');
+        }
+    );
+});
+
+// ─── 3. إضافة جولة ───
+app.post('/admin/add-round', isAdmin, (req, res) => {
+    const { tournament_id, round_name, start_date, end_date } = req.body;
+
+    db.query(
+        `INSERT INTO rounds (tournament_id, round_name, start_date, end_date) VALUES (?, ?, ?, ?)`,
+        [tournament_id, round_name, start_date, end_date],
+        (err) => {
+            if (err) return res.status(500).send(err.message);
+            res.redirect('/admin');
+        }
+    );
+});
+
+// ─── 4. إضافة مباراة ───
+app.post('/admin/add-match', isAdmin, (req, res) => {
+    const { tournament_id, round_id, home_team, away_team, match_date, home_win_percent, away_win_percent, is_golden } = req.body;
+
+    db.query(
+        `INSERT INTO matches (tournament_id, round_id, home_team, away_team, match_date, home_win_percent, away_win_percent, is_golden)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [tournament_id, round_id, home_team, away_team, match_date, home_win_percent, away_win_percent, is_golden ? 1 : 0],
+        (err) => {
+            if (err) return res.status(500).send(err.message);
+            res.redirect('/admin');
+        }
+    );
+});
+
+// ─── 5. تعديل مباراة ───
+app.post('/admin/update-match', isAdmin, (req, res) => {
+    const { match_id, round_id, match_date, home_team, away_team, home_win_percent, away_win_percent } = req.body;
+
+    const fields = [];
+    const values = [];
+
+    if (round_id)         { fields.push('round_id = ?');         values.push(round_id); }
+    if (match_date)       { fields.push('match_date = ?');       values.push(match_date); }
+    if (home_team)        { fields.push('home_team = ?');        values.push(home_team); }
+    if (away_team)        { fields.push('away_team = ?');        values.push(away_team); }
+    if (home_win_percent) { fields.push('home_win_percent = ?'); values.push(home_win_percent); }
+    if (away_win_percent) { fields.push('away_win_percent = ?'); values.push(away_win_percent); }
+
+    if (fields.length === 0) return res.redirect('/admin');
+
+    values.push(match_id);
+
+    db.query(
+        `UPDATE matches SET ${fields.join(', ')} WHERE Mid = ?`,
+        values,
+        (err) => {
+            if (err) return res.status(500).send(err.message);
+            res.redirect('/admin');
+        }
+    );
+});
+
+// ─── 6. إضافة نتيجة مباراة ───
+app.post('/admin/update-result', isAdmin, (req, res) => {
+    const { match_id, home_score, away_score } = req.body;
+
+    db.query(
+        `UPDATE matches SET home_score = ?, away_score = ? WHERE Mid = ?`,
+        [home_score, away_score, match_id],
+        (err) => {
+            if (err) return res.status(500).send(err.message);
+            res.redirect('/admin');
+        }
+    );
+});
+
+// ─── 7. احتساب فائز الجولة ───
+app.post('/admin/calculate-round-winner', isAdmin, (req, res) => {
+    const { round_id } = req.body;
+
+    db.query(
+        `SELECT user_id, SUM(points) as total
+         FROM predictions
+         WHERE match_id IN (SELECT Mid FROM matches WHERE round_id = ?)
+         GROUP BY user_id
+         ORDER BY total DESC
+         LIMIT 1`,
+        [round_id],
+        (err, result) => {
+            if (err) return res.status(500).send(err.message);
+            if (result.length === 0) return res.redirect('/admin');
+
+            const winner_user_id = result[0].user_id;
+
+            db.query(
+                `INSERT INTO round_winners (round_id, user_id, points)
+                 SELECT ?, user_id, SUM(points)
+                 FROM predictions
+                 WHERE match_id IN (SELECT Mid FROM matches WHERE round_id = ?)
+                 GROUP BY user_id
+                 ORDER BY SUM(points) DESC
+                 LIMIT 1`,
+                [round_id, round_id],
+                (err2) => {
+                    if (err2) return res.status(500).send(err2.message);
+                    res.redirect('/admin');
+                }
+            );
+        }
+    );
+});
+
+// ─── 8. حذف توقع ───
+app.post('/admin/delete-prediction', isAdmin, (req, res) => {
+    const { prediction_id } = req.body;
+
+    db.query(
+        `DELETE FROM predictions WHERE Pid = ?`,
+        [prediction_id],
+        (err) => {
+            if (err) return res.status(500).send(err.message);
+            res.redirect('/admin');
+        }
+    );
+});
+
+// ─── 9. حذف مباراة وتوقعاتها ───
+app.post('/admin/delete-match', isAdmin, (req, res) => {
+    const { match_id } = req.body;
+
+    db.query(`DELETE FROM predictions WHERE match_id = ?`, [match_id], (err) => {
+        if (err) return res.status(500).send(err.message);
+
+        db.query(`DELETE FROM matches WHERE Mid = ?`, [match_id], (err2) => {
+            if (err2) return res.status(500).send(err2.message);
+            res.redirect('/admin');
+        });
+    });
+});
+
+// ─── 10. حذف بطولة بالكامل ───
+app.post('/admin/delete-tournament', isAdmin, (req, res) => {
+    const { tournament_id } = req.body;
+
+    // نحذف بالترتيب: توقعات → مباريات → جولات → بطولة
+    db.query(
+        `DELETE FROM predictions WHERE match_id IN (SELECT Mid FROM matches WHERE tournament_id = ?)`,
+        [tournament_id],
+        (err) => {
+            if (err) return res.status(500).send(err.message);
+
+            db.query(`DELETE FROM matches WHERE tournament_id = ?`, [tournament_id], (err2) => {
+                if (err2) return res.status(500).send(err2.message);
+
+                db.query(`DELETE FROM round_winners WHERE round_id IN (SELECT Rid FROM rounds WHERE tournament_id = ?)`, [tournament_id], (err3) => {
+                    if (err3) return res.status(500).send(err3.message);
+
+                    db.query(`DELETE FROM rounds WHERE tournament_id = ?`, [tournament_id], (err4) => {
+                        if (err4) return res.status(500).send(err4.message);
+
+                        db.query(`DELETE FROM tournament_predictions WHERE tournament_id = ?`, [tournament_id], (err5) => {
+                            if (err5) return res.status(500).send(err5.message);
+
+                            db.query(`DELETE FROM tournaments WHERE id = ?`, [tournament_id], (err6) => {
+                                if (err6) return res.status(500).send(err6.message);
+                                res.redirect('/admin');
+                            });
+                        });
+                    });
+                });
+            });
+        }
+    );
+});
+
+// ─── 11. حذف نتيجة مباراة فقط ───
+app.post('/admin/delete-result', isAdmin, (req, res) => {
+    const { match_id } = req.body;
+
+    db.query(
+        `UPDATE matches SET home_score = NULL, away_score = NULL WHERE Mid = ?`,
+        [match_id],
+        (err) => {
+            if (err) return res.status(500).send(err.message);
+            res.redirect('/admin');
+        }
+    );
 });
 
 
