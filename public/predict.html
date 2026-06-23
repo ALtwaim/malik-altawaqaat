@@ -365,11 +365,12 @@ function buildMatchCard(match) {
                 '<input type="number" min="0" placeholder="0" id="home-' + match.Mid + '">' +
                 '<span>–</span>' +
                 '<input type="number" min="0" placeholder="0" id="away-' + match.Mid + '">' +
-            '</div>' +
+            (!match.is_golden ? 
             '<div class="loser-card-box">' +
-                '<label><input type="checkbox" id="loser-' + match.Mid + '"> 🐎 بطاقة الحصان الأسود</label>' +
-                '<button type="button" class="info-btn" onclick="openLoserInfo()"><i class="bi bi-info-circle-fill"></i></button>' +
-            '</div>' +
+            '<label><input type="checkbox" id="loser-' + match.Mid + '"> 🐎 بطاقة الحصان الأسود</label>' +
+            '<button type="button" class="info-btn" onclick="openLoserInfo()"><i class="bi bi-info-circle-fill"></i></button>' +
+            '</div>'
+            : '') +
             '<button class="save-prediction-btn" onclick="savePrediction(' + match.Mid + ')">حفظ التوقع</button>';
     }
 
