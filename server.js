@@ -682,8 +682,7 @@ function calculateMatchPoints(matchId, res) {
 
                     });
 
-                    // ✅ احتساب نقاط الدوريات الخاصة تلقائياً
-                    calcPrivateLeaguePoints(matchId, db);
+
 
                     updateUsersTotalPoints(res);
                 }
