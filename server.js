@@ -921,15 +921,15 @@ app.post('/admin/add-round', isAdmin, (req, res) => {
 app.post('/admin/add-match', isAdmin, (req, res) => {
     const { tournament_id, round_id, home_team, away_team, match_date, home_win_percent, away_win_percent, is_golden, underdog_team } = req.body;
 
-    db.query(
-        `INSERT INTO matches (tournament_id, round_id, home_team, away_team, match_date, home_win_percent, away_win_percent, is_golden, underdog_team)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [tournament_id, round_id, home_team, away_team, match_date, home_win_percent, away_win_percent, is_golden ? 1 : 0, underdog_team || null],
-        (err) => {
-            if (err) return res.status(500).send(err.message);
-            res.redirect('/admin');
-        }
-    );
+db.query(
+    `INSERT INTO matches (tournament_id, round_id, home_team, away_team, match_date, home_win_percent, away_win_percent, is_golden, underdog_team)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [tournament_id, round_id, home_team, away_team, match_date, home_win_percent, away_win_percent, is_golden ? 1 : 0, underdog_team || null],
+    (err) => {
+        if (err) return res.status(500).send(err.message);
+        res.redirect('/admin');
+    }
+);
 });
 // ─── 5. تعديل مباراة ───
 app.post('/admin/update-match', isAdmin, (req, res) => {

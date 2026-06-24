@@ -599,6 +599,14 @@
             </div>
           </div>
           <div class="field-group">
+          <div class="field-label">الحصان الأسود (اختياري)</div>
+          <select name="underdog_team" id="underdogSelect">
+          <option value="">بدون حصان أسود</option>
+          <option id="underdog-home"></option>
+          <option id="underdog-away"></option>
+          </select>
+          </div>
+          <div class="field-group">
             <div class="field-label">موعد المباراة</div>
             <input type="datetime-local" name="match_date" required>
           </div>
@@ -996,6 +1004,19 @@ function loadSavedMatch() {
 }
 
 loadSavedMatch();
+
+document.querySelector('input[name="home_team"]').addEventListener('input', updateUnderdogOptions);
+document.querySelector('input[name="away_team"]').addEventListener('input', updateUnderdogOptions);
+
+function updateUnderdogOptions() {
+    const home = document.querySelector('input[name="home_team"]').value;
+    const away = document.querySelector('input[name="away_team"]').value;
+    document.getElementById('underdog-home').textContent = home || 'الفريق الأول';
+    document.getElementById('underdog-home').value = home;
+    document.getElementById('underdog-away').textContent = away || 'الفريق الثاني';
+    document.getElementById('underdog-away').value = away;
+}
+
 </script>
 </body>
 </html>
