@@ -498,28 +498,18 @@ fetch('/api/latest-round-winner')
     <div class="winner-popup">
         <button class="winner-close" onclick="closeWinnerAd()">×</button>
 
-        <h2>🏆 بطل الجولة</h2>
+        <h2>تنبية مهم </h2>
 
 <p>
-    نبارك للمستخدم
-    <strong id="winnerName"></strong>
-    تحقيقه لقب
-    <span id="winnerRound"></span>
+'تم اعادة فتح توقع بطل البطولة والهداف عليك تحديث بيانات الهداف والبطل عبر صفحة التوقعات
 </p>
 
-        <p>
-          سيتم التواصل مع الفائز قريبًا لتسليمه جائزته 🎁
-        </p>
-
-        <p>
-            استمروا في التوقع، المنافسة لسا طويلة 🔥
-        </p>
     </div>
 </div>
 <script>
 window.addEventListener('load', function () {
 
-    if (!localStorage.getItem('round_winner_ad_seen1')) {   // ── غير الرقم مع كل إعلان جديد
+    if (!localStorage.getItem('round_winner_ad_seen2')) {   // ── غير الرقم مع كل إعلان جديد
         document.getElementById('winnerOverlay').style.display = 'flex';
     }
 
@@ -527,7 +517,7 @@ window.addEventListener('load', function () {
 
 function closeWinnerAd() {
     document.getElementById('winnerOverlay').style.display = 'none';
-    localStorage.setItem('round_winner_ad_seen1', 'yes');
+    localStorage.setItem('round_winner_ad_seen2', 'yes');
 }
 </script>
 
