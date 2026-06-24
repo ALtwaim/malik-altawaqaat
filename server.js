@@ -3,12 +3,16 @@ const bcrypt = require('bcrypt');
 const session = require('express-session');
 const db = require('./db');
 
-const app = express();
+const app = express(); 
+
 
 app.use(session({
     secret: 'king_predictions_secret',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 24 * 60 * 60 * 1000 // افتراضي: يوم واحد
+    }
 }));
 
 app.use(express.json());
@@ -92,26 +96,31 @@ console.log('password from db:', user.Upassword);
             console.log('isMatch:', isMatch);
 
             if (isMatch) {
+    req.session.user = {
+        id: user.Uid,
+        username: user.Username,
+        email: user.email,
+        points: user.tota_point,
+        role: user.role
+    };
 
-                req.session.user = {
-                    id: user.Uid,
-                    username: user.Username,
-                    email: user.email,
-                    points: user.tota_point,
-                    role: user.role
-                }; 
-   
-                if (req.session.user.role === 'admin') {
-    res.redirect('/admin');
+    if (req.body.remember) {
+        req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
+    } else {
+        req.session.cookie.maxAge = 24 * 60 * 60 * 1000;
+    }
+
+    if (req.session.user.role === 'admin') {
+        res.redirect('/admin');
+    } else {
+        res.redirect('/dashboard');
+    }
+
 } else {
-    res.redirect('/dashboard');
+
+    res.redirect('/login.html?error=1');
+
 }
-
-            } else {
-
-                res.redirect('/login.html?error=1');
-
-            }
 
         }
     );
