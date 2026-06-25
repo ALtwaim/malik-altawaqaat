@@ -444,7 +444,10 @@ function savePrediction(matchId) {
         showNotification('اكتب توقع النتيجة أولاً', 'warning');
         return;
     }
-    var usedHorse = document.getElementById('loser-' + matchId).checked;
+    
+    var loserEl = document.getElementById('loser-' + matchId);
+    var usedHorse = loserEl ? loserEl.checked : false;
+    
     fetch('/api/predictions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -460,7 +463,6 @@ function savePrediction(matchId) {
         if (data.error) { showNotification(data.error, 'error'); return; }
         showNotification(data.message, 'success');
 
-        // حدّث أو أنشئ شريط "توقعك الحالي"
         var cardEl = document.getElementById('home-' + matchId).closest('.match-card');
         var existing = cardEl.querySelector('.prediction-done-box');
         var content =
@@ -470,11 +472,11 @@ function savePrediction(matchId) {
 
         if (existing) {
             existing.innerHTML = content;
+            existing.style.display = 'flex';
         } else {
             var doneDiv = document.createElement('div');
             doneDiv.className = 'prediction-done-box';
             doneDiv.innerHTML = content;
-            // أضفه فوق الـ score-inputs
             var inputs = cardEl.querySelector('.score-inputs');
             cardEl.insertBefore(doneDiv, inputs);
         }
