@@ -482,144 +482,70 @@ app.get('/api/matches/:tournamentId', (req, res) => {
     );
 
 });
-
 app.post('/api/predictions', (req, res) => {
 
     const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ error: 'لازم تسجل دخول' });
 
-    if (!userId) {
-        return res.status(401).json({ error: 'لازم تسجل دخول' });
-    }
+    const { match_id, predicted_home_score, predicted_away_score, used_loser_card } = req.body;
 
-
-    const {
-        match_id,
-        predicted_home_score,
-        predicted_away_score,
-        used_loser_card
-    } = req.body;
-
-    const wantsLoserCard =
-        used_loser_card === true ||
-        used_loser_card === 1 ||
-        used_loser_card === '1';
+    const wantsLoserCard = used_loser_card === true || used_loser_card === 1 || used_loser_card === '1';
 
     db.query(
-        `SELECT match_date, home_team, away_team, underdog_team
-         FROM matches 
-         WHERE Mid = ?`,
+        `SELECT match_date, home_team, away_team, underdog_team,
+         CASE WHEN match_date <= CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+03:00') THEN 1 ELSE 0 END AS is_started
+         FROM matches WHERE Mid = ?`,
         [match_id],
         (err, matchResult) => {
-
             if (err) return res.status(500).json({ error: err.message });
-
-            if (matchResult.length === 0) {
-                return res.status(404).json({ error: 'المباراة غير موجودة' });
-            }
+            if (matchResult.length === 0) return res.status(404).json({ error: 'المباراة غير موجودة' });
 
             const match = matchResult[0];
 
-            db.query(
-    `SELECT 
-        match_date,
-        home_team,
-        away_team,
-        underdog_team,
-        CASE 
-            WHEN match_date <= CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+03:00')
-            THEN 1 ELSE 0
-        END AS is_started
-     FROM matches
-     WHERE Mid = ?`,
-    [match_id],
-    (err, matchResult) => {
-        if (matchResult[0].is_started == 1) {
-            return res.status(400).json({
-                error: '❌ انتهى وقت التوقع لهذه المباراة'
-            });
-        }
-
-        // كمل الحفظ هنا
-    }
-);
+            if (match.is_started == 1) {
+                return res.status(400).json({ error: '❌ انتهى وقت التوقع لهذه المباراة' });
+            }
 
             if (wantsLoserCard) {
                 const predictedHome = Number(predicted_home_score);
                 const predictedAway = Number(predicted_away_score);
 
                 let predictedWinner = '';
-
-                if (predictedHome > predictedAway) {
-                    predictedWinner = match.home_team;
-                } else if (predictedAway > predictedHome) {
-                    predictedWinner = match.away_team;
-                } else {
-                    predictedWinner = 'draw';
-                }
+                if (predictedHome > predictedAway)      predictedWinner = match.home_team;
+                else if (predictedAway > predictedHome) predictedWinner = match.away_team;
+                else                                    predictedWinner = 'draw';
 
                 if (predictedWinner !== match.underdog_team) {
-                    return res.status(400).json({
-                        error: '🐎 بطاقة الحصان الأسود تُستخدم فقط إذا توقعت فوز الفريق غير المرشح'
-                    });
+                    return res.status(400).json({ error: '🐎 بطاقة الحصان الأسود تُستخدم فقط إذا توقعت فوز الفريق غير المرشح' });
                 }
             }
 
             db.query(
-                `SELECT * FROM predictions 
-                 WHERE user_id = ? AND match_id = ?`,
+                `SELECT * FROM predictions WHERE user_id = ? AND match_id = ?`,
                 [userId, match_id],
                 (err2, existingPrediction) => {
-
-                    if (err2) {
-                        return res.status(500).json({ error: err2.message });
-                    }
+                    if (err2) return res.status(500).json({ error: err2.message });
 
                     if (existingPrediction.length > 0) {
-
                         db.query(
-                            `UPDATE predictions
-                             SET predicted_home_score = ?,
-                                 predicted_away_score = ?,
-                                 used_loser_card = ?
+                            `UPDATE predictions SET predicted_home_score = ?, predicted_away_score = ?, used_loser_card = ?
                              WHERE user_id = ? AND match_id = ?`,
-                            [
-                                predicted_home_score,
-                                predicted_away_score,
-                                wantsLoserCard ? 1 : 0,
-                                userId,
-                                match_id
-                            ],
+                            [predicted_home_score, predicted_away_score, wantsLoserCard ? 1 : 0, userId, match_id],
                             (err3) => {
-                                if (err3) {
-                                    return res.status(500).json({ error: err3.message });
-                                }
-
+                                if (err3) return res.status(500).json({ error: err3.message });
                                 res.json({ message: '✅ تم تحديث التوقع' });
                             }
                         );
-
                     } else {
-
                         db.query(
-                            `INSERT INTO predictions
-                             (user_id, match_id, predicted_home_score, predicted_away_score, used_loser_card, points)
+                            `INSERT INTO predictions (user_id, match_id, predicted_home_score, predicted_away_score, used_loser_card, points)
                              VALUES (?, ?, ?, ?, ?, 0)`,
-                            [
-                                userId,
-                                match_id,
-                                predicted_home_score,
-                                predicted_away_score,
-                                wantsLoserCard ? 1 : 0
-                            ],
+                            [userId, match_id, predicted_home_score, predicted_away_score, wantsLoserCard ? 1 : 0],
                             (err4) => {
-                                if (err4) {
-                                    return res.status(500).json({ error: err4.message });
-                                }
-
+                                if (err4) return res.status(500).json({ error: err4.message });
                                 res.json({ message: '✅ تم حفظ التوقع' });
                             }
                         );
-
                     }
                 }
             );
