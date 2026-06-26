@@ -518,113 +518,67 @@ app.post('/api/predictions', (req, res) => {
                 if (predictedWinner !== match.underdog_team) {
                     return res.status(400).json({ error: '🐎 بطاقة الحصان الأسود تُستخدم فقط إذا توقعت فوز الفريق غير المرشح' });
                 }
+
+                // ✅ تحقق من الحد المسموح (مرتين لكل بطولة)
+                db.query(
+                    `SELECT COUNT(*) AS loser_card_count
+                     FROM predictions p
+                     JOIN matches m ON p.match_id = m.Mid
+                     WHERE p.user_id = ?
+                     AND m.tournament_id = (SELECT tournament_id FROM matches WHERE Mid = ?)
+                     AND p.used_loser_card = 1
+                     AND p.match_id != ?`,
+                    [userId, match_id, match_id],
+                    (err, countResult) => {
+                        if (err) return res.status(500).json({ error: err.message });
+
+                        const count = countResult[0].loser_card_count;
+
+                        if (count >= 2) {
+                            return res.status(400).json({ error: '🐎 استنفذت الحد المسموح به (مرتان لكل بطولة)' });
+                        }
+
+                        savePrediction();
+                    }
+                );
+            } else {
+                savePrediction();
             }
 
-            db.query(
-                `SELECT * FROM predictions WHERE user_id = ? AND match_id = ?`,
-                [userId, match_id],
-                (err2, existingPrediction) => {
-                    if (err2) return res.status(500).json({ error: err2.message });
+            function savePrediction() {
+                db.query(
+                    `SELECT * FROM predictions WHERE user_id = ? AND match_id = ?`,
+                    [userId, match_id],
+                    (err2, existingPrediction) => {
+                        if (err2) return res.status(500).json({ error: err2.message });
 
-                    if (existingPrediction.length > 0) {
-                        db.query(
-                            `UPDATE predictions SET predicted_home_score = ?, predicted_away_score = ?, used_loser_card = ?
-                             WHERE user_id = ? AND match_id = ?`,
-                            [predicted_home_score, predicted_away_score, wantsLoserCard ? 1 : 0, userId, match_id],
-                            (err3) => {
-                                if (err3) return res.status(500).json({ error: err3.message });
-                                res.json({ message: '✅ تم تحديث التوقع' });
-                            }
-                        );
-                    } else {
-                        db.query(
-                            `INSERT INTO predictions (user_id, match_id, predicted_home_score, predicted_away_score, used_loser_card, points)
-                             VALUES (?, ?, ?, ?, ?, 0)`,
-                            [userId, match_id, predicted_home_score, predicted_away_score, wantsLoserCard ? 1 : 0],
-                            (err4) => {
-                                if (err4) return res.status(500).json({ error: err4.message });
-                                res.json({ message: '✅ تم حفظ التوقع' });
-                            }
-                        );
+                        if (existingPrediction.length > 0) {
+                            db.query(
+                                `UPDATE predictions SET predicted_home_score = ?, predicted_away_score = ?, used_loser_card = ?
+                                 WHERE user_id = ? AND match_id = ?`,
+                                [predicted_home_score, predicted_away_score, wantsLoserCard ? 1 : 0, userId, match_id],
+                                (err3) => {
+                                    if (err3) return res.status(500).json({ error: err3.message });
+                                    res.json({ message: '✅ تم تحديث التوقع' });
+                                }
+                            );
+                        } else {
+                            db.query(
+                                `INSERT INTO predictions (user_id, match_id, predicted_home_score, predicted_away_score, used_loser_card, points)
+                                 VALUES (?, ?, ?, ?, ?, 0)`,
+                                [userId, match_id, predicted_home_score, predicted_away_score, wantsLoserCard ? 1 : 0],
+                                (err4) => {
+                                    if (err4) return res.status(500).json({ error: err4.message });
+                                    res.json({ message: '✅ تم حفظ التوقع' });
+                                }
+                            );
+                        }
                     }
-                }
-            );
+                );
+            }
         }
     );
 });
-
-
-function calculateMatchPoints(matchId, res) {
-
-    db.query(
-        `SELECT * FROM matches WHERE Mid = ?`,
-        [matchId],
-        (err, matchResult) => {
-
-            if (err) return res.send(err);
-            if (matchResult.length === 0) return res.send('المباراة غير موجودة');
-
-            const match = matchResult[0];
-
-            db.query(
-                `SELECT * FROM predictions WHERE match_id = ?`,
-                [matchId],
-                (err, predictions) => {
-
-                    if (err) return res.send(err);
-
-                    predictions.forEach(prediction => {
-
-                        let points = 0;
-
-                        const predictedHome = Number(prediction.predicted_home_score);
-                        const predictedAway = Number(prediction.predicted_away_score);
-                        const actualHome    = Number(match.home_score);
-                        const actualAway    = Number(match.away_score);
-
-                        const exactScore = predictedHome === actualHome && predictedAway === actualAway;
-
-                        const predictedWinner =
-                            predictedHome > predictedAway ? match.home_team :
-                            predictedAway > predictedHome ? match.away_team : 'draw';
-
-                        const actualWinner =
-                            actualHome > actualAway ? match.home_team :
-                            actualAway > actualHome ? match.away_team : 'draw';
-
-                        if (exactScore) {
-                            points = 3;
-                        } else if (predictedWinner === actualWinner) {
-                            points = 1;
-                        }
-
-                        if (match.is_golden == 1) {
-                            points = points * 2;
-                        }
-
-                        if (
-                            prediction.used_loser_card == 1 &&
-                            actualWinner === match.underdog_team &&
-                            predictedWinner === actualWinner
-                        ) {
-                            points = exactScore ? 10 : 3;
-                        }
-
-                        db.query(
-                            `UPDATE predictions SET points = ? WHERE Pid = ?`,
-                            [points, prediction.Pid]
-                        );
-
-                    });
-
-
-
-                    updateUsersTotalPoints(res);
-                }
-            );
-        }
-    );
-}
 
 function updateUsersTotalPoints(res) {
 
