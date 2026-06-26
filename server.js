@@ -580,6 +580,77 @@ app.post('/api/predictions', (req, res) => {
     );
 });
 
+function calculateMatchPoints(matchId, res) {
+
+    db.query(
+        `SELECT * FROM matches WHERE Mid = ?`,
+        [matchId],
+        (err, matchResult) => {
+
+            if (err) return res.send(err);
+            if (matchResult.length === 0) return res.send('المباراة غير موجودة');
+
+            const match = matchResult[0];
+
+            db.query(
+                `SELECT * FROM predictions WHERE match_id = ?`,
+                [matchId],
+                (err, predictions) => {
+
+                    if (err) return res.send(err);
+
+                    predictions.forEach(prediction => {
+
+                        let points = 0;
+
+                        const predictedHome = Number(prediction.predicted_home_score);
+                        const predictedAway = Number(prediction.predicted_away_score);
+                        const actualHome    = Number(match.home_score);
+                        const actualAway    = Number(match.away_score);
+
+                        const exactScore = predictedHome === actualHome && predictedAway === actualAway;
+
+                        const predictedWinner =
+                            predictedHome > predictedAway ? match.home_team :
+                            predictedAway > predictedHome ? match.away_team : 'draw';
+
+                        const actualWinner =
+                            actualHome > actualAway ? match.home_team :
+                            actualAway > actualHome ? match.away_team : 'draw';
+
+                        if (exactScore) {
+                            points = 3;
+                        } else if (predictedWinner === actualWinner) {
+                            points = 1;
+                        }
+
+                        if (match.is_golden == 1) {
+                            points = points * 2;
+                        }
+
+                        if (
+                            prediction.used_loser_card == 1 &&
+                            actualWinner === match.underdog_team &&
+                            predictedWinner === actualWinner
+                        ) {
+                            points = exactScore ? 10 : 3;
+                        }
+
+                        db.query(
+                            `UPDATE predictions SET points = ? WHERE Pid = ?`,
+                            [points, prediction.Pid]
+                        );
+
+                    });
+
+                    updateUsersTotalPoints(res);
+                }
+            );
+        }
+    );
+}
+
+
 function updateUsersTotalPoints(res) {
 
     db.query(
