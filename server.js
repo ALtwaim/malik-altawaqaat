@@ -1178,10 +1178,10 @@ function buildRows(data, pointsKey) {
     return data.map(function(user, i) {
         var isMe = Number(user.Uid) === Number(currentUserId);
         var m = medalOrNum(i);
-        var rank = m.icon ? '<span class="lb-rank">' + m.icon + '</span>' : '<span class="lb-rank-num">' + (i+1) + '</span>';
+        var rank = '<span class="lb-rank-num">' + (i+1) + '</span>';
         var safeName = user.Username.replace(/'/g, "");
         return '<div class="lb-row ' + m.cls + ' ' + (isMe ? 'my-leaderboard-row' : '') + '">' +
-            '<div class="lb-avatar">👤</div>' +
+            rank +
             '<span class="lb-name">' + user.Username + '</span>' +
             '<div class="lb-row-end">' +
                 '<span class="lb-points">' + (user[pointsKey] || 0) + ' <span class="lb-points-label">نقطة</span></span>' +
