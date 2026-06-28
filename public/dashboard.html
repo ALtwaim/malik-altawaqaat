@@ -133,7 +133,7 @@ function closeAnnouncement() {
 </section>
 
 <section class="latest-card" id="roundWinnersSection">
-    <h2>🥇 أبطال الجولات</h2>
+    <h2>🏆 أبطال الجولات</h2>
     <div id="roundWinnersBox">
         <p style="text-align:center; color:#888">جاري التحميل...</p>
     </div>
@@ -336,18 +336,18 @@ fetch('/api/round-winners')
         let html = '';
 
         data.forEach((item, index) => {
-            const medals = ['🥇', '🥈', '🥉'];
-            const medal  = index < 3 ? medals[index] : (index + 1) + '.';
+            const initials = item.Username.charAt(0).toUpperCase();
 
-            html += `
-                <div class="latest-item">
-                    <div>
-                        <strong>${item.round_name}</strong>
-                        <p style="margin:4px 0; color:#aaa; font-size:13px">البطل: ${item.Username}</p>
-                    </div>
-                    <span class="latest-points">${medal} ${item.points} نقطة</span>
-                </div>
-            `;
+        html += `
+        <div class="latest-item">
+        <div class="latest-item-avatar">${initials}</div>
+        <div class="latest-item-info">
+            <strong>${item.Username}</strong>
+            <span class="round-label">${item.round_name}</span>
+        </div>
+        <span class="latest-points">${item.points} نقطة</span>
+        </div>
+         `;
         });
 
         box.innerHTML = html;

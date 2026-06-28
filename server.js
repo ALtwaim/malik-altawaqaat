@@ -1167,10 +1167,10 @@ function switchTab(tab) {
 }
 
 function medalOrNum(i) {
-    if (i === 0) return { icon: '🥇', cls: 'rank-1' };
-    if (i === 1) return { icon: '🥈', cls: 'rank-2' };
-    if (i === 2) return { icon: '🥉', cls: 'rank-3' };
-    return { icon: null, cls: '' };
+    if (i === 0) return { cls: 'rank-1' };
+    if (i === 1) return { cls: 'rank-2' };
+    if (i === 2) return { cls: 'rank-3' };
+    return { cls: '' };
 }
 
 function buildRows(data, pointsKey) {
