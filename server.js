@@ -1404,7 +1404,7 @@ app.post('/api/tournament-prediction', (req, res) => {
                     error: 'لا توجد مباريات في هذه البطولة'
                 });
             }
-          /*
+          
             const firstMatch =
                 new Date(matchResult[0].firstMatch);
             
@@ -1413,7 +1413,7 @@ app.post('/api/tournament-prediction', (req, res) => {
                     error: '🔒 بدأت البطولة، تم إغلاق توقعات البطل والهداف'
                 });
             }
-            */
+            
             saveTournamentPrediction();
 
         }
