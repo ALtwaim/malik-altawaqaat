@@ -931,3 +931,16 @@ select, input {
     white-space: nowrap;
     flex-shrink: 0;
 }
+.diamond-match-card{
+    border:3px solid #38bdf8;
+    box-shadow:0 0 18px rgba(56,189,248,.45);
+}
+
+.diamond-badge{
+    background:#0ea5e9;
+    color:#fff;
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:bold;
+}

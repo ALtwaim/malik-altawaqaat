@@ -492,9 +492,20 @@ app.post('/api/predictions', (req, res) => {
     const wantsLoserCard = used_loser_card === true || used_loser_card === 1 || used_loser_card === '1';
 
     db.query(
-        `SELECT match_date, home_team, away_team, underdog_team,
-         CASE WHEN match_date <= CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+03:00') THEN 1 ELSE 0 END AS is_started
-         FROM matches WHERE Mid = ?`,
+        `SELECT
+    match_date,
+    home_team,
+    away_team,
+    underdog_team,
+    is_golden,
+    is_diamond,
+    CASE
+        WHEN match_date <= CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+03:00')
+        THEN 1
+        ELSE 0
+    END AS is_started
+FROM matches
+WHERE Mid = ?`,
         [match_id],
         (err, matchResult) => {
             if (err) return res.status(500).json({ error: err.message });
@@ -592,6 +603,12 @@ function calculateMatchPoints(matchId, res) {
 
             const match = matchResult[0];
 
+            if (wantsLoserCard && (match.is_golden == 1 || match.is_diamond == 1)) {
+            return res.status(400).json({
+            error: '🐎 لا يمكن استخدام بطاقة الحصان الأسود في المباراة الذهبية أو الألماسية'
+            });
+           }
+
             db.query(
                 `SELECT * FROM predictions WHERE match_id = ?`,
                 [matchId],
@@ -624,8 +641,14 @@ function calculateMatchPoints(matchId, res) {
                             points = 1;
                         }
 
+                        // المباراة الذهبية ×2
                         if (match.is_golden == 1) {
-                            points = points * 2;
+                           points *= 2;
+                       }
+
+                        // المباراة الألماسية ×3
+                        if (match.is_diamond == 1) {
+                           points *= 3;
                         }
 
                         if (
@@ -663,7 +686,11 @@ function updateUsersTotalPoints(res) {
             )
             +
             (
-                SELECT COALESCE(SUM(points), 0)
+                (
+                SELECT COALESCE(
+                SUM(champion_points + top_scorer_points),
+                0
+                )
                 FROM tournament_predictions
                 WHERE tournament_predictions.user_id = person.Uid
             )`,
@@ -1617,12 +1644,79 @@ app.post('/api/set-tournament-winners', (req, res) => {
                 });
             }
 
-            res.json({
-                message: 'تم حفظ بطل وهداف البطولة'
-            });
+            calculateTournamentPoints();
 
         }
     );
+
+    function calculateTournamentPoints() {
+
+        db.query(
+            `SELECT *
+             FROM tournament_predictions
+             WHERE tournament_id = ?`,
+            [tournament_id],
+            (err, predictions) => {
+
+                if (err) {
+                    return res.status(500).json({
+                        error: err.message
+                    });
+                }
+
+                let finished = 0;
+
+                if (predictions.length === 0) {
+                    return updateUsersTotalPoints(res);
+                }
+
+                predictions.forEach(prediction => {
+
+                    let championPoints = 0;
+                    let topScorerPoints = 0;
+
+                    if (prediction.champion_prediction === champion_winner) {
+                        championPoints = 15;
+                    }
+
+                    if (prediction.top_scorer_prediction === top_scorer_winner) {
+                        topScorerPoints = 10;
+                    }
+
+                    db.query(
+                        `UPDATE tournament_predictions
+                         SET
+                            champion_points = ?,
+                            top_scorer_points = ?
+                         WHERE id = ?`,
+                        [
+                            championPoints,
+                            topScorerPoints,
+                            prediction.id
+                        ],
+                        (err2) => {
+
+                            if (err2) {
+                                return res.status(500).json({
+                                    error: err2.message
+                                });
+                            }
+
+                            finished++;
+
+                            if (finished === predictions.length) {
+                                updateUsersTotalPoints(res);
+                            }
+
+                        }
+                    );
+
+                });
+
+            }
+        );
+
+    }
 
 });
 
@@ -1840,62 +1934,79 @@ app.get('/api/my-all-predictions', (req, res) => {
 
 });
 
-app.get('/api/leaderboard', (req, res) => {
-    db.query(
-        `SELECT Uid, Username, tota_point
-         FROM person
-         ORDER BY tota_point DESC
-         LIMIT 30`,
-        (err, result) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json(result);
-        }
-    );
-});
+app.get('/api/leaderboard/:tournamentId', (req, res) => {
 
-app.get('/api/round-leaderboard/:roundId', (req, res) => {
+    const tournamentId = req.params.tournamentId;
 
-    const roundId = req.params.roundId;
+    // الكل
+    if (tournamentId == 0) {
 
-    db.query(
-        `SELECT
-            person.Uid,
-            person.Username,
-            COALESCE(SUM(predictions.points), 0) AS round_points
-         FROM predictions
-         JOIN person ON predictions.user_id = person.Uid
-         JOIN matches ON predictions.match_id = matches.Mid
-         WHERE matches.round_id = ?
-         GROUP BY person.Uid, person.Username
-         ORDER BY round_points DESC
-         LIMIT 30`,
-        [roundId],
-        (err, result) => {
+        db.query(
+            `SELECT
+                p.Uid,
+                p.Username,
+                COALESCE(SUM(pr.points),0) AS total_points
+            FROM person p
+            LEFT JOIN predictions pr
+                ON pr.user_id = p.Uid
+            GROUP BY p.Uid, p.Username
+            ORDER BY total_points DESC
+            LIMIT 30`,
+            (err, result) => {
 
-            if (err) {
-                return res.status(500).json({ error: err.message });
+                if (err) {
+                    return res.status(500).json({ error: err.message });
+                }
+
+                res.json(result);
+
             }
+        );
 
-            res.json(result);
+    } else {
 
-        }
-    );
+        db.query(
+            `SELECT
+                p.Uid,
+                p.Username,
 
-});
+                COALESCE(
+                    SUM(
+                        CASE
+                            WHEN m.tournament_id = ?
+                            THEN pr.points
+                            ELSE 0
+                        END
+                    ),0
+                ) AS total_points
 
-app.get('/api/current-round', (req, res) => {
-    db.query(
-        `SELECT *
-         FROM rounds
-         WHERE CURDATE() BETWEEN start_date AND end_date
-         ORDER BY Rid DESC
-         LIMIT 1`,
-        (err, result) => {
-            if (err) return res.status(500).json({ error: err.message });
-            if (result.length === 0) return res.json(null);
-            res.json(result[0]);
-        }
-    );
+            FROM person p
+
+            LEFT JOIN predictions pr
+                ON pr.user_id = p.Uid
+
+            LEFT JOIN matches m
+                ON pr.match_id = m.Mid
+
+            GROUP BY p.Uid, p.Username
+
+            ORDER BY total_points DESC
+
+            LIMIT 30`,
+            [tournamentId],
+            (err, result) => {
+
+                if (err) {
+                    return res.status(500).json({ error: err.message });
+                }
+
+                res.json(result);
+
+            }
+        );
+
+    }
+
 });
 
 app.get('/api/user-predictions/:username', (req, res) => {
