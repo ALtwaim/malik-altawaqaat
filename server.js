@@ -513,6 +513,12 @@ WHERE Mid = ?`,
 
             const match = matchResult[0];
 
+            if (wantsLoserCard && (match.is_golden == 1 || match.is_diamond == 1)) {
+            return res.status(400).json({
+            error: '🐎 لا يمكن استخدام بطاقة الحصان الأسود في المباراة الذهبية أو الألماسية'
+           });
+         }
+
             if (match.is_started == 1) {
                 return res.status(400).json({ error: '❌ انتهى وقت التوقع لهذه المباراة' });
             }
@@ -602,12 +608,6 @@ function calculateMatchPoints(matchId, res) {
             if (matchResult.length === 0) return res.send('المباراة غير موجودة');
 
             const match = matchResult[0];
-
-            if (wantsLoserCard && (match.is_golden == 1 || match.is_diamond == 1)) {
-            return res.status(400).json({
-            error: '🐎 لا يمكن استخدام بطاقة الحصان الأسود في المباراة الذهبية أو الألماسية'
-            });
-           }
 
             db.query(
                 `SELECT * FROM predictions WHERE match_id = ?`,
