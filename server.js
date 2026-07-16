@@ -678,22 +678,21 @@ function updateUsersTotalPoints(res) {
 
     db.query(
         `UPDATE person
-         SET tota_point =
-            (
-                SELECT COALESCE(SUM(points), 0)
-                FROM predictions
-                WHERE predictions.user_id = person.Uid
-            )
-            +
-            (
-                (
-                SELECT COALESCE(
-                SUM(champion_points + top_scorer_points),
-                0
-                )
-                FROM tournament_predictions
-                WHERE tournament_predictions.user_id = person.Uid
-            )`,
+SET tota_point =
+(
+    SELECT COALESCE(SUM(points), 0)
+    FROM predictions
+    WHERE predictions.user_id = person.Uid
+)
++
+(
+    SELECT COALESCE(
+        SUM(champion_points + top_scorer_points),
+        0
+    )
+    FROM tournament_predictions
+    WHERE tournament_predictions.user_id = person.Uid
+)`,
         (err) => {
 
             if (err) {
