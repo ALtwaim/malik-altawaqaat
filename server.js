@@ -456,6 +456,7 @@ app.get('/api/matches/:tournamentId', (req, res) => {
             matches.away_score,
             matches.round_id,
             matches.is_golden,
+            matches.is_diamond,
             matches.underdog_team,
             matches.home_win_percent,
             matches.away_win_percent,
@@ -899,12 +900,12 @@ app.post('/admin/add-round', isAdmin, (req, res) => {
 
 // ─── 4. إضافة مباراة ───
 app.post('/admin/add-match', isAdmin, (req, res) => {
-    const { tournament_id, round_id, home_team, away_team, match_date, home_win_percent, away_win_percent, is_golden, underdog_team } = req.body;
+    const { tournament_id, round_id, home_team, away_team, match_date, home_win_percent, away_win_percent, is_golden, is_diamond, underdog_team } = req.body;
 
 db.query(
-    `INSERT INTO matches (tournament_id, round_id, home_team, away_team, match_date, home_win_percent, away_win_percent, is_golden, underdog_team)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [tournament_id, round_id, home_team, away_team, match_date, home_win_percent, away_win_percent, is_golden ? 1 : 0, underdog_team || null],
+    `INSERT INTO matches (tournament_id, round_id, home_team, away_team, match_date, home_win_percent, away_win_percent, is_golden, is_diamond, underdog_team)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [tournament_id, round_id, home_team, away_team, match_date, home_win_percent, away_win_percent, is_golden ? 1 : 0, is_diamond ? 1 : 0, underdog_team || null],
     (err) => {
         if (err) return res.status(500).send(err.message);
         res.redirect('/admin');
