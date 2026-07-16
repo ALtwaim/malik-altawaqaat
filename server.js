@@ -2012,6 +2012,51 @@ app.get('/api/leaderboard/:tournamentId', (req, res) => {
 
 });
 
+app.get('/api/round-leaderboard/:roundId', (req, res) => {
+
+    const roundId = req.params.roundId;
+
+    db.query(
+        `SELECT
+            p.Uid,
+            p.Username,
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN m.round_id = ?
+                        THEN pr.points
+                        ELSE 0
+                    END
+                ),0
+            ) AS round_points
+
+        FROM person p
+
+        LEFT JOIN predictions pr
+            ON pr.user_id = p.Uid
+
+        LEFT JOIN matches m
+            ON pr.match_id = m.Mid
+
+        GROUP BY p.Uid, p.Username
+
+        ORDER BY round_points DESC
+
+        LIMIT 30`,
+        [roundId],
+        (err, result) => {
+
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+
+            res.json(result);
+
+        }
+    );
+
+});
+
 app.get('/api/user-predictions/:username', (req, res) => {
 
     if (!req.session.user) {
@@ -3012,5 +3057,4 @@ app.get('/api/private-leagues/:id/events', requireLogin, (req, res) => {
 app.listen(3000, () => {
     console.log('Server Running');
 })
-
 
