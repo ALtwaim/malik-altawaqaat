@@ -1225,9 +1225,9 @@ function loadSeasonBoard() {
     document.getElementById('cardTitle').textContent = '🏆 ترتيب الموسم';
     document.getElementById('cardSub').textContent   = 'إجمالي النقاط';
     document.getElementById('lbList').innerHTML = '<div class="lb-loading"><i class="bi bi-arrow-repeat"></i> جاري التحميل...</div>';
-    fetch('/api/leaderboard')
+    fetch('/api/leaderboard/' + currentTournament)
         .then(function(r) { return r.json(); })
-        .then(function(d) { document.getElementById('lbList').innerHTML = buildRows(d, 'tota_point'); })
+        .then(function(d) { document.getElementById('lbList').innerHTML = buildRows(d, 'total_points'); })
         .catch(function() { document.getElementById('lbList').innerHTML = '<div class="lb-loading">تعذّر التحميل</div>'; });
 }
 
