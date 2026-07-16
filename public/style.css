@@ -543,6 +543,7 @@ select, input {
 }
 .match-card:hover { border-color: rgba(212,175,55,0.5); box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
 .golden-match-card { border: 1.5px solid #ffd700; box-shadow: 0 0 28px rgba(255,215,0,0.18), 0 6px 24px rgba(0,0,0,0.4); }
+.diamond-match-card:hover { border-color: rgba(56,189,248,0.5); box-shadow: 0 8px 30px rgba(0,0,0,0.5), 0 0 20px rgba(56,189,248,0.25); }
 
 .match-top-bar {
     display: flex; align-items: center; justify-content: space-between;
