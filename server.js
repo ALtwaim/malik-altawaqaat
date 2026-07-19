@@ -900,7 +900,7 @@ function calculateTournamentPoints(tournamentId, championWinner, topScorerWinner
             if (err) return res.status(500).json({ error: err.message });
 
             if (predictions.length === 0) {
-                return updateUsersTotalPoints(res);
+                return finalizeTournamentCalculation(tournamentId, res);
             }
 
             let finished = 0;
@@ -927,9 +927,9 @@ function calculateTournamentPoints(tournamentId, championWinner, topScorerWinner
 
                         finished++;
 
-                        // نتأكد إن كل التوقعات اتحدثت قبل ما نحدث نقاط المستخدمين الإجمالية
+                        // نتأكد إن كل التوقعات اتحدثت قبل ما نكمل
                         if (finished === predictions.length) {
-                            updateUsersTotalPoints(res);
+                            finalizeTournamentCalculation(tournamentId, res);
                         }
                     }
                 );
@@ -937,6 +937,99 @@ function calculateTournamentPoints(tournamentId, championWinner, topScorerWinner
         }
     );
 }
+
+// ─── بعد ما تتحدث كل نقاط توقعات البطولة: نحدد بطل البطولة تلقائياً، وبعدها نحدث نقاط المستخدمين الإجمالية ───
+function finalizeTournamentCalculation(tournamentId, res) {
+    calculateTournamentWinner(tournamentId, () => {
+        updateUsersTotalPoints(res);
+    });
+}
+
+// ─── تحديد بطل البطولة تلقائياً = صاحب المركز الأول بجدول ترتيب هذي البطولة نفسها ───
+// (نقاط توقعات المباريات + نقاط توقع البطل والهداف، لنفس البطولة فقط)
+function calculateTournamentWinner(tournamentId, callback) {
+
+    db.query(
+        `SELECT
+            p.Uid,
+            p.Username,
+            (
+                COALESCE((SELECT SUM(pr.points)
+                          FROM predictions pr
+                          JOIN matches m ON pr.match_id = m.Mid
+                          WHERE pr.user_id = p.Uid AND m.tournament_id = ?), 0)
+                +
+                COALESCE((SELECT SUM(tp.champion_points + tp.top_scorer_points)
+                          FROM tournament_predictions tp
+                          WHERE tp.user_id = p.Uid AND tp.tournament_id = ?), 0)
+            ) AS tournament_total_points
+         FROM person p
+         ORDER BY tournament_total_points DESC
+         LIMIT 1`,
+        [tournamentId, tournamentId],
+        (err, result) => {
+
+            if (err) {
+                console.log(err);
+                return callback();
+            }
+
+            // ما نسجل بطل لو محد جمع نقاط أصلاً بهذي البطولة
+            if (result.length === 0 || result[0].tournament_total_points <= 0) {
+                return callback();
+            }
+
+            const winner = result[0];
+
+            db.query(
+                `DELETE FROM tournament_winners WHERE tournament_id = ?`,
+                [tournamentId],
+                (err2) => {
+
+                    if (err2) {
+                        console.log(err2);
+                        return callback();
+                    }
+
+                    db.query(
+                        `INSERT INTO tournament_winners (tournament_id, user_id, points)
+                         VALUES (?, ?, ?)`,
+                        [tournamentId, winner.Uid, winner.tournament_total_points],
+                        (err3) => {
+                            if (err3) console.log(err3);
+                            callback();
+                        }
+                    );
+                }
+            );
+        }
+    );
+}
+
+// ─── جلب قائمة أبطال البطولات لعرضها بالداشبورد ───
+app.get('/api/tournament-winners', (req, res) => {
+
+    db.query(
+        `SELECT
+            tournaments.Tname,
+            person.Username,
+            tournament_winners.points
+         FROM tournament_winners
+         JOIN tournaments ON tournament_winners.tournament_id = tournaments.id
+         JOIN person ON tournament_winners.user_id = person.Uid
+         ORDER BY tournament_winners.id DESC`,
+        (err, result) => {
+
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+
+            res.json(result);
+
+        }
+    );
+
+});
 
 // ─── 3. إضافة جولة ───
 app.post('/admin/add-round', isAdmin, (req, res) => {
@@ -1066,9 +1159,13 @@ app.post('/admin/delete-tournament', isAdmin, (req, res) => {
                         db.query(`DELETE FROM tournament_predictions WHERE tournament_id = ?`, [tournament_id], (err5) => {
                             if (err5) return res.status(500).send(err5.message);
 
-                            db.query(`DELETE FROM tournaments WHERE id = ?`, [tournament_id], (err6) => {
-                                if (err6) return res.status(500).send(err6.message);
-                                res.redirect('/admin');
+                            db.query(`DELETE FROM tournament_winners WHERE tournament_id = ?`, [tournament_id], (err5b) => {
+                                if (err5b) return res.status(500).send(err5b.message);
+
+                                db.query(`DELETE FROM tournaments WHERE id = ?`, [tournament_id], (err6) => {
+                                    if (err6) return res.status(500).send(err6.message);
+                                    res.redirect('/admin');
+                                });
                             });
                         });
                     });
@@ -1640,8 +1737,13 @@ app.get('/api/my-tournament-predictions', (req, res) => {
     db.query(
         `SELECT
             tournaments.Tname,
+            tournaments.champion_winner,
+            tournaments.top_scorer_winner,
             tournament_predictions.champion_prediction,
-            tournament_predictions.top_scorer_prediction
+            tournament_predictions.top_scorer_prediction,
+            tournament_predictions.champion_points,
+            tournament_predictions.top_scorer_points,
+            tournament_predictions.points
          FROM tournament_predictions
          JOIN tournaments
             ON tournament_predictions.tournament_id = tournaments.id

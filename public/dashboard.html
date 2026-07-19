@@ -9,6 +9,26 @@
     <link rel="stylesheet" href="/style.css">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        .pred-status {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 20px;
+            margin-top: 6px;
+        }
+        .pred-status.correct { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+        .pred-status.wrong   { background: rgba(231, 76, 60, 0.15);  color: #e74c3c; }
+        .pred-status.pending { background: rgba(212, 175, 55, 0.15); color: #d4af37; }
+        .pred-correct-answer {
+            display: block;
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 4px;
+        }
+    </style>
 </head>
 
 <body>
@@ -23,7 +43,7 @@
 
 <script>
 // ← فقط غيّر هنا
-var ANN_ID      = 'V5';                          // غيّر الرقم مع كل رسالة جديدة
+var ANN_ID      = 'V6';                          // غيّر الرقم مع كل رسالة جديدة
 var ANN_TEXT    = 'الف مبروووووك المثنى بطل ملك التوقعات سيتم التواصل معك وايضا سيتم التواصل مع المراكز الاولى الثلاثة كل التوفيق للجميع ونراكم في بطولات اخرها';  // نص الرسالة
 var ANN_ENDDATE = '2026-07-30';                  // تاريخ الانتهاء، أو '' بدون تاريخ
 // ────────────────────────────────────────────
@@ -132,6 +152,13 @@ function closeAnnouncement() {
 
 </section>
 
+<section class="latest-card" id="tournamentWinnersSection">
+    <h2>🏆 أبطال البطولات</h2>
+    <div id="tournamentWinnersBox">
+        <p style="text-align:center; color:#888">جاري التحميل...</p>
+    </div>
+</section>
+
 <section class="latest-card" id="roundWinnersSection">
     <h2>🏆 أبطال الجولات</h2>
     <div id="roundWinnersBox">
@@ -172,18 +199,7 @@ function closeAnnouncement() {
 
 </section>
 
-<section class="latest-card">
 
-    <h2>
-        <i class="bi bi-clock-history"></i>
-        آخر توقعاتي
-    </h2>
-
-    <div id="latestPredictions">
-        <p>لا توجد توقعات حتى الآن.</p>
-    </div>
-
-</section>
 <section class="tournament-dashboard-card">
 
     <h2>
@@ -321,6 +337,39 @@ fetch('/api/current-round')
 
     });
 
+// ── أبطال البطولات ────────────────────────────────────────────
+fetch('/api/tournament-winners')
+    .then(response => response.json())
+    .then(data => {
+
+        const box = document.getElementById('tournamentWinnersBox');
+
+        if (data.length === 0) {
+            box.innerHTML = '<p>لا يوجد أبطال بطولات حتى الآن.</p>';
+            return;
+        }
+
+        let html = '';
+
+        data.forEach((item) => {
+            const initials = item.Username.charAt(0).toUpperCase();
+
+        html += `
+        <div class="latest-item">
+        <div class="latest-item-avatar">${initials}</div>
+        <div class="latest-item-info">
+            <strong>${item.Username}</strong>
+            <span class="round-label">${item.Tname}</span>
+        </div>
+        <span class="latest-points">${item.points} نقطة</span>
+        </div>
+         `;
+        });
+
+        box.innerHTML = html;
+
+    });
+
 // ── أبطال الجولات ────────────────────────────────────────────
 fetch('/api/round-winners')
     .then(response => response.json())
@@ -365,76 +414,6 @@ fetch('/api/my-stats')
 
     });
 
-fetch('/api/my-latest-predictions')
-    .then(response => response.json())
-    .then(data => {
-
-        const box = document.getElementById('latestPredictions');
-
-        if (data.length === 0) {
-            box.innerHTML = '<p>لا توجد توقعات حتى الآن.</p>';
-            return;
-        }
-
-        let html = '';
-
-        data.forEach(prediction => {
-
-            const resultText =
-                prediction.home_score === null || prediction.away_score === null
-                ? 'بانتظار النتيجة'
-                : `${prediction.home_score} - ${prediction.away_score}`;
-
-            html += `
-                <div class="latest-item">
-
-                    <div>
-                        <div class="prediction-badges">
-
-    ${prediction.is_golden ? `
-        <span class="gold-badge">
-            ⭐ ذهبية
-        </span>
-    ` : ''}
-
-    ${prediction.used_loser_card ? `
-        <span class="horse-badge">
-            🐎 الحصان الأسود
-        </span>
-    ` : ''}
-
-</div>
-                        <strong>
-                            ${prediction.home_team}
-                            ضد
-                            ${prediction.away_team}
-                        </strong>
-
-                        <p>
-                            توقعك:
-                            ${prediction.predicted_home_score}
-                            -
-                            ${prediction.predicted_away_score}
-                        </p>
-
-                        <p>
-                            النتيجة:
-                            ${resultText}
-                        </p>
-                    </div>
-
-                    <div class="latest-points">
-                        ${prediction.points} نقطة
-                    </div>
-
-                </div>
-            `;
-
-        });
-
-        box.innerHTML = html;
-
-    });
 
 fetch('/api/my-tournament-predictions')
     .then(response => response.json())
@@ -450,6 +429,34 @@ fetch('/api/my-tournament-predictions')
         let html = '';
 
         data.forEach(item => {
+
+            const championDecided = item.champion_winner !== null && item.champion_winner !== '';
+            const scorerDecided   = item.top_scorer_winner !== null && item.top_scorer_winner !== '';
+
+            let championStatus, championExtra;
+            if (!championDecided) {
+                championStatus = '<span class="pred-status pending">⏳ بانتظار النتيجة</span>';
+                championExtra  = '';
+            } else if (item.champion_points > 0) {
+                championStatus = '<span class="pred-status correct">✅ توقع صحيح</span>';
+                championExtra  = '';
+            } else {
+                championStatus = '<span class="pred-status wrong">❌ توقع خاطئ</span>';
+                championExtra  = `<span class="pred-correct-answer">الصحيح: ${item.champion_winner}</span>`;
+            }
+
+            let scorerStatus, scorerExtra;
+            if (!scorerDecided) {
+                scorerStatus = '<span class="pred-status pending">⏳ بانتظار النتيجة</span>';
+                scorerExtra  = '';
+            } else if (item.top_scorer_points > 0) {
+                scorerStatus = '<span class="pred-status correct">✅ توقع صحيح</span>';
+                scorerExtra  = '';
+            } else {
+                scorerStatus = '<span class="pred-status wrong">❌ توقع خاطئ</span>';
+                scorerExtra  = `<span class="pred-correct-answer">الصحيح: ${item.top_scorer_winner}</span>`;
+            }
+
             html += `
     <div class="tournament-prediction-item">
 
@@ -461,12 +468,16 @@ fetch('/api/my-tournament-predictions')
                 <i class="bi bi-trophy-fill"></i>
                 <span>بطل البطولة</span>
                 <strong>${item.champion_prediction}</strong>
+                ${championStatus}
+                ${championExtra}
             </div>
 
             <div class="prediction-mini-box">
                 <i class="bi bi-dribbble"></i>
                 <span>هداف البطولة</span>
                 <strong>${item.top_scorer_prediction}</strong>
+                ${scorerStatus}
+                ${scorerExtra}
             </div>
 
         </div>
