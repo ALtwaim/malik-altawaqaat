@@ -907,8 +907,14 @@ function calculateTournamentPoints(tournamentId, championWinner, topScorerWinner
 
             predictions.forEach(pred => {
 
-                const championPoints = pred.champion_prediction === championWinner ? CHAMPION_POINTS : 0;
-                const topScorerPoints = pred.top_scorer_prediction === topScorerWinner ? TOP_SCORER_POINTS : 0;
+                const championPoints =
+                    normalizeText(pred.champion_prediction) === normalizeText(championWinner)
+                        ? CHAMPION_POINTS : 0;
+
+                const topScorerPoints =
+                    normalizeText(pred.top_scorer_prediction) === normalizeText(topScorerWinner)
+                        ? TOP_SCORER_POINTS : 0;
+
                 const totalPoints = championPoints + topScorerPoints;
 
                 db.query(
@@ -1658,13 +1664,29 @@ app.get('/api/my-tournament-predictions', (req, res) => {
 
 function normalizeText(text) {
 
-    return text
+    if (!text) return '';
+
+    let result = text
         .trim()
-        .replace(/أ|إ|آ/g, 'ا')
-        .replace(/ة/g, 'ه')
-        .replace(/ى/g, 'ي')
+        .replace(/[\u064B-\u065F\u0670]/g, '')   // إزالة التشكيل (فتحة، ضمة، كسرة...)
+        .replace(/أ|إ|آ|ٱ/g, 'ا')                 // توحيد أشكال الهمزة على الألف
+        .replace(/ة/g, 'ه')                       // تاء مربوطة → هاء
+        .replace(/ى/g, 'ي')                       // ألف مقصورة → ياء
+        .replace(/ؤ/g, 'و')                       // همزة على واو → واو
+        .replace(/ئ/g, 'ي')                       // همزة على ياء → ياء
         .replace(/\s+/g, ' ')
         .toLowerCase();
+
+    // إزالة "ال" التعريف من بداية الكلمة (الهلال → هلال)
+    result = result.replace(/^ال/, '');
+
+    // إزالة ألف زائدة بمقدمة الاسم لو بقي بعدها 3 أحرف على الأقل
+    // (يطابق امبابي مع مبابي) بدون ما يقصّر أسماء قصيرة فعلياً
+    if (result.startsWith('ا') && result.length > 3) {
+        result = result.slice(1);
+    }
+
+    return result;
 
 }
 
