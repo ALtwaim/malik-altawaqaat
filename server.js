@@ -871,6 +871,9 @@ app.post('/admin/add-tournament', isAdmin, (req, res) => {
 });
 
 // ─── 2. تحديد بطل وهداف البطولة ───
+const CHAMPION_POINTS = 15;
+const TOP_SCORER_POINTS = 10;
+
 app.post('/admin/finalize-tournament', isAdmin, (req, res) => {
     const { tournament_id, champion_winner, top_scorer_winner } = req.body;
 
@@ -879,10 +882,55 @@ app.post('/admin/finalize-tournament', isAdmin, (req, res) => {
         [champion_winner, top_scorer_winner, tournament_id],
         (err) => {
             if (err) return res.status(500).send(err.message);
-            res.redirect('/admin');
+
+            calculateTournamentPoints(tournament_id, champion_winner, top_scorer_winner, res);
         }
     );
 });
+
+// ─── دالة مشتركة: تحتسب نقاط توقعات البطل والهداف لكل مستخدم توقع بهذي البطولة ───
+// تُستخدم من /admin/finalize-tournament ومن /api/set-tournament-winners
+function calculateTournamentPoints(tournamentId, championWinner, topScorerWinner, res) {
+
+    db.query(
+        `SELECT * FROM tournament_predictions WHERE tournament_id = ?`,
+        [tournamentId],
+        (err, predictions) => {
+
+            if (err) return res.status(500).json({ error: err.message });
+
+            if (predictions.length === 0) {
+                return updateUsersTotalPoints(res);
+            }
+
+            let finished = 0;
+
+            predictions.forEach(pred => {
+
+                const championPoints = pred.champion_prediction === championWinner ? CHAMPION_POINTS : 0;
+                const topScorerPoints = pred.top_scorer_prediction === topScorerWinner ? TOP_SCORER_POINTS : 0;
+                const totalPoints = championPoints + topScorerPoints;
+
+                db.query(
+                    `UPDATE tournament_predictions
+                     SET champion_points = ?, top_scorer_points = ?, points = ?
+                     WHERE id = ?`,
+                    [championPoints, topScorerPoints, totalPoints, pred.id],
+                    (err2) => {
+                        if (err2) return res.status(500).json({ error: err2.message });
+
+                        finished++;
+
+                        // نتأكد إن كل التوقعات اتحدثت قبل ما نحدث نقاط المستخدمين الإجمالية
+                        if (finished === predictions.length) {
+                            updateUsersTotalPoints(res);
+                        }
+                    }
+                );
+            });
+        }
+    );
+}
 
 // ─── 3. إضافة جولة ───
 app.post('/admin/add-round', isAdmin, (req, res) => {
@@ -1620,7 +1668,7 @@ function normalizeText(text) {
 
 }
 
-app.post('/api/set-tournament-winners', (req, res) => {
+app.post('/api/set-tournament-winners', isAdmin, (req, res) => {
 
     const {
         tournament_id,
@@ -1647,79 +1695,9 @@ app.post('/api/set-tournament-winners', (req, res) => {
                 });
             }
 
-            calculateTournamentPoints();
-
+            calculateTournamentPoints(tournament_id, champion_winner, top_scorer_winner, res);
         }
     );
-
-    function calculateTournamentPoints() {
-
-        db.query(
-            `SELECT *
-             FROM tournament_predictions
-             WHERE tournament_id = ?`,
-            [tournament_id],
-            (err, predictions) => {
-
-                if (err) {
-                    return res.status(500).json({
-                        error: err.message
-                    });
-                }
-
-                let finished = 0;
-
-                if (predictions.length === 0) {
-                    return updateUsersTotalPoints(res);
-                }
-
-                predictions.forEach(prediction => {
-
-                    let championPoints = 0;
-                    let topScorerPoints = 0;
-
-                    if (prediction.champion_prediction === champion_winner) {
-                        championPoints = 15;
-                    }
-
-                    if (prediction.top_scorer_prediction === top_scorer_winner) {
-                        topScorerPoints = 10;
-                    }
-
-                    db.query(
-                        `UPDATE tournament_predictions
-                         SET
-                            champion_points = ?,
-                            top_scorer_points = ?
-                         WHERE id = ?`,
-                        [
-                            championPoints,
-                            topScorerPoints,
-                            prediction.id
-                        ],
-                        (err2) => {
-
-                            if (err2) {
-                                return res.status(500).json({
-                                    error: err2.message
-                                });
-                            }
-
-                            finished++;
-
-                            if (finished === predictions.length) {
-                                updateUsersTotalPoints(res);
-                            }
-
-                        }
-                    );
-
-                });
-
-            }
-        );
-
-    }
 
 });
 
@@ -3052,9 +3030,6 @@ app.get('/api/private-leagues/:id/events', requireLogin, (req, res) => {
     );
 });
 
-
-
 app.listen(3000, () => {
     console.log('Server Running');
 })
-
