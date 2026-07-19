@@ -1948,11 +1948,26 @@ app.get('/api/leaderboard/:tournamentId', (req, res) => {
             `SELECT
                 p.Uid,
                 p.Username,
-                COALESCE(SUM(pr.points),0) AS total_points
+
+                COALESCE(
+                    (SELECT SUM(pr.points) FROM predictions pr WHERE pr.user_id = p.Uid),
+                0) AS match_points,
+
+                COALESCE(
+                    (SELECT SUM(tp.champion_points + tp.top_scorer_points)
+                     FROM tournament_predictions tp
+                     WHERE tp.user_id = p.Uid),
+                0) AS tournament_points,
+
+                (
+                    COALESCE((SELECT SUM(pr.points) FROM predictions pr WHERE pr.user_id = p.Uid), 0)
+                    +
+                    COALESCE((SELECT SUM(tp.champion_points + tp.top_scorer_points)
+                              FROM tournament_predictions tp
+                              WHERE tp.user_id = p.Uid), 0)
+                ) AS total_points
+
             FROM person p
-            LEFT JOIN predictions pr
-                ON pr.user_id = p.Uid
-            GROUP BY p.Uid, p.Username
             ORDER BY total_points DESC
             LIMIT 30`,
             (err, result) => {
@@ -1974,29 +1989,33 @@ app.get('/api/leaderboard/:tournamentId', (req, res) => {
                 p.Username,
 
                 COALESCE(
-                    SUM(
-                        CASE
-                            WHEN m.tournament_id = ?
-                            THEN pr.points
-                            ELSE 0
-                        END
-                    ),0
+                    (SELECT SUM(pr.points)
+                     FROM predictions pr
+                     JOIN matches m ON pr.match_id = m.Mid
+                     WHERE pr.user_id = p.Uid AND m.tournament_id = ?),
+                0) AS match_points,
+
+                COALESCE(
+                    (SELECT SUM(tp.champion_points + tp.top_scorer_points)
+                     FROM tournament_predictions tp
+                     WHERE tp.user_id = p.Uid AND tp.tournament_id = ?),
+                0) AS tournament_points,
+
+                (
+                    COALESCE((SELECT SUM(pr.points)
+                              FROM predictions pr
+                              JOIN matches m ON pr.match_id = m.Mid
+                              WHERE pr.user_id = p.Uid AND m.tournament_id = ?), 0)
+                    +
+                    COALESCE((SELECT SUM(tp.champion_points + tp.top_scorer_points)
+                              FROM tournament_predictions tp
+                              WHERE tp.user_id = p.Uid AND tp.tournament_id = ?), 0)
                 ) AS total_points
 
             FROM person p
-
-            LEFT JOIN predictions pr
-                ON pr.user_id = p.Uid
-
-            LEFT JOIN matches m
-                ON pr.match_id = m.Mid
-
-            GROUP BY p.Uid, p.Username
-
             ORDER BY total_points DESC
-
             LIMIT 30`,
-            [tournamentId],
+            [tournamentId, tournamentId, tournamentId, tournamentId],
             (err, result) => {
 
                 if (err) {
