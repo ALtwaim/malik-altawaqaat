@@ -44,8 +44,8 @@
 <script>
 // ← فقط غيّر هنا
 var ANN_ID      = 'V6';                          // غيّر الرقم مع كل رسالة جديدة
-var ANN_TEXT    = 'الف مبروووووك المثنى بطل ملك التوقعات سيتم التواصل معك وايضا سيتم التواصل مع المراكز الاولى الثلاثة كل التوفيق للجميع ونراكم في بطولات اخرها';  // نص الرسالة
-var ANN_ENDDATE = '2026-07-30';                  // تاريخ الانتهاء، أو '' بدون تاريخ
+var ANN_TEXT    = '';  // نص الرسالة
+var ANN_ENDDATE = '2026-07-19';                  // تاريخ الانتهاء، أو '' بدون تاريخ
 // ────────────────────────────────────────────
 
 var storageKey = 'ann_seen_' + ANN_ID;
@@ -509,10 +509,10 @@ fetch('/api/latest-round-winner')
     <div class="winner-popup">
         <button class="winner-close" onclick="closeWinnerAd()">×</button>
 
-        <h2>تنبية مهم </h2>
+        <h2>الف مبروووووووك </h2>
 
 <p>
-'تم اعادة فتح توقع بطل البطولة والهداف عليك تحديث بيانات الهداف والبطل عبر صفحة التوقعات
+    بطل ملك التوقعات المثنى سيتم التواصل معك, وايضا سيتم التواصل مع المراكز الاولى الثلاثة كل التوفيق للجميع ونراكم في بطولات اخرى
 </p>
 
     </div>
@@ -520,7 +520,7 @@ fetch('/api/latest-round-winner')
 <script>
 window.addEventListener('load', function () {
 
-    if (!localStorage.getItem('round_winner_ad_seen2')) {   // ── غير الرقم مع كل إعلان جديد
+    if (!localStorage.getItem('round_winner_ad_seen3')) {   // ── غير الرقم مع كل إعلان جديد
         document.getElementById('winnerOverlay').style.display = 'flex';
     }
 
@@ -528,7 +528,7 @@ window.addEventListener('load', function () {
 
 function closeWinnerAd() {
     document.getElementById('winnerOverlay').style.display = 'none';
-    localStorage.setItem('round_winner_ad_seen2', 'yes');
+    localStorage.setItem('round_winner_ad_seen3', 'yes');
 }
 </script>
 
